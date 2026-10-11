@@ -99,7 +99,38 @@ test('concurrent checks share a request sequence and every nonce uses an actual 
   await client.snapshot();
   assert.equal(calls.length, 8);
   assert.deepEqual(calls.map(call => call.payload.nonce), Array.from({length: 8}, (_, index) => 1780000000 + index));
-  assert.deepEqual(waits, [750, 1000, 1000, 1000, 1000, 1000, 1000]);
+  assert.deepEqual(waits, [770, 1000, 1000, 1000, 1000, 1000, 1000]);
+});
+
+test('early timer wakeups recheck the actual second without retrying account reads', async () => {
+  let clock = 1780000000250;
+  const waits = [], calls = [];
+  const client = createGeminiLiveReadonly({env, now: () => clock,
+    waitImpl: async ms => {waits.push(ms); clock += waits.length % 2 === 1 ? ms - 25 : ms;},
+    fetchImpl: async (_, options) => {
+      const payload = JSON.parse(Buffer.from(options.headers['X-GEMINI-PAYLOAD'], 'base64').toString());
+      assert.equal(payload.nonce, Math.floor(clock / 1000));
+      calls.push(payload);
+      return json(defaults[payload.request]);
+    }});
+  await client.snapshot();
+  assert.deepEqual(calls.map(call => call.nonce), [1780000000, 1780000001, 1780000002, 1780000003]);
+  assert.equal(new Set(calls.map(call => call.request)).size, 4);
+  assert.deepEqual(waits, [770, 25, 1000, 25, 1000, 25]);
+});
+
+test('a frozen clock stops after four nonce waits and never repeats a request', async () => {
+  const waits = [], calls = [];
+  const client = createGeminiLiveReadonly({env, now: () => 1780000000250,
+    waitImpl: async ms => {waits.push(ms);}, fetchImpl: async (_, options) => {
+      const payload = JSON.parse(Buffer.from(options.headers['X-GEMINI-PAYLOAD'], 'base64').toString());
+      calls.push(payload);
+      return json(defaults[payload.request]);
+    }});
+  await assert.rejects(client.snapshot(), isError('NONCE_CLOCK', 503));
+  assert.deepEqual(waits, [770, 770, 770, 770]);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].request, '/v1/roles');
 });
 
 test('a backward clock fails closed rather than jumping beyond Gemini nonce tolerance', async () => {

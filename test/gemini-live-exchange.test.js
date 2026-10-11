@@ -151,11 +151,42 @@ test('seconds-based nonces advance with elapsed time and concurrent orders are n
   await pending;
   await client.placeOrder(input());
   assert.deepEqual(calls.map(call => call.payload.nonce), [1780000000, 1780000001]);
-  assert.deepEqual(waits, [750]);
+  assert.deepEqual(waits, [770]);
   setClock(1779999960000);
   await assert.rejects(client.placeOrder(input()), isError('NONCE_CLOCK'));
   assert.equal(calls.length, 2);
   for (const clockStart of [NaN, -1, '1780000000250']) await assert.rejects(setup({clockStart}).client.placeOrder(input()), isError('NONCE_CLOCK'));
+});
+
+test('early timer wakeups recheck actual order nonce time without retrying placement', async () => {
+  let clock = 1780000000250;
+  const waits = [], calls = [];
+  const client = createGeminiLiveExchange({env, now: () => clock,
+    waitImpl: async ms => {waits.push(ms); clock += waits.length === 1 ? ms - 25 : ms;},
+    fetchImpl: async (_, options) => {
+      const payload = JSON.parse(Buffer.from(options.headers['X-GEMINI-PAYLOAD'], 'base64').toString());
+      assert.equal(payload.nonce, Math.floor(clock / 1000));
+      calls.push(payload);
+      return json(result(), 201);
+    }});
+  await client.placeOrder(input());
+  await client.placeOrder(input());
+  assert.deepEqual(calls.map(call => call.nonce), [1780000000, 1780000001]);
+  assert.deepEqual(waits, [770, 25]);
+  assert.equal(calls.length, 2);
+});
+
+test('a frozen order clock stops after four waits before another exchange attempt', async () => {
+  const waits = [], calls = [];
+  const client = createGeminiLiveExchange({env, now: () => 1780000000250,
+    waitImpl: async ms => {waits.push(ms);}, fetchImpl: async (_, options) => {
+      calls.push(options);
+      return json(result(), 201);
+    }});
+  await client.placeOrder(input());
+  await assert.rejects(client.placeOrder(input()), isError('NONCE_CLOCK'));
+  assert.deepEqual(waits, [770, 770, 770, 770]);
+  assert.equal(calls.length, 1);
 });
 
 test('public market normalization retains authoritative contract data and exact precision metadata', async () => {
