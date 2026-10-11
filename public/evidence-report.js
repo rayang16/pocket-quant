@@ -122,8 +122,9 @@ export function createReportView(container,extraction,{onCheck=()=>{},onEdit=()=
   const data=normalizeDrafts(extraction),drafts=data.claims.map(c=>({...c})),cards=new Map();
   container.replaceChildren();container.classList.add('evidence-report');
   const header=node('div','result-meta');header.append(node('span','eyebrow','GEMINI MARKET REPORT'),node('span','small-tag',`${drafts.length} CLAIM${drafts.length===1?'':'S'}`));container.append(header);
-  container.append(node('h2','report-title','Your Gemini report.'),node('p','result-explanation','Gemini market checks start automatically for each claim, with crypto math where supported. A related market may use a different target or deadline.'));
-  container.append(node('p','evidence-extraction',data.extraction==='ai'?'Claude selected these claims; original excerpt preserved. Check the wording and claim types against the original words.':'These drafts were selected from the transcript. Check the wording and claim types against the original words.'));
+  const saved=data.extraction==='saved',savedAt=timeLabel(data.checkedAt);
+  container.append(node('h2','report-title',saved?'Your saved Gemini report.':'Your Gemini report.'),node('p','result-explanation',saved?`Saved snapshot${savedAt?' · '+savedAt:''} · not live. Choose Check with Gemini again to fetch fresh evidence.`:'Gemini market checks start automatically for each claim, with crypto math where supported. A related market may use a different target or deadline.'));
+  container.append(node('p','evidence-extraction',saved?'These saved claims retain their original transcript excerpts. You can edit them before checking again.':data.extraction==='ai'?'Claude selected these claims; original excerpt preserved. Check the wording and claim types against the original words.':'These drafts were selected from the transcript. Check the wording and claim types against the original words.'));
   for(const warning of data.warnings??[])if(typeof warning==='string')container.append(node('p','notice',warning));
   const list=node('div','evidence-cards');container.append(list);
   const checkButton=node('button','primary','Check with Gemini ↗');checkButton.type='button';

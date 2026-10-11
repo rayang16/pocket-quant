@@ -1,10 +1,99 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10141b"><meta name="description" content="Compare Reel claims with live Gemini Exchange prediction markets and independent crypto probability math."><title>Pocket Quant — A little less hype.</title><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"></head>
-<body><div class="shell"><header class="topbar"><a class="brand" href="/" aria-label="Pocket Quant home"><span class="brand-mark" aria-hidden="true">p<span>q</span></span>POCKET QUANT</a><nav><a href="/live.html">Trade with Gemini</a><a href="#methodology">The method</a><a class="share-link" href="/share.html">Send a Reel <span aria-hidden="true">↗</span></a></nav></header>
-<main><section class="intro"><div><div class="eyebrow intro-label"><span class="small-line"></span> A LITTLE LESS HYPE.</div><h1>Big claims.<br><em>Meet the numbers.</em></h1></div><p class="intro-copy">Your feed is full of predictions.<br>Meet Gemini Exchange’s market odds.<br class="desktop"> Check the target. Check the math.</p></section>
-<div class="desk"><section class="input-panel" aria-labelledby="input-heading"><div class="panel-heading"><span class="eyebrow">THE CLAIM</span><span class="small-tag">POWERED BY GEMINI EXCHANGE</span></div><h2 id="input-heading">What’s your feed saying?</h2><div class="reel-intake"><a class="reel-setup" href="/share.html">iPhone: add Pocket Quant to your Share Sheet ↗</a><details><summary>Add a Reel link</summary><form id="reel-form"><label for="reel-url">Instagram Reel or post link</label><input id="reel-url" type="url" maxlength="12000" placeholder="https://www.instagram.com/reel/…" required><button class="secondary" type="submit">Use this Reel</button></form></details><p id="reel-disclosure" class="reel-disclosure">When enabled, public Reel links are sent to Supadata for transcription, then checked with Gemini automatically. Private or unavailable Reels may need a recording or pasted claim.</p><div id="shared-reel" class="shared-reel" hidden><span class="eyebrow">REEL RECEIVED</span><a id="reel-source" target="_blank" rel="noopener noreferrer">Open original Reel ↗</a><p id="reel-message">We’ll get the transcript and check its claims with Gemini automatically. You can also paste the spoken prediction below.</p><div class="reel-actions"><button id="retry-reel" class="secondary" type="button" hidden>Get transcript</button><button id="clear-reel" class="secondary" type="button">Remove Reel</button></div></div></div><div id="transcript-work" class="transcript-work" hidden><p id="transcript-progress" role="status" aria-live="polite"></p><button id="cancel-transcript" class="secondary" type="button">Stop &amp; type instead</button></div><form id="check-form"><p id="review-notice" class="notice transcript-review" role="status" hidden></p><label class="sr-only" for="claim-text">Transcript or claims to check</label><textarea id="claim-text" name="text" maxlength="6000" required placeholder="Bitcoin will reach 150K by end of month, guaranteed 🚀"></textarea><div class="input-footer"><span>Up to 3 claims. Live Gemini market data.</span><span id="char-count">0 / 6,000</span></div><button class="primary" id="check-button" type="submit">Check with Gemini <span aria-hidden="true">↗</span></button><p id="evidence-disclosure" class="evidence-disclosure">Reels are checked automatically. For pasted text, one tap finds up to three claims and compares Gemini Exchange markets. When enabled, Claude receives transcript and claim text to select claims and explain the Gemini results. Market prices are estimates, not factual verification.</p><button class="secondary crypto-check-button" id="crypto-check-button" type="button">Check one crypto prediction instead</button><p class="crypto-check-note">For one BTC, ETH or SOL price target: compare Gemini odds with volatility math.</p></form>
-<div class="samples"><p class="eyebrow">OR TRY A CLAIM</p><div class="sample-list"><button type="button" data-sample="Bitcoin will reach 150K by end of month, guaranteed 🚀"><span>BTC</span> “150K. Guaranteed.” <span aria-hidden="true">↗</span></button><button type="button" data-sample="ETH is about to dump under 2,000 this week"><span>ETH</span> “It’s about to dump.” <span aria-hidden="true">↗</span></button><button type="button" data-sample="SOL might hit 130 by Halloween"><span>SOL</span> “Maybe by Halloween.” <span aria-hidden="true">↗</span></button><button type="button" data-sample="Tesla is expected to ship 1 million Optimus robots a year by the end of 2027."><span>OPTIMUS</span> “1 million robots by 2027.” <span aria-hidden="true">↗</span></button></div></div>
-<div class="upload-box"><label for="recording"><span class="upload-icon" aria-hidden="true">↑</span><span><strong>Have a screen recording?</strong><small>Upload audio or video · up to 4 MB</small></span></label><input id="recording" type="file" accept="audio/*,video/*"><p class="upload-disclosure">Recordings are sent to ElevenLabs for transcription when enabled. Gemini checks and applicable crypto math start automatically when the transcript is ready.</p></div><p id="status" class="status" role="status" aria-live="polite"></p></section>
-<section class="result-panel" id="result" aria-label="Gemini market report"><div class="result-meta"><span class="eyebrow">GEMINI MARKET REPORT</span><span class="small-tag">AWAITING A CLAIM</span></div><div class="empty-result"><div class="empty-mark" aria-hidden="true"><span>?</span><i></i></div><h2>Certainty is easy.<br><em>What does Gemini’s market say?</em></h2><p>Share a Reel for an automatic report, or paste its words and tap Check with Gemini. Get a clear conclusion for each claim, related Gemini Exchange markets, and applicable crypto math.</p><div class="empty-legend"><span>THE CLAIM</span><span>GEMINI MARKETS</span><span>THE MATH</span></div></div><div class="empty-footer"><span class="dot"></span>Live data when you check. No made-up odds.</div></section></div>
-<section class="methodology" id="methodology"><div><span class="eyebrow">YOUR FEED, MEET GEMINI EXCHANGE.</span><h2>Confidence isn’t evidence.</h2></div><div class="method-grid"><article><h3>Start with Gemini.</h3><p>Explore live Gemini Exchange prediction markets and inspect the original contracts. Historical claims, such as revenue or past returns, cannot be verified by future market odds.</p></article><article><h3>Keep forecasts in perspective.</h3><p>Each conclusion explains what Gemini’s markets can tell you about the claim. Claude helps when enabled, using only the supplied market results and crypto math. A similar topic does not verify the exact claim.</p></article><article><h3>Check the math independently.</h3><p>For supported crypto price targets, compare Gemini odds with three volatility windows. Models rely on assumptions and are not investment advice.</p></article></div></section></main>
-<footer class="footer"><span>POCKET QUANT <span class="muted"> / Built for a more skeptical scroll.</span></span><span>Powered by Gemini Exchange market data · Not financial advice</span></footer></div><script type="module" src="/app.js"></script></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="Compare Reel claims with live Gemini Exchange prediction markets and independent crypto probability math."><title>Reel analysis — Pocket Quant</title><script>try{if(localStorage.getItem('pq-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="preload" href="/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/workspace.css"><link rel="stylesheet" href="/app-shell.css"></head>
+<body class="workspace-page analysis-page"><a class="skip-link" href="#main">Skip to analysis</a><div class="workspace-app"><aside class="workspace-rail" aria-label="App sidebar"><a class="brand" href="/" aria-label="Pocket Quant home"><svg class="gem-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="m5 4 18 0 4 8-13 14L1 12Z M1 12h26M5 4l5 8 4 14 4-14 5-8M10 12l4-8 4 8"/></svg><span>Pocket Quant</span></a><nav class="rail-navigation" aria-label="Main navigation"><a href="/" class="rail-active" aria-current="page"><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+  <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+  <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+  <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+  <path d="M7 12h10" />
+</svg>
+<span>Reel analysis</span></a><a href="/markets.html"><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect width="7" height="9" x="3" y="3" rx="1" />
+  <rect width="7" height="5" x="14" y="3" rx="1" />
+  <rect width="7" height="9" x="14" y="12" rx="1" />
+  <rect width="7" height="5" x="3" y="16" rx="1" />
+</svg>
+<span>Market overview</span></a><a href="/live.html"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M7 14l4-4 4 3 6-8"/></svg><span>Trade with Gemini</span></a><a href="/share.html"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-4 4 4-4 4 4M5 12v8h14v-8"/></svg><span>Send a Reel</span></a></nav><section class="analysis-history" aria-labelledby="history-heading"><div class="library-heading"><h2 id="history-heading">Recent analyses</h2><span id="analysis-count">0</span></div><p class="library-caption">Snapshots saved in this tab.</p><div id="analysis-history"><p>Your checks will appear here.</p></div></section><div class="rail-bottom"><span>Gemini market data</span><button type="button" class="icon-button theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch to dark theme" title="Switch to dark theme"><svg aria-hidden="true" class="ui-icon icon-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><svg aria-hidden="true" class="ui-icon icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2m-15.66 5.66-1.41 1.41m14.14-14.14-1.41 1.41"/></svg></button></div></aside><div class="workspace-body"><header class="workspace-topbar"><strong>Reel analysis</strong><span class="topbar-note">Saved in this tab</span><div class="topbar-actions"><a class="workspace-secondary" href="/"><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 12h14" />
+  <path d="M12 5v14" />
+</svg>
+New analysis</a></div></header><main id="main" class="analysis-main"><div class="analysis-heading"><h1>Reel analysis</h1><p>Big claims. Meet the numbers.</p></div><div class="analysis-grid"><section class="intake-panel" aria-labelledby="input-heading"><div class="instrument-heading"><h2 id="input-heading">Add a Reel</h2><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" />
+  <rect x="2" y="6" width="14" height="12" rx="2" />
+</svg>
+</div><div class="intake-body"><form id="reel-form"><label for="reel-url">Instagram link</label><div class="reel-input-row"><input id="reel-url" type="url" maxlength="12000" placeholder="https://www.instagram.com/reel/…" required><button class="primary" type="submit">Analyze Reel</button></div></form><p id="reel-disclosure" class="reel-disclosure">Public links are sent to Supadata for transcription, then checked with Gemini automatically.</p><div class="intake-divider"><span>or</span></div><label class="recording-picker" for="recording"><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 3v12" />
+  <path d="m17 8-5-5-5 5" />
+  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+</svg>
+<strong>Upload recording</strong><span>Audio or video · up to 4 MB</span><input id="recording" type="file" accept="audio/*,video/*"></label><p class="upload-disclosure">Recordings are sent to ElevenLabs for transcription when enabled. Gemini checks start when the transcript is ready.</p><div id="shared-reel" class="shared-reel" hidden><a id="reel-source" target="_blank" rel="noopener noreferrer">Open original Reel ↗</a><p id="reel-message"></p><div class="reel-actions"><button id="retry-reel" class="secondary" type="button" hidden>Retry transcript</button><button id="clear-reel" class="quiet-button" type="button">Remove Reel</button></div></div><div id="transcript-work" class="transcript-work" hidden><p id="transcript-progress" role="status" aria-live="polite"></p><button id="cancel-transcript" class="secondary" type="button">Stop</button></div><form id="check-form"><div class="transcript-label"><label for="claim-text">Transcript or claim</label><span id="char-count">0 / 6,000</span></div><p id="review-notice" class="notice transcript-review" role="status" hidden></p><textarea id="claim-text" name="text" maxlength="6000" required placeholder="Paste the spoken claims…"></textarea><button class="primary" id="check-button" type="submit">Check with Gemini <span aria-hidden="true">↗</span></button><p id="evidence-disclosure" class="evidence-disclosure">Reels are checked automatically. For pasted text, one tap finds up to three claims and compares Gemini Exchange markets. When enabled, Claude receives transcript and claim text to select claims and explain the Gemini results. Market prices are estimates, not factual verification.</p></form><p id="status" class="status" role="status" aria-live="polite"></p><details class="crypto-option"><summary>Single crypto prediction</summary><button class="secondary" id="crypto-check-button" type="button">Check one crypto prediction instead</button><p>For a supported crypto price target, compare Gemini odds with volatility math.</p></details><div class="samples"><p class="eyebrow">OR TRY A CLAIM</p><div class="sample-list"><button type="button" data-sample="Bitcoin will reach 150K by end of month, guaranteed 🚀"><span>BTC</span> “150K. Guaranteed.” <span aria-hidden="true">↗</span></button><button type="button" data-sample="ETH is about to dump under 2,000 this week"><span>ETH</span> “It’s about to dump.” <span aria-hidden="true">↗</span></button><button type="button" data-sample="SOL might hit 130 by Halloween"><span>SOL</span> “Maybe by Halloween.” <span aria-hidden="true">↗</span></button><button type="button" data-sample="Tesla is expected to ship 1 million Optimus robots a year by the end of 2027."><span>OPTIMUS</span> “1 million robots by 2027.” <span aria-hidden="true">↗</span></button></div></div><details class="data-details"><summary>Data &amp; privacy</summary><p>Public links go to Supadata; recordings go to ElevenLabs. When enabled, Claude receives transcript and claim text. Completed results and source links are saved in this tab’s session history. Clear it from Market overview; browsers may restore closed-tab sessions. Analysis does not place trades.</p><a href="/share.html">iPhone sharing setup</a></details></div></section><section class="analysis-results" aria-label="Analysis"><div id="result" class="result-panel" aria-label="Analysis results" aria-live="polite"><div class="result-meta"><h2>Analysis</h2></div><div class="analysis-empty"><div><svg class="empty-analysis-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg><h2>Your next reality check.</h2><p>Add a Reel, recording, or transcript to compare its claims with Gemini markets.</p><span class="empty-note">The claim · Gemini markets · The math</span></div></div></div><a id="analysis-market-link" class="workspace-primary" href="/markets.html" hidden>View related markets <!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M7 7h10v10" />
+  <path d="M7 17 17 7" />
+</svg>
+</a></section></div><section class="methodology" id="methodology"><div><span class="eyebrow">YOUR FEED, MEET GEMINI EXCHANGE.</span><h2>Confidence isn’t evidence.</h2></div><div class="method-grid"><article><h3>Start with Gemini.</h3><p>Explore live Gemini Exchange prediction markets and inspect the original contracts. Historical claims, such as revenue or past returns, cannot be verified by future market odds.</p></article><article><h3>Keep forecasts in perspective.</h3><p>Each conclusion explains what Gemini’s markets can tell you about the claim. Claude helps when enabled, using only the supplied market results and crypto math. A similar topic does not verify the exact claim.</p></article><article><h3>Check the math independently.</h3><p>For supported crypto price targets, compare Gemini odds with three volatility windows. Models rely on assumptions and are not investment advice.</p></article></div></section></main><footer class="workspace-footer"><span>Pocket Quant · A little less hype.</span><span>Gemini Exchange market data · Not financial advice</span></footer></div></div><script type="module" src="/app.js"></script><script type="module" src="/theme.js"></script></body></html>

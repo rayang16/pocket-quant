@@ -1,0 +1,142 @@
+/* Pocket Quant — Reel analysis page. Shares the shell from workspace.css. */
+.analysis-main{padding:24px 28px 40px;max-width:1640px;width:100%;margin:0 auto}
+.analysis-heading h1{font-size:28px;line-height:1.15;letter-spacing:-.02em;margin:0 0 20px}
+.analysis-heading h1{margin-bottom:6px}
+.analysis-heading>p{color:var(--muted);font-size:14px;margin-bottom:24px}
+.instrument-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 24px;border-bottom:1px solid var(--line);min-height:56px}
+.instrument-heading h2{font-size:15px;margin:0}
+.instrument-heading>svg{color:var(--muted);width:18px;height:18px}
+.analysis-grid{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:20px;align-items:start}
+.intake-panel,.analysis-results{min-width:0}
+.intake-panel,.result-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-panel);overflow:hidden}
+
+/* Intake */
+.intake-body{padding:20px 24px 24px}
+.intake-body label{display:block}
+.reel-input-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.reel-input-row input{flex:1;min-width:150px;width:auto;border-radius:var(--radius-pill);padding-left:16px}
+.reel-input-row button{flex:0 0 auto}
+.reel-disclosure,.upload-disclosure{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+.intake-divider{display:flex;align-items:center;gap:12px;color:var(--faint);font-size:12px;margin:18px 0}
+.intake-divider:before,.intake-divider:after{content:'';height:1px;background:var(--line);flex:1}
+.intake-body .recording-picker{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:2px 12px;border:1px dashed var(--line-strong);border-radius:var(--radius-field);padding:16px;cursor:pointer;background:var(--surface);transition:border-color .15s ease,background-color .15s ease}
+.recording-picker:hover{border-color:var(--ink)}
+.recording-picker svg{grid-row:span 2;width:20px;height:20px;color:var(--muted)}
+.recording-picker strong{font-size:14px;font-weight:500}
+.recording-picker>span{font-size:12px;color:var(--muted);font-weight:400}
+.recording-picker input{grid-column:1/-1;width:100%;font-size:12px;margin-top:12px;cursor:pointer;color:var(--muted)}
+.recording-picker input::file-selector-button{border:1px solid var(--line-strong);border-radius:var(--radius-pill);padding:6px 12px;margin-right:10px;background:var(--panel);color:var(--ink);font:600 12px var(--font-sans);cursor:pointer}
+.recording-picker:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.recording-picker:has(input:disabled){opacity:.6}
+.transcript-label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 8px}
+.transcript-label span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+#claim-text{min-height:160px}
+#check-button{width:100%;margin-top:12px}
+.transcript-review{margin-bottom:10px}
+.shared-reel{border-left:2px solid var(--accent);padding:2px 0 2px 12px;margin-top:18px;font-size:13px;line-height:1.6}
+.shared-reel>a{color:var(--accent-on-tint);font-weight:500}
+.shared-reel p{margin:6px 0}
+.reel-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.transcript-work{border:1px solid var(--line);background:var(--surface);padding:12px 14px;margin-top:16px;font-size:13px;line-height:1.6;border-radius:var(--radius-field);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.transcript-work p{margin:0}
+.transcript-work .secondary{min-height:34px;padding:0 14px;font-size:13px}
+.crypto-option,.data-details{border-top:1px solid var(--line);padding-top:8px;margin-top:16px;font-size:13px;color:var(--muted)}
+.crypto-option>button{margin:10px 0 6px;width:100%}
+.data-details p{margin:8px 0 10px;font-size:13px;line-height:1.6}
+.data-details a{text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
+#analysis-video{display:block;width:100%;max-height:340px;background:#000;border-radius:var(--radius-field);margin-top:16px}
+#recording-preview .quiet-button{margin-top:6px}
+
+/* Rail history */
+.analysis-history{overflow:auto}
+.analysis-history a{display:block;padding:10px 12px;font-size:13px;line-height:1.5;font-weight:500;border-radius:var(--radius-field);margin-bottom:2px;transition:background-color .15s ease}
+.analysis-history a:hover{background:var(--surface)}
+.analysis-history a.is-selected{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.analysis-history a span{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:2px}
+.analysis-history>p{font-size:12px;color:var(--muted);padding:0 10px}
+
+/* Results */
+.result-panel{padding:24px;min-height:280px}
+.analysis-empty{min-height:220px;display:grid;place-items:center;font-size:14px;color:var(--muted);text-align:center}
+.analysis-empty p{margin:0}
+.analysis-empty{min-height:320px;padding:32px 12px}
+.analysis-empty>div{max-width:350px}
+.empty-analysis-icon{width:36px;height:36px;color:var(--faint);margin:0 0 20px}
+.analysis-empty h2{font-size:20px;margin:0 0 10px}
+.empty-note{display:block;font-size:11px;margin-top:28px;color:var(--muted)}
+.samples{border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+.samples .eyebrow{margin-bottom:8px;font-size:11px}
+.sample-list{display:grid;gap:4px}
+.sample-list button{display:flex;align-items:center;gap:8px;min-height:40px;text-align:left;padding:7px 9px;border-radius:var(--radius-sm);font-size:12px;line-height:1.5}
+.sample-list button:hover{background:var(--surface)}
+.sample-list button>span:first-child{font-size:10px;font-weight:600;color:var(--muted);min-width:49px}
+.sample-list button>span:last-child{margin-left:auto;color:var(--muted)}
+.methodology{border-top:1px solid var(--line);padding-top:28px;margin-top:32px}
+.methodology h2{font-size:22px;margin:8px 0 20px}
+.method-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
+.method-grid h3{font-size:14px;margin:0 0 8px}
+.method-grid p{font-size:12px;line-height:1.7;color:var(--muted)}
+.workspace-footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:22px 28px;margin-top:auto;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.evidence-extraction{font-size:12px;line-height:1.65;color:var(--muted);margin:12px 0 22px}
+.evidence-card-output{overflow-wrap:anywhere}
+.evidence-answer>.eyebrow{display:block;font-size:11px;margin-bottom:8px;color:var(--accent-on-tint)}
+.evidence-contract{flex-wrap:wrap}
+.evidence-market-link:not(:first-child){margin-top:10px;font-size:12px;color:var(--accent-on-tint)}
+.analysis-history a{overflow-wrap:anywhere}
+@media(max-width:760px){.method-grid{grid-template-columns:1fr;gap:10px}.workspace-footer{padding:20px 16px}.transcript-work{align-items:flex-start;flex-direction:column}.result-actions>a,.result-actions>button,.report-actions>button{white-space:normal;line-height:1.5;padding-top:10px;padding-bottom:10px}.analysis-empty{min-height:240px}.analysis-history{display:block!important;max-height:180px}.analysis-history>div:last-child{display:flex;gap:8px;overflow-x:auto}.analysis-history a{min-width:210px;max-width:230px;flex-shrink:0;border:1px solid var(--line);font-size:12px}.analysis-history>.library-caption{margin-left:0}.analysis-history .library-heading{margin-bottom:4px}}
+.analysis-results>.workspace-primary{margin-top:16px}
+.report-title{font-size:22px;letter-spacing:-.015em;margin:10px 0 16px}
+.report-meta-details{font-size:13px;line-height:1.6;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:20px}
+.report-meta-details p{margin:8px 0 0}
+.evidence-cards{display:grid;gap:24px}
+.evidence-card{border-top:1px solid var(--line);padding-top:20px;min-width:0}
+.evidence-card:first-child{border-top:0;padding-top:0}
+.evidence-card-heading{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.evidence-card-heading h3{font-size:12px;line-height:1.5;color:var(--muted);margin:0;white-space:nowrap;font-weight:500}
+.evidence-claim-title{font-size:17px;line-height:1.45;font-weight:500;margin-bottom:10px;color:var(--ink)}
+.evidence-edit,.evidence-quote,.evidence-limits{font-size:13px;color:var(--muted);margin:6px 0}
+.evidence-edit summary,.evidence-quote summary,.evidence-limits summary{color:var(--muted)}
+.evidence-edit summary:hover,.evidence-quote summary:hover,.evidence-limits summary:hover{color:var(--ink)}
+.evidence-field-label{display:block;font-size:13px;margin:12px 0 6px;color:var(--ink)}
+.evidence-claim-input{min-height:96px}
+.evidence-type{width:100%}
+.evidence-quote blockquote{font-size:13px;line-height:1.7;border-left:2px solid var(--line-strong);margin:8px 0;padding:0 12px;color:var(--text)}
+.evidence-answer{padding:16px 0 12px}
+.evidence-answer>.eyebrow{display:none}
+.evidence-answer-headline{font-size:22px;line-height:1.35;letter-spacing:-.015em;margin:0 0 8px}
+.evidence-summary{font-size:14px;color:var(--muted);line-height:1.65;margin:0}
+.evidence-verdict{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0 14px;font-size:12px;border-bottom:1px solid var(--line)}
+.evidence-verdict strong{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--surface);color:var(--ink)}
+.evidence-forecast strong{background:var(--accent-tint);color:var(--accent-on-tint)}
+.evidence-ai-explanation{padding:16px 0 0}
+.evidence-ai-explanation h4{font-size:12px;font-weight:500;color:var(--muted);margin:0 0 8px}
+.evidence-ai-answer{font-size:14px;line-height:1.7;white-space:pre-wrap;margin:0}
+.evidence-ai-reason{font-size:13px;line-height:1.65;color:var(--muted);margin:8px 0}
+.evidence-ai-evidence,.evidence-ai-disclosure{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
+.evidence-ai-evidence ul{padding-left:16px;margin:4px 0 0}
+.evidence-markets{margin-top:16px}
+.evidence-markets>summary{color:var(--ink)}
+.evidence-markets h4{font-weight:500;font-size:12px;color:var(--muted);margin:10px 0 10px}
+.evidence-limitation,.evidence-progress{font-size:13px;line-height:1.6;color:var(--muted);margin:8px 0}
+.evidence-market{border:1px solid var(--line);border-radius:var(--radius-field);padding:14px 16px;margin:10px 0}
+.evidence-market-link{display:block;font-size:14px;font-weight:500;line-height:1.5;margin-bottom:4px;color:var(--ink)}
+.evidence-market a:hover{color:var(--accent-on-tint)}
+.evidence-market-meta{display:block;font-size:12px;line-height:1.5;color:var(--muted)}
+.evidence-contract{display:flex;gap:14px;justify-content:space-between;align-items:center;font-size:13px;padding:8px 0 4px}
+.evidence-contract>span:last-child{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--accent-tint);color:var(--accent-on-tint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.report-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.evidence-error{font-size:14px;font-weight:500;color:var(--danger)}
+.evidence-disclosure{font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px}
+.report-workspace-link{display:inline-flex;align-items:center;font-size:13px;font-weight:600;min-height:36px;color:var(--accent-on-tint);margin-top:8px}
+.report-workspace-link:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* Workspace page refinements shared with this shell */
+.workspace-page .workspace-empty h2{font-size:24px}
+
+@media(min-width:1450px){.analysis-grid{grid-template-columns:420px minmax(0,1fr)}}
+@media(max-width:1100px){.analysis-grid{grid-template-columns:minmax(280px,340px) minmax(0,1fr);gap:16px}.analysis-main{padding:22px}.intake-body,.result-panel{padding:18px 20px}}
+@media(max-width:950px){.analysis-grid{grid-template-columns:1fr}.analysis-results{min-width:0}.topbar-note{display:none}}
+@media(max-width:760px){.analysis-history{display:none}.analysis-main{padding:20px 16px 32px}.analysis-heading h1{font-size:26px;margin-bottom:16px}.analysis-grid{gap:16px}.result-panel{padding:20px 16px}.intake-body{padding:16px}.evidence-answer-headline{font-size:20px}.evidence-verdict{align-items:flex-start;flex-direction:column;gap:6px}.reel-input-row button{flex:1}.evidence-claim-title{font-size:16px}}
+
+/* Keep the report conclusion label visible with the existing renderer. */
+.evidence-answer>.eyebrow{display:block;font-size:11px;margin-bottom:8px;color:var(--accent-on-tint)}

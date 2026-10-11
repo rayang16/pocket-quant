@@ -1,157 +1,144 @@
 # Pocket Quant
 
-**A little less hype.** Share an Instagram Reel to automatically extract up to three claims, search related Gemini Exchange Prediction Markets, and get a clear conclusion grounded in the available market data and supported crypto math. Optional Claude interpretation helps explain what the evidence means. Market prices do not fact-check historical statements or make a trade suitable.
+**A little less hype.** Turn a financial Instagram Reel into checkable claims, live Gemini Exchange market context, and transparent crypto probability estimates.
 
-Plain Node ESM, native browser modules, and no application dependencies. Public claim checks use memory caches; the optional owner-only live trading demo requires durable Upstash Redis for order records and its lifetime spending limit. No canned odds or simulated market data appear in the app. Test fixtures live only in `fixtures/` and are imported only by tests.
+**[Open the app](https://pocket-quant-ashen.vercel.app/)** · **[Market overview](https://pocket-quant-ashen.vercel.app/markets.html)** · **[Send a Reel from iPhone](https://pocket-quant-ashen.vercel.app/share.html)** · **[Owner trading demo](https://pocket-quant-ashen.vercel.app/live.html)**
 
-## Run
+Built for the **Blockchain at Berkeley hackathon — Gemini Exchange Prediction Markets API track**. The current product is a mobile web app with an iPhone Share Sheet shortcut. The trading demo requires the owner's private access code.
 
-Requires Node 22+ (Node 24 recommended; uses built-in fetch, FormData, Blob and environment-file loading).
+## From the feed to a better question
+
+A creator says, “Bitcoin will reach $150,000 by October 31, 2026.” Before accepting the certainty, a viewer needs to know what is being predicted, what a relevant market actually prices, and how sensitive a model is to its assumptions.
+
+Pocket Quant connects those steps:
+
+1. **Bring the claim.** Share an accessible public Reel through the iPhone shortcut, paste its link or text, or upload a recording when transcription is configured.
+2. **Keep the source visible.** Supadata transcribes public Reels. The app selects up to three editable claims, preserves their source quotes, and distinguishes facts, forecasts, and recommendations. Optional Claude selection has a text-rule fallback.
+3. **See what Gemini can tell you.** Each claim gets a conclusion, related Gemini contracts, and any supported crypto calculation. Checks start automatically after transcription. Pasted text needs one **Check with Gemini** action.
+4. **Inspect, share, or review a trade.** Open the actual Gemini contract and its conditions. The separate single-crypto checker exports a PNG card. Eligible contract links can open the owner-only order review; submitting always requires manual confirmation.
+5. **Revisit the analysis.** The session history retains up to 30 completed checks. Open a saved snapshot without rerunning it, explicitly recheck for fresh evidence, or inspect its related contracts in the [market overview](https://pocket-quant-ashen.vercel.app/markets.html). The dashboard also supports browsing current Gemini markets.
+
+A useful answer can also be **“No matching market”** or **“Market prices cannot verify this historical claim.”** A related contract is not automatically the probability of the Reel's exact statement. Provider failures produce an explicit unavailable state, never invented odds.
+
+## Why build this for Gemini?
+
+In our team's hackathon conversations with Gemini representatives, two themes stood out: people may not know Gemini offers prediction markets, and they may see the product only as betting. These are team-reported observations recorded in the original [CONTEXT.md](CONTEXT.md), not measured company-wide findings or an endorsement of Pocket Quant.
+
+Gemini itself describes prediction markets as a way to aggregate information and help people prepare for future events. Its product explains contract prices as market probability estimates and emphasizes reviewing settlement rules. Pocket Quant brings that information into a familiar moment: checking a claim from the feed. [Gemini's launch announcement](https://www.gemini.com/blog/gemini-predictions-tm-is-now-live) · [Gemini Predictions product guide](https://www.gemini.com/lp/predictions)
+
+| Pocket Quant feature | Intended benefit for Gemini | What we would measure |
+| --- | --- | --- |
+| Relevant contracts appear beside claims people already care about | **Awareness and discovery:** introduce Gemini Predictions through a concrete use case | First-time product discovery and contract-page visits |
+| Reel sharing, pasted text, and single-crypto PNG cards | **Acquisition:** give new audiences a route from social content to Gemini markets | Consenting testers who complete a report and follow a market link |
+| Source quotes, plain-language explanations, visible mismatches, and model assumptions | **Understanding and trust:** show how market information can inform a question | Comprehension checks and feedback about what users learned |
+| Separate, explicitly reviewed owner trading demo | **Optional trading:** demonstrate the API path from discovery to an intentional order | Successful reviews and, if submitted, confirmed fills |
+
+These are **product hypotheses**. We have not measured acquisition lift, improved trust, repeat engagement, or incremental trading volume. The next validation is a small tester cohort: observe completion, time to result, failures, market-link visits, and whether people return. No user count, conversion rate, or social proof is claimed here.
+
+## What is running, and what is verified?
+
+Verification snapshot: **October 11, 2026**. The automated baseline is **393 passing tests** plus the static-asset build. Offline tests use fixtures and mocked providers; they are separate from live checks.
+
+| Area | Current scope |
+| --- | --- |
+| Public app and Gemini checks | Deployed web app; public Gemini data and browser flows have been checked. Data availability still depends on Gemini and the selected contract. |
+| Public Reel reports | Supadata transcription and optional Claude integration are implemented. Accessible media, provider configuration, and clear transcript wording determine whether a Reel completes. |
+| Owner production account and review | Private account reads and an order preview have been verified. **No real Gemini order has been placed.** A successful preview does not establish execution. |
+| Durable trading storage | Upstash journal and budget behavior tested with synthetic records, including duplicate attempts, uncertain outcomes, and over-budget rejection. |
+| iPhone sharing | Signed shortcut and mobile browser layout available. Actual iPhone import, Instagram Share Sheet handoff, and native file sharing remain unverified on hardware. |
+| Recording transcription | Optional ElevenLabs integration implemented and tested with mocks; requires `ELEVENLABS_API_KEY`. Real-recording transcription remains unverified. |
+| Sandbox account flow | Separate at [`/trade.html`](https://pocket-quant-ashen.vercel.app/trade.html). Gemini OAuth approval is pending; account connection and test orders are not verified end to end. |
+
+The source includes order submission, but its real-money use is limited to the configured owner account. This is not a multi-user OAuth trading product. See [current product direction](docs/product-direction.md) and [verification notes](docs/mobile-verification.md) for detail.
+
+## Run locally — no keys needed
+
+Use **Node 22+**; **Node 24 is recommended** and used in CI. No `npm install` step is required; the browser chart library and font/icon assets are bundled.
 
 ```sh
+git clone https://github.com/rayang16/pocket-quant.git
+cd pocket-quant
 npm run build
 npm run dev
 ```
 
-Open http://localhost:3000. The Gemini market report and BTC/ETH/SOL/XRP/ZEC checker work **without API keys**, using deterministic claim extraction and conclusions. `npm test` runs offline; `npm run verify:live` calls actual Gemini endpoints and writes timestamped checks under the ignored `output/` folder.
+Open [localhost:3000](http://localhost:3000). Paste a financial claim to try the Gemini report, or use **Check one crypto prediction instead** for the quantitative checker and PNG card. Both work without API keys, using public Gemini data and deterministic fallback text. Internet access is needed for market data.
 
-Optional: copy `.env.example` to `.env`. `SUPADATA_API_KEY` enables automatic transcription of public Reel links. `ANTHROPIC_API_KEY` enables Claude to select source-anchored claims and explain the supplied Gemini market data and crypto calculations; `CLAUDE_MODEL` defaults to `claude-sonnet-5-5`. Missing or unavailable Claude falls back to text rules and plain-language conclusions, so Gemini checks continue. The separate recording-upload feature uses `ELEVENLABS_API_KEY`; without it the upload endpoint returns an actionable 501. All keys stay on the server. Gemini here means **Gemini Exchange**, not Google Gemini; Claude has no web-search tools in this flow.
+```sh
+npm test              # offline node:test suite
+npm run verify:live   # calls Gemini; writes timestamped checks to ignored output/
+```
 
-## Gemini account and order demos
+For optional features, copy [`.env.example`](.env.example) to `.env`. Keep all credentials on the server.
 
-Open `/trade.html` for the sandbox-only account connection, market selection, order review, and explicit test-order confirmation using test funds. Gemini OAuth app approval is still pending; sandbox account connection and test orders have not completed end to end. See [Gemini sandbox setup](docs/gemini-sandbox.md) for callback URLs, permissions, and limitations. No account state or receipts are fabricated.
+| Feature | Server configuration | Without it |
+| --- | --- | --- |
+| Public Gemini reports and crypto math | None | Available with live public data |
+| Public Reel transcription | `SUPADATA_API_KEY` | Paste the transcript or claim |
+| Claude claim selection and explanations | `ANTHROPIC_API_KEY`; optional `CLAUDE_MODEL` (default `claude-sonnet-5-5`) | Text rules and deterministic conclusions |
+| Recording transcription | `ELEVENLABS_API_KEY` | Paste text or use a configured public Reel flow |
+| Owner account and real-money review | Gemini personal master key, owner-session settings, explicit live opt-in, and Upstash credentials | Live review/submission stays disabled; follow the [live setup guide](docs/live-demo.md) |
+| Sandbox account connection | Separate Gemini sandbox OAuth app and session settings | Follow the [sandbox setup guide](docs/gemini-sandbox.md) after app approval |
 
-Open `/live.html` for the separate owner-only real-money demo. A private code opens a fifteen-minute session. With all required server settings and explicit `GEMINI_LIVE_TRADING_ENABLED=true` opt-in, the owner can select an eligible financial contract, review a YES or NO limit buy, and manually confirm it. Orders use whole contracts and immediate-or-cancel execution. Each review expires after at most two minutes; submission rechecks the account, available USD, Trader role, accepted terms, current contract details, and trading increments. Eligible market categories are Crypto, Economics, Business, Commodities, and Tech.
+Supadata, Anthropic, and ElevenLabs usage can incur provider charges. The public-data demo needs none of those services.
 
-The durable Upstash journal allows one submission attempt per review and limits lifetime reservations for the configured Gemini account to **$5 total, including principal and a conservative fee allowance based on its verified minimum fill step**. Whole-contract orders may receive fractional fills. A 0.01-contract fill step reserves $1 for fees per whole contract; a one-contract fill step reserves 3¢. Actual fees may be much lower. Reservations are not refunded for rejected, partially filled, or unfilled orders. Unknown results block further submissions and must be checked directly in Gemini; placement is never retried automatically. Upstash has been configured and tested with synthetic records only. No real order has been placed, and this does not establish deployment or end-to-end live execution. See [live demo setup and behavior](docs/live-demo.md).
+## The stack and each piece's job
 
-## Send a Reel from iPhone
+| Technology | Role in Pocket Quant |
+| --- | --- |
+| **Node ESM, native HTML/CSS/JavaScript** | Shared calculation engine, browser modules, and HTTP handlers; no application framework |
+| **Vercel** | Static `public/` files and `api/` server functions |
+| **Gemini Exchange REST APIs** | Public prediction events, contract quotes, spot prices, daily candles; private signed account reads and owner order submission |
+| **Anthropic Claude structured outputs** | Optional source-quoted claim selection and explanations of supplied results; validated on the server with fallback behavior |
+| **Supadata** | Transcribes accessible public Instagram Reels, including asynchronous provider jobs |
+| **ElevenLabs** | Optional audio/video recording transcription, up to 4 MB |
+| **Apple Shortcuts** | Sends a shared Instagram permalink to the web app; no extension installation |
+| **ECharts 6.1.0, Geist, and Lucide** | Bundled market charts, a locally served font (SIL Open Font License), and icons (ISC license); no application framework |
+| **Browser storage** | Up to 30 saved analyses in `sessionStorage`; the `pq-theme` preference in `localStorage` |
+| **Canvas and Web Share API** | Render a 1080×1350 single-crypto PNG and share it where the browser supports file sharing |
+| **Upstash Redis REST + atomic Lua** | Persist owner order reviews, consume each review once, and enforce the account's lifetime $5 reservation budget |
+| **`node:test` and GitHub Actions** | Offline tests for math, parsing, provider failures, APIs, and trading safeguards; test/build checks on pushes and pull requests |
 
-Pocket Quant is a mobile-friendly web app. There is no browser extension in the current product.
+**Gemini means Gemini Exchange, not Google Gemini.** Claude selects and explains; it is not a web fact-checker and does not supply the market odds. Its prompts receive only the transcript and/or retrieved evidence, with no web-search tools. Gemini's documented API separates public market discovery from authenticated order management. [Gemini Prediction Markets API](https://developer.gemini.com/prediction-markets-spec)
 
-1. Open `/share.html` in Safari on your iPhone and download **Check with Pocket Quant**.
-2. Open the downloaded `.shortcut` file in Apple Shortcuts and choose **Add Shortcut**. In its **Details**, enable **Show in Share Sheet**.
-3. In Instagram, choose **Share → More / Share to… → Check with Pocket Quant**.
-4. The shortcut opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. The app validates the Instagram permalink, removes tracking parameters, and clears the incoming fragment from the address bar.
-5. When Supadata is configured, the app sends the public link to Supadata for transcription, selects up to three source-anchored claims, and immediately checks Gemini markets and any applicable crypto math. When enabled, Claude helps select those claims and explains the retrieved results. No second tap is required. Claims stay editable; editing the transcript or a claim stops active checks, and the user can recheck the corrected text. Private, restricted, missing, or silent videos may fail; paste the claim or upload a recording as a fallback.
+## The quantitative part
 
-The exported shortcut was created in Apple Shortcuts and exported for Anyone (Apple validates a copy). It uses URL Encode → Text → Open URLs and points to the production domain above. If the production domain changes, update and re-export it. Actual Instagram Share Sheet placement and import must be checked on an iPhone; macOS/browser checks do not prove device behavior.
+Gemini event contracts settle at $1 for the winning outcome and $0 otherwise; their traded prices provide an indicative market probability. [Gemini event-contract guide](https://support.gemini.com/hc/en-us/articles/44234371543579-Gemini-Predictions)
 
-Link intake uses an exact Instagram hostname/path allowlist. Our server calls only Supadata's fixed API host; it does not fetch arbitrary user URLs. Supadata handles public media access. No Instagram password or login cookie is requested. There is no persisted Reel inbox. See [Reel transcription setup](docs/reel-transcription.md) for provider setup, async jobs, fallback behavior, and limits. The app supports PNG download and the native file-sharing sheet when the browser supports it. An Instagram DM bot remains a future integration.
+For **BTC, ETH, SOL, XRP, and ZEC** price targets, Pocket Quant calculates probabilities separately from the contract quote. **Both the model's price history and the market quotes come from Gemini**: this is an independent calculation, not an independent data source.
 
-## Deploy
+- **Three volatility windows:** annualized realized volatility from 14, 30, and 90 days of daily log returns. The engine requires 91 contiguous completed daily closes and excludes the open candle. The resulting range shows sensitivity to the windows, not a confidence interval.
+- **Touch versus expiry:** a binary-option calculation estimates finishing beyond a target at the deadline; a reflection-principle calculation estimates touching it at any time beforehand. “Hits $150K” and “closes above $150K” are different questions.
+- **Honest contract matching:** market/model comparisons use the listed contract's own strike and expiry. A nearby quote is labeled as nearby. Estimates at an unlisted target are model extrapolations, not Gemini prices.
+- **Two possible implied volatilities:** a binary price can imply two volatility roots. The solver preserves both within its 5%–400% search range rather than silently choosing one.
+- **Spread-aware comparisons:** rich/cheap labels require a usable two-sided quote and a difference beyond the model range greater than `max(halfSpread, 1¢)`. Language-based “hype” labels use a disclosed heuristic, not a measured speaker belief.
+
+Reel-report math requires a supported price target and a recognized explicit calendar deadline with a year. Ambiguous dates need review. The separate single-crypto checker accepts more date formats and shows its date assumptions. Historical facts are not market-verifiable; recommendations remain opinions.
+
+The model assumes zero price drift and lognormal returns, omits jump risk, and can understate crypto tail risk. Gemini spot may differ from a contract's settlement index. Market prices, model ranges, and hype labels do not establish predictive accuracy, profitability, or trade suitability. [Formulas, assumptions, parsing, and engine interfaces](docs/technical-reference.md#probability-model)
+
+## Owner-only trading: deliberate and bounded
+
+Reports never trade automatically. The owner opens a private fifteen-minute session, chooses an eligible financial contract, reviews a YES or NO limit buy, and explicitly confirms it. Reviews expire within two minutes. Submission rechecks the account, available USD, Trader role, accepted terms, contract details, and trading increments.
+
+Orders use whole-contract quantities and immediate-or-cancel execution; partial fills can be fractional. Before the sole exchange submission attempt, atomic Upstash operations consume the review and reserve **principal plus a conservative fee allowance against a $5 lifetime account budget**. The allowance depends on the verified fill step. This is a demo reservation limit, not a per-session allowance or a quote of actual fees.
+
+Reservations are never automatically refunded, including rejected or unfilled orders. Unknown outcomes block further submissions; the owner checks directly in Gemini. Placement is never retried automatically. Preserve the same Upstash database across redeployments. The app's limit does not govern trades placed outside Pocket Quant. [Full setup, fee allowance, journal behavior, and limitations](docs/live-demo.md)
+
+## Data handling and failure behavior
+
+Public links go to Supadata for transcription. If enabled, Anthropic receives the transcript for selection and claims with Gemini evidence for explanation; ElevenLabs receives uploaded recordings. Provider processing policies apply. The app does not request Instagram passwords or cookies and validates permalink hosts and paths before calling the fixed transcription provider.
+
+Server-side reports and transcripts are cached briefly in memory, not stored in a database. The browser keeps up to 30 completed analysis snapshots, claim text, and source links in `sessionStorage`; clear them through the market overview. Browser session restore can retain that storage, so closing a tab is not a guaranteed deletion method. The theme preference uses `localStorage` under `pq-theme`. Upstash persists only the separate owner trading journal and budget. Request limits are bounded per instance, not durable per-user quotas. Missing quotes stay missing; a provider error never becomes a fabricated market result. [Report API and data handling](docs/evidence-reports.md) · [Reel transcription details](docs/reel-transcription.md)
+
+## Deploy and contribute
 
 ```sh
 npm test
+npm run build
 npx vercel --prod
 ```
 
-Vercel serves `public/` and `api/` functions. Function duration limits are set in `vercel.json`. Configure optional transcription, Claude, sandbox, and owner-only live secrets in Vercel, not public files. Live order review stays disabled unless the explicit opt-in and required private-session and durable-storage settings are present. Preserve the same persistent Upstash database across deployments; redeployment or reconnecting must not reset its account budget. After deployment, test the three-claim flow, BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. Enabling Claude incurs Anthropic API charges in addition to any transcription charges. Report and transcription requests have bounded per-instance request limits, not a durable per-user quota system in this hackathon build.
+Vercel configuration lives in [`vercel.json`](vercel.json). Set optional secrets in Vercel environment settings. Live trading needs explicit opt-in and its full private configuration; preserve persistent budget storage across deployments. After publishing, check a useful market match, an unmatched claim, a historical statement, and the sharing guide from the actual deployment. Test iPhone behavior on an iPhone.
 
-## The math, in plain English
-
-A YES contract pays $1 if the condition resolves true and $0 otherwise, so its price is an indicative market probability (with fees, liquidity, and risk preferences as caveats).
-
-- **At expiry:** the lognormal binary-option formula `N(d2)`, where `d2 = (ln(S/K) − σ²T/2)/(σ√T)`. Below-target probabilities use a numerically stable lower-tail equivalent.
-- **Touch:** the reflection-principle probability of crossing the barrier at any time before the deadline, with the drift sign flipped for down-barriers. Already-met barriers have touch probability 1.
-- **Volatility range:** sample standard deviation of daily log returns × √365 over 14, 30 and 90 days. We require 91 contiguous completed daily closes and exclude the open daily candle. The range is sensitivity to those windows, **not a confidence interval**.
-- **Hype gap:** a disclosed language-confidence heuristic minus the larger of the realized-volatility touch range midpoint and the market-implied target estimate (or an exact matching quote). If implied volatility has two roots, the larger target estimate is used. 50+ percentage points → HYPE; 20+ → STRETCH; above −20 → FAIR CALL; otherwise UNDERSOLD.
-- **Market vs model:** compare the matched contract at its own strike AND expiry. Flag rich/cheap only beyond the model range plus `max(halfSpread, 1¢)`. Without a usable two-sided book, return **INSUFFICIENT QUOTES**.
-- **Unlisted target:** show the closest quoted strike explicitly. An indicative upper bound is shown only beyond the listed strikes at the same expiry, and applies only to expiry—not touch. Exact-target estimates are model extrapolations, not Gemini prices.
-- **Implied volatility ambiguity:** binary prices can have two volatility roots for above-spot strikes. Grid search + bisection preserves both roots in [5%, 400%] and includes both estimates. No attainable root means no implied estimate. The single-value helper returns null for ambiguous cases.
-
-The zero-drift lognormal model ignores jump risk and understates fat tails. Realized volatility is not implied volatility. Gemini spot can differ from the index used to settle a prediction contract. Do not treat this as a recommendation, trade signal, calibrated forecast, or financial advice.
-
-### Claim parsing and honest uncertainty
-
-The Reel report selects up to three distinct claims, optionally with Claude, and validates that their quotes preserve original transcript wording. Without Claude or if it fails, deterministic text rules provide the fallback. Market checks and supported crypto calculations start automatically after transcription and extraction. Users can edit and classify each as a fact, forecast, or recommendation, then recheck any corrections. Each card leads with a plain-language conclusion tied to the actual claim. Historical facts receive `not_market_verifiable`; recommendations remain opinions; forecasts remain uncertain. Optional Claude explanations use only the supplied Gemini results and model output, with no external fact-checking or invented quotes. Related Gemini contracts never become a supported/contradicted verdict on a factual claim. The report applies crypto probability math only when the claim has a supported target and an explicit calendar deadline with a year. Relative dates in undated Reels need review.
-
-The separate single-crypto checker handles BTC/ETH/SOL/XRP/ZEC aliases, k/m amounts, commas, percentage moves, caption noise, and relative/calendar deadlines. A target must be between 0.2× and 10× live spot. Multiple plausible targets require clarification. Calendar context is America/Los_Angeles; deadlines resolve to **21:00 UTC**, as requested for the demo. This equals 5 PM Eastern only during daylight saving time. No date means +30 days, visibly labeled. “This week” ends Sunday. Past deadlines are rejected.
-
-Speaker confidence is inferred from words, not a scientific measurement. Negation and hedging take priority over confidence words. Non-crypto searches show **possible matches**, actual quoted contract odds and links; they do not pretend that keyword matching confirms resolution criteria. There is no weather/sports probability model or settled-market calibration layer in this build.
-
-### Market data and failures
-
-Public Gemini API: active events (paginated), spot ticker, daily candles. In-memory caches: events 30 seconds, spot 15 seconds, candles 10 minutes. Concurrent calls share in-flight requests. Retrieval timestamps are displayed; the API does not establish last-trade freshness. Missing price fields are not zero. Crossed books disable spread-based judgments. No market means no hype verdict. Network/API failure produces an explicit error, never demo data.
-
-## Architecture
-
-```
-lib/math.js        pure probability, volatility, confidence and comparison functions
-lib/gemini.js      cached public Gemini client and quote normalization
-lib/claim.js       crypto claim parsing; public checks use deterministic rules
-lib/engine.js      shared claim-checking engine
-lib/report-claims.js   validation and fallback extraction of up to three source-anchored claims
-lib/report-markets.js  conservative discovery of related Gemini contracts
-lib/evidence-report.js claim classification, market context, and optional crypto math
-lib/http.js        bounded body handling and CORS
-api/check.js       POST {text} → structured verdict
-api/evidence-report.js POST extract/check → editable claims or Gemini market report
-api/transcribe.js  POST raw audio/video ≤4,000,000 bytes → {text}
-api/reel-transcript.js  POST {url} or {jobToken} → transcript or pending job
-lib/reel-transcript.js  Supadata client, signed jobs, bounded instance-local deduplication
-lib/live-owner-auth.js  private fifteen-minute owner sessions and mutation checks
-lib/live-trade-engine.js  two-minute live reviews, fresh preflight checks and one-use submissions
-lib/gemini-live-exchange.js  fixed-host public markets and signed production IOC buy orders
-lib/live-order-store.js  durable Upstash order journal and lifetime $5 reservations
-api/live-trade.js  owner-only account, market, preview, submission and result endpoints
-public/           mobile web app, iPhone share intake and 1080×1350 canvas card
-scripts/          local server, asset packaging and live verification
-test/             node:test tests and deterministic Monte Carlo
-fixtures/         real-shaped offline data, imported only by tests
-```
-
-## API
-
-Reel reports select up to three editable claims and check each against public Gemini Exchange data. Optional Claude interpretation uses the server-only Anthropic key to select claims and explain the supplied results; it does not search external sources. See [Gemini report behavior, safeguards, and limitations](docs/evidence-reports.md).
-
-`POST /api/evidence-report?action=extract`, JSON `{ "text": "Reel transcript..." }`, returns claim drafts. `POST /api/evidence-report?action=check`, JSON `{ "claim": { "id": "claim-1", "text": "Claim to check", "quote": "Original words", "type": "fact" } }`, returns `{claim, assessment, market, model, evidence, explanation, checkedAt}`. Claim types are `fact`, `forecast`, and `recommendation`. The app automatically calls the check endpoint after extracting claims from a Reel or recording transcript. For pasted text, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow. Editing the input or a claim stops active checks and allows an explicit recheck. There are no external source-verification cards, and automatic checking never places orders.
-
-`POST /api/check`, JSON `{ "text": "Bitcoin to 150K by end of month, guaranteed" }`.
-
-`POST /api/transcribe`, raw audio/video bytes with an appropriate audio/video `Content-Type`. Maximum 4 MB. It is intentionally **not** a multipart client upload; the server creates the ElevenLabs multipart request. Both endpoints support CORS and reject unsupported methods and oversized inputs.
-
-`POST /api/reel-transcript`, JSON `{ "url": "https://www.instagram.com/reel/SHORTCODE/" }`. It returns a completed transcript (200) or a signed `jobToken` (202). Poll with `{ "jobToken": "..." }` after `retryAfterMs`. Only start requests create provider work; polling never starts a new transcription. Errors never become a verdict.
-
-Claims, audio, and cards are not written to a database. Report requests use a bounded process-local cache for five minutes, with limits of 12 fresh requests per client per minute and eight concurrent requests; these limits are not shared across serverless instances. Reel requests/transcripts are reused in memory for ten minutes to avoid duplicate paid requests, and signed job tokens expire after fifteen minutes. Supadata receives public Reel links and processes their content. If used separately, ElevenLabs receives uploaded recordings. When Claude is enabled, Anthropic receives transcript text for claim selection and claim text with retrieved Gemini market data and supported model output for interpretation. No external web-research service is used. Provider processing policies still apply. Downloading a card does not publish it; sharing uses the device’s share sheet.
-
-## Pitch and demo
-
-“Share a financial Reel to Pocket Quant and get a clear answer about what Gemini’s prediction markets can tell you. It automatically finds the claims, checks real Gemini contracts, and compares supported crypto forecasts with transparent volatility math. When enabled, Claude explains those results in plain English.”
-
-See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience and Gemini track positioning. Shared public Reels can be transcribed through Supadata when configured, followed automatically by editable claim cards, Gemini market comparisons, and supported crypto math. Recording transcripts follow the same automatic flow; pasted text starts with a single **Check with Gemini** action. Actual provider and iPhone checks must be reported separately from offline tests. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
-
-The current product includes the engine, mobile web experience, verdict cards, optional transcription, and iPhone Share Sheet shortcut. `CONTEXT.md` preserves the original brief verbatim; the current product direction supersedes its browser-extension requirements. See `docs/step-1-verification.md` for the earlier engine checks. The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record is used to claim predictive accuracy for this app.
-
-## Official references
-
-- [Gemini market data](https://developer.gemini.com/trading/rest-api/market-data)
-- [Apple Share Sheet shortcuts](https://support.apple.com/guide/shortcuts/receive-onscreen-items-apd350ce757a/ios)
-- [ElevenLabs transcription](https://elevenlabs.io/docs/api-reference/speech-to-text/convert)
-- [Supadata Reel transcription](https://docs.supadata.ai/get-transcript)
-- [Anthropic structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
-- [Vercel Node functions](https://vercel.com/docs/functions/runtimes/node-js)
-
-## Step 1 engine interfaces
-
-```js
-import { checkClaim } from './lib/engine.js';
-import { extractClaim } from './lib/claim.js';
-import { createGeminiClient, listEvents, spotPrice, dailyCloses, contractProb, eventUrl } from './lib/gemini.js';
-
-const result = await checkClaim('Bitcoin to 150K by end of month, guaranteed');
-const claim = await extractClaim('ETH under 2000 tomorrow', new Date());
-// Tests may inject fetch and a fixed date into the entire engine:
-// await checkClaim(text, { fetch: mockedFetch, now: fixedDate });
-// Or create a separate cached client:
-// const client = createGeminiClient({ fetch: mockedFetch, now: () => +fixedDate });
-```
-
-`listEvents({category, search, status})` returns an event array; `spotPrice(asset)` returns a number; `dailyCloses(asset)` returns an oldest-first array of completed daily closes; `contractProb(contract)` returns a quote object or null; `eventUrl(event)` returns the Gemini link or null. Client instances expose the same methods. `extractClaim` returns `targets: number[]`; compatibility aliases remain for the pre-existing UI. The engine takes `Date`, ISO string, or millisecond `now`.
-
-Live CLI (no keys needed):
-
-```sh
-node scripts/try.js "Bitcoin to 150K by end of month, guaranteed"
-node scripts/try.js "ETH is about to dump under 2,000 this week"
-```
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [market workspace guide](docs/market-workspace.md), then use the [technical reference](docs/technical-reference.md) for module layout, HTTP APIs, math, and engine interfaces. The [current product direction](docs/product-direction.md) supersedes the original browser-extension plan; [CONTEXT.md](CONTEXT.md) remains the original brief verbatim.

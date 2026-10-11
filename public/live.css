@@ -1,31 +1,34 @@
+/* Private live review: shared light theme, with amber reserved for real money. */
+:root{--live-warning:#875500;--live-warning-bg:#fff8eb;--live-warning-line:#ebd4a4;--live-success:#24734b}
+:root[data-theme=dark]{--live-warning:#f5ce83;--live-warning-bg:#241e13;--live-warning-line:#6c5430;--live-success:#8bd2aa}
 .live-shell{max-width:1200px}
 .live-back{font-size:12px;color:var(--muted)}
 .live-intro{padding:54px 0 36px;max-width:720px}
-.live-badge{color:#e1ca96;margin:0 0 22px}
+.live-badge{color:var(--live-warning);margin:0 0 22px}
 .live-intro h1{font-size:clamp(44px,5.2vw,64px)}
 .live-intro>p:last-child{max-width:520px;color:var(--muted);font-size:15px;line-height:1.8;margin:24px 0 0}
 .live-desk{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
 .live-panel{border:1px solid var(--line);border-radius:12px;padding:28px;background:var(--panel);min-width:0}
 .live-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .live-panel .eyebrow{color:var(--muted);margin:0}
-.live-state{font:10px ui-monospace,monospace;letter-spacing:.3px;color:#e1ca96}
+.live-state{font:10px ui-monospace,monospace;letter-spacing:.3px;color:var(--live-warning)}
 .live-panel h2{font-size:24px;font-weight:500;letter-spacing:-.5px;margin:24px 0 14px}
 .live-message{font-size:13px;color:var(--muted);line-height:1.8;overflow-wrap:anywhere}
-.live-message.is-error{color:#ffb8af}
+.live-message.is-error{color:var(--danger)}
 .live-requirements{list-style:none;padding:0;margin:24px 0}
 .live-requirements:empty{display:none}
 .live-requirements li{display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding:15px 0;font-size:13px;line-height:1.6}
 .live-requirements li:last-child{border-bottom:1px solid var(--line)}
 .live-requirements li>span:first-child{overflow-wrap:anywhere}
 .requirement-state{font-size:11px;color:var(--muted);white-space:nowrap}
-.requirement-state.is-ready{color:#a9d6be}
+.requirement-state.is-ready{color:var(--live-success)}
 .live-account-details{margin:22px 0 26px}
 .live-account-details>div{display:flex;justify-content:space-between;gap:18px;margin:12px 0;font-size:12px;line-height:1.6}
 .live-account-details dt{color:var(--muted)}
 .live-account-details dd{text-align:right;margin:0;max-width:58%;overflow-wrap:anywhere}
 .live-small{font-size:10px;line-height:1.7;color:var(--muted);margin:12px 0 0}
 .live-small:empty{display:none}
-.live-budget{background:var(--ink)}
+.live-budget{background:var(--surface)}
 .live-budget h2{font-size:18px;margin-bottom:15px}
 .live-budget-value{font-family:ui-monospace,monospace;font-size:72px;letter-spacing:-5px;line-height:1;margin:22px 0;color:var(--accent)}
 .live-budget-value>span{font-size:34px;letter-spacing:-2px}
@@ -36,7 +39,7 @@
 .live-sandbox{display:flex;justify-content:space-between;gap:12px;line-height:1.6;min-height:44px;align-items:center}
 .live-next{border-top:1px solid var(--line);padding:32px 0;margin:42px 0 20px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:50px}
 .live-next .eyebrow{color:var(--muted);margin:0 0 14px}
-.live-next h2{font:400 26px Georgia,serif;margin:0 0 12px}
+.live-next h2{font:500 26px var(--font-sans);margin:0 0 12px}
 .live-next p:not(.eyebrow){font-size:12px;color:var(--muted);line-height:1.8;margin:0;max-width:440px}
 .live-links{display:flex;flex-direction:column;gap:4px}
 .live-links a{display:flex;justify-content:space-between;gap:14px;align-items:center;min-height:44px;padding:12px 0;border-bottom:1px solid var(--line);color:var(--accent);font-size:12px;line-height:1.6}
@@ -50,7 +53,7 @@
 .live-owner [hidden]{display:none}
 .live-owner form{margin-top:18px}
 .live-owner label{display:block;font-size:12px;font-weight:500;line-height:1.6}
-.live-owner input{display:block;width:100%;min-height:48px;margin:12px 0;background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--paper);font-size:16px}
+.live-owner input{display:block;width:100%;min-height:48px;margin:12px 0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--text);font-size:16px}
 .live-owner .secondary{min-height:44px;line-height:1.6}
 .live-owner form>.secondary{width:100%;text-align:left}
 .live-owner-session{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:14px 0}
@@ -59,8 +62,8 @@
 .live-private-details{border-top:1px solid var(--line);padding-top:8px;margin:18px 0 0}
 @media(max-width:420px){.live-owner-session{align-items:stretch;flex-direction:column;gap:10px}.live-owner-session button{text-align:left}}
 .live-shell [hidden]{display:none!important}
-.live-badge{display:inline-block;color:#ffe1a5;border:1px solid #8b6540;background:#32261c;border-radius:4px;padding:9px 11px;letter-spacing:1.4px}
-.live-money-label{font:600 10px ui-monospace,monospace;letter-spacing:1px;color:#ffe1a5}
+.live-badge{display:inline-block;color:var(--live-warning);border:1px solid var(--live-warning-line);background:var(--live-warning-bg);border-radius:4px;padding:9px 11px;letter-spacing:1.4px}
+.live-money-label{font:600 10px ui-monospace,monospace;letter-spacing:1px;color:var(--live-warning)}
 .live-trade{margin-top:22px}
 .live-trade>h2{margin-top:22px}
 .live-trade .live-message:empty{display:none}
@@ -68,7 +71,7 @@
 .live-market-toolbar .live-message{margin:0;max-width:620px}
 .live-market-toolbar button{flex-shrink:0}
 .live-trade label{display:block;font-size:12px;font-weight:500;line-height:1.6}
-.live-trade input:not([type=checkbox]),.live-trade select{display:block;width:100%;min-height:48px;margin:9px 0 0;background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--paper);font-size:16px;font-family:inherit}
+.live-trade input:not([type=checkbox]),.live-trade select{display:block;width:100%;min-height:48px;margin:9px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--text);font-size:16px;font-family:inherit}
 .live-trade select{white-space:nowrap;text-overflow:ellipsis;padding-right:30px}
 .live-trade :is(input,select,button,a):focus-visible,.live-owner :is(input,button):focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .live-trade :is(input,select,button):disabled{opacity:.48;cursor:not-allowed}
@@ -76,18 +79,18 @@
 .live-trade legend{font-size:15px;line-height:1.6;padding:0;margin:0 0 12px}
 .live-order-fields{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.4fr);gap:18px;align-items:end}
 .live-order-fields>div{min-width:0}
-.live-market-details{margin:24px 0;padding:22px;background:var(--ink);border:1px solid var(--line);border-radius:8px}
+.live-market-details{margin:24px 0;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 .live-event{color:var(--accent);font-size:11px;line-height:1.7;margin:0 0 10px;overflow-wrap:anywhere}
 .live-market-details h3,.live-review h4{font-size:20px;font-weight:500;letter-spacing:-.3px;line-height:1.5;margin:0 0 14px;overflow-wrap:anywhere}
 .live-conditions{font-size:13px;color:var(--muted);line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;margin:14px 0}
 .live-market-details>a{display:inline-block;color:var(--accent);font-size:12px;line-height:1.8;margin-top:12px;text-decoration:underline;text-underline-offset:4px}
-.live-review{border:1px solid #8b6540;background:#201e1b;border-radius:9px;padding:28px;margin-top:28px;scroll-margin-top:24px}
-.live-review h3{font:400 30px Georgia,serif;margin:18px 0 24px}
-.live-review .live-money-label{color:#ffe1a5}
+.live-review{border:1px solid var(--live-warning-line);background:var(--live-warning-bg);border-radius:9px;padding:28px;margin-top:28px;scroll-margin-top:24px}
+.live-review h3{font:500 28px var(--font-sans);margin:18px 0 24px}
+.live-review .live-money-label{color:var(--live-warning)}
 .live-review .live-account-details{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0}
 .live-review .live-account-details>div{font-size:13px;margin:13px 0}
-.live-review .live-account-details>div:nth-last-child(2){border-top:1px solid var(--line);padding-top:16px;font-weight:600;font-size:16px;color:#ffe1a5}
-.live-review .live-account-details>div:nth-last-child(2) dt{color:#ffe1a5}
+.live-review .live-account-details>div:nth-last-child(2){border-top:1px solid var(--line);padding-top:16px;font-weight:600;font-size:16px;color:var(--live-warning)}
+.live-review .live-account-details>div:nth-last-child(2) dt{color:var(--live-warning)}
 .live-trade .live-confirm{display:flex;align-items:flex-start;gap:12px;font-size:14px;line-height:1.7;padding:20px 0;margin:12px 0 0;cursor:pointer}
 .live-confirm input{width:20px;height:20px;flex-shrink:0;margin:2px 0 0;accent-color:var(--accent)}
 .live-place{width:100%;min-height:52px;text-align:center;line-height:1.7;white-space:normal}
@@ -98,3 +101,45 @@
 .live-trade .secondary,.live-trade .primary{min-height:44px;line-height:1.6}
 @media(max-width:760px){.live-market-toolbar{align-items:flex-start;flex-direction:column;gap:12px}.live-order-fields{grid-template-columns:1fr 1fr}.live-order-fields>div:last-child{grid-column:1/-1}.live-review{padding:22px}.live-market-details{padding:18px}.live-review h3{font-size:27px}.live-market-details h3,.live-review h4{font-size:18px}.live-trade{margin-top:18px}.live-budget-value{font-size:64px}.live-review .live-account-details>div{font-size:12px}}
 @media(max-width:420px){.live-review{padding:18px}.live-order-fields{gap:14px}.live-result-actions{align-items:stretch;flex-direction:column;gap:16px}.live-market-toolbar>button,#preview-order{width:100%;text-align:left}.live-review .live-account-details>div{display:block}.live-review .live-account-details dd{max-width:none;text-align:left;margin-top:4px}.live-review .live-account-details>div:nth-last-child(2){font-size:15px}.live-confirm span{min-width:0}}
+
+/* Auxiliary pages keep the same typography, pill controls, and quiet panels as the checker. */
+.live-shell{max-width:1180px;margin:0 auto;padding:0 32px}
+.live-shell .topbar{min-height:88px;border-bottom:1px solid var(--line)}
+.aux-nav{display:flex;align-items:center;gap:18px}
+.aux-theme-toggle{border:1px solid var(--line);color:var(--text)}
+.live-back{font-size:13px}
+.live-intro{padding:44px 0 32px;max-width:720px}
+.live-intro h1{font-family:var(--font-sans);font-size:clamp(36px,4.4vw,52px);font-weight:500;line-height:1.1;letter-spacing:-.045em;margin:0}
+.live-intro h1 em{font-style:normal;color:var(--accent)}
+.live-intro>p:last-child{font-size:14px;line-height:1.75;margin-top:20px;max-width:560px}
+.live-badge{border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.02em;padding:7px 12px;margin-bottom:20px}
+.live-panel{border-radius:16px;padding:28px}
+.live-panel .eyebrow{font-size:11px;font-weight:500;letter-spacing:.035em}
+.live-state{font-family:var(--font-sans);font-size:12px;font-weight:500;background:var(--live-warning-bg);border:1px solid var(--live-warning-line);padding:4px 9px;border-radius:999px}
+.live-panel h2{font-size:24px;line-height:1.25;font-weight:500;letter-spacing:-.03em;margin-top:20px}
+.live-message{font-size:13px;line-height:1.75}
+.live-account-details>div{font-size:13px;line-height:1.6}
+.live-small{font-size:12px;line-height:1.7}
+.live-budget{background:var(--surface)}
+.live-budget h2{font-size:20px}
+.live-budget-value{font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-size:80px;font-weight:500;letter-spacing:-.06em;line-height:1;color:var(--text);margin:22px 0}
+.live-budget-value>span{font-size:40px;letter-spacing:-.04em;color:var(--muted)}
+.live-budget>p:not(.eyebrow,.live-budget-value),.live-budget-note p{font-size:13px;line-height:1.75}
+.live-owner input,.live-trade input:not([type=checkbox]),.live-trade select{border-radius:12px;background-color:var(--surface);color:var(--text);min-height:46px;font-family:var(--font-sans)}
+.live-trade select{background-image:var(--chevron);background-repeat:no-repeat;background-position:right 12px center}
+.live-owner input:focus-visible,.live-trade input:focus-visible,.live-trade select:focus-visible{outline:none;border-color:var(--accent);background-color:var(--panel);box-shadow:0 0 0 3px var(--accent-ring)}
+.live-owner .secondary,.live-trade .secondary,.live-trade .primary,.live-sandbox,#refresh-live{min-height:44px;font-size:13px;padding:10px 18px;line-height:1.5;white-space:normal}
+#refresh-live,#preview-order{width:100%}
+.live-money-label{font-family:var(--font-sans);font-weight:600;font-size:11px;letter-spacing:.025em}
+.live-market-details{border-radius:12px}
+.live-review{border-radius:16px;background:var(--live-warning-bg)}
+.live-review h3{font-family:var(--font-sans);font-size:26px;font-weight:500;letter-spacing:-.03em}
+.live-next h2{font-family:var(--font-sans);font-size:24px;font-weight:500;letter-spacing:-.03em}
+.live-links a{font-size:13px}
+.live-shell .footer{margin-top:24px}
+@media(max-width:760px){.live-shell{padding:0 20px}.live-shell .topbar{min-height:76px;gap:12px}.aux-nav{gap:10px}.live-back{font-size:12px}.live-intro{padding:32px 0 26px}.live-panel{padding:22px}.live-budget-value{font-size:64px}.live-review{padding:20px}.live-panel h2{font-size:22px}.live-budget h2{font-size:20px}}
+@media(max-width:420px){.live-shell{padding:0 16px}.live-shell .brand{font-size:13px}.live-back{max-width:70px;text-align:right;line-height:1.4}.live-panel{padding:18px}.live-order-fields{grid-template-columns:1fr}.live-order-fields>div:last-child{grid-column:auto}.live-review{padding:18px}.live-review h3{font-size:24px}}
+
+.aux-market-link{font-size:13px;color:var(--muted)}
+.aux-nav>a:hover{color:var(--accent)}
+@media(max-width:620px){.topbar{flex-wrap:wrap;padding:16px 0;gap:12px}.aux-nav{width:100%;justify-content:space-between}.aux-market-link{font-size:12px}.aux-nav .live-back,.aux-nav .back-link,.aux-nav .share-back{max-width:none;text-align:left}}

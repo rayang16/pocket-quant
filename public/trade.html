@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#10141b">
+  <meta name="theme-color" content="#ffffff">
+  <script>try{if(localStorage.getItem("pq-theme")==="dark")document.documentElement.dataset.theme="dark";}catch{}</script>
   <meta name="description" content="Connect a Gemini sandbox account and review a prediction-market order using test funds.">
   <title>Test a trade — Pocket Quant</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -14,7 +15,7 @@
 <div class="shell trade-shell">
   <header class="topbar">
     <a class="brand" href="/" aria-label="Pocket Quant home"><span class="brand-mark" aria-hidden="true">p<span>q</span></span>POCKET QUANT</a>
-    <a class="back-link" href="/">← Back to checker</a>
+    <div class="aux-nav"><a class="aux-market-link" href="/markets.html">Market overview</a><a class="back-link" href="/">← Back to checker</a><button class="icon-button aux-theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" aria-pressed="false" title="Switch to dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.7A8.6 8.6 0 0 1 8.3 3.8 8.6 8.6 0 1 0 20.2 15.7Z"/></svg></button></div>
   </header>
   <main>
     <section class="trade-intro">
@@ -117,6 +118,7 @@
   </main>
   <footer class="footer"><span>POCKET QUANT <span class="muted"> / A little less hype.</span></span><span>Practice with test funds · No real-money orders on this page</span></footer>
 </div>
+<script type="module" src="/theme.js"></script>
 <script type="module" src="/trade.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 `/live.html` provides a private real-money order flow for the owner's configured Gemini account. Live trading requires explicit `GEMINI_LIVE_TRADING_ENABLED=true` opt-in, personal master-key credentials, private owner-session configuration, and durable Upstash storage. Credentials alone do not activate trading. The owner reviews and manually submits each order; report generation, funding, login, refresh, and account checks never submit orders.
 
-The source includes the integrated account checks, market discovery, order reviews, submission transport, and durable journal. Upstash has been configured and exercised using synthetic records, including duplicate submissions, unknown-outcome blocking, persistent budgets, and over-budget rejection. **No real Gemini order has been placed.** This status does not claim deployment or completed end-to-end live execution.
+The source includes the integrated account checks, market discovery, order reviews, submission transport, and durable journal. Upstash has been configured and exercised using synthetic records, including duplicate submissions, unknown-outcome blocking, persistent budgets, and over-budget rejection. On October 11, 2026, the deployed private production flow successfully checked the owner's account access, roles, available balance, and prediction-market terms, and produced an order preview. The latest offline suite passed 341 tests. **No real Gemini order has been placed; end-to-end order execution remains unverified.**
 
 The sandbox flow remains separate at `/trade.html`, uses test funds and separate credentials, and is documented in [Gemini sandbox setup](gemini-sandbox.md).
 
@@ -47,7 +47,7 @@ Unknown or still-submitting results block further submissions for the account. A
 
 `GET /api/live-trade?action=status` reports configuration and private-session status; it does not establish a Gemini connection. `login` and `logout` manage owner access. Authenticated `account` reads current account readiness. When live review is enabled, authenticated `markets`, `preview`, `submit`, and `result` provide the review and journal flow. `preview` and `submit` require JSON POST requests with origin and CSRF checks. A valid session may read a prior result for the same Gemini account after logging in again, but cannot submit a review created in an earlier session.
 
-Offline tests use mocked exchange responses and cover authentication, immutable reviews, expiry, fresh preflight, fee-inclusive budgeting, duplicate consumption, uncertain outcomes, and transport signing. Synthetic Upstash checks establish storage behavior only. Actual account eligibility, accepted terms, current balance, deployed behavior, and a user-submitted real order require separate verification; an API key or a successful read is not proof of completed execution.
+Offline tests use mocked exchange responses and cover authentication, immutable reviews, expiry, fresh preflight, fee-inclusive budgeting, duplicate consumption, uncertain outcomes, and transport signing. Synthetic Upstash checks establish storage behavior only. The October 11 deployed account and preview checks establish those stages for the configured owner account at that time; current account state is rechecked before submission. A successful preview is not proof of execution. Real order placement and its outcome remain unverified.
 
 ## Official references
 

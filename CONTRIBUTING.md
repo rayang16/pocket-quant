@@ -9,7 +9,7 @@ npm run build
 npm run dev
 ```
 
-Read `CONTEXT.md` for the product brief and `README.md` for engine interfaces and setup.
+Read [README.md](README.md) for the product and setup, [current product direction](docs/product-direction.md) for scope, and the [technical reference](docs/technical-reference.md) for APIs, math, and engine interfaces. [CONTEXT.md](CONTEXT.md) preserves the original brief; its browser-extension plan is superseded by the mobile web app.
 
 Create a branch for each change, run `npm test`, and open a pull request into `main`. GitHub runs the tests and build on pushes and pull requests. Coordinate which files each teammate owns before editing the shared engine.
 

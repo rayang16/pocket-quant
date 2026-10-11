@@ -3,12 +3,15 @@ import {downloadCard,shareCard} from './card.js';
 import {parseSharedReel,sharedInput} from './shared-reel.js';
 import {getReelTranscript} from './reel-transcript.js';
 import {extractClaims,checkClaims,createReportView} from './evidence-report.js';
+import {createAnalysisHistory,snapshotLabel,analysisUrl} from './analysis-history.js';
+import {reportWorkspaceResult} from './report-workspace.js';
 
 const form=document.querySelector('#check-form'),input=document.querySelector('#claim-text'),button=document.querySelector('#check-button'),status=document.querySelector('#status'),result=document.querySelector('#result');
 const reelPanel=document.querySelector('#shared-reel'),reelMessage=document.querySelector('#reel-message'),retryReel=document.querySelector('#retry-reel');
 const transcriptWork=document.querySelector('#transcript-work'),transcriptProgress=document.querySelector('#transcript-progress'),reviewNotice=document.querySelector('#review-notice');
 let controller,serial=0,workKind=null,reelUrl=null,reportView=null;
 const cryptoButton=document.querySelector('#crypto-check-button');
+const analysisHistory=createAnalysisHistory({list:document.querySelector('#analysis-history'),count:document.querySelector('#analysis-count'),marketLink:document.querySelector('#analysis-market-link'),onRestore:restoreAnalysis});
 
 function count(){document.querySelector('#char-count').textContent=`${input.value.length.toLocaleString()} / 6,000`;}
 function busy(on,message='') {
@@ -21,12 +24,12 @@ function cancelWork() {
   transcriptWork.hidden=true;retryReel.disabled=false;busy(false);result.classList.remove('loading');
 }
 function startWork(kind) {
-  cancelWork();controller=new AbortController();workKind=kind;
+  cancelWork();analysisHistory.hideMarket();controller=new AbortController();workKind=kind;
   retryReel.disabled=kind==='recording';
   return {id:serial,signal:controller.signal};
 }
 function showClaimState(title='What does the Reel claim?',message='Paste or type the spoken claims, then choose Check with Gemini. We’ll find the claims and run the checks for you.') {
-  reportView=null;result.classList.remove('evidence-report');result.replaceChildren(node('span','eyebrow','REVIEW THE CLAIM'),node('h2','state-title',title),node('p','result-explanation',message));
+  analysisHistory.hideMarket();reportView=null;result.classList.remove('evidence-report');result.replaceChildren(node('span','eyebrow','REVIEW THE CLAIM'),node('h2','state-title',title),node('p','result-explanation',message));
 }
 function clearReel() {
   reelUrl=null;reelPanel.hidden=true;
@@ -103,6 +106,7 @@ async function checkCrypto() {
   const currentController=controller,timeout=setTimeout(()=>currentController.abort(),60000);
   try {
     const data=await request('','/api/check',{text:input.value},{signal});if(id!==serial)return;
+    saveAnalysis(data,input.value);
     renderResult(result,data,{download:r=>downloadCard(r).catch(e=>status.textContent=e.message),share:typeof navigator.share==='function'?r=>shareCard(r).catch(e=>{if(e.name!=='AbortError')status.textContent=e.message;}):undefined});status.textContent='Check complete. Read the matching conditions below.';
   } catch(error) {
     if(id!==serial)return;const message=error.name==='AbortError'?'This check timed out. Please try again.':error.message;
@@ -122,7 +126,7 @@ async function findClaims({automatic=false}={}) {
     const data=await extractClaims(input.value,{sourceUrl:reelUrl,signal});if(id!==serial)return;
     reportView=createReportView(result,data,{
       onCheck:checkGeminiClaims,
-      onEdit:()=>{if(workKind==='evidence'){cancelWork();status.textContent='Checking stopped because a claim changed. Your edits are kept.';}},
+      onEdit:()=>{analysisHistory.hideMarket();if(workKind==='evidence'){cancelWork();status.textContent='Checking stopped because a claim changed. Your edits are kept.';}},
       onCancel:()=>{cancelWork();status.textContent='Checking stopped. You can edit your claims and try again.';}
     });
     if(!automatic)result.scrollIntoView({behavior:'smooth',block:'start'});
@@ -142,7 +146,7 @@ async function checkGeminiClaims(claims) {
   const view=reportView,{id,signal}=startWork('evidence');view.start();busy(true,'Checking Gemini Exchange markets for each claim. Results will appear as they finish…');
   // Individual requests have a 110-second deadline; edits and Stop checking abort the batch.
   try {
-    await checkClaims(claims,{sourceUrl:reelUrl,signal,onResult:(claimId,response)=>{if(id===serial&&view===reportView)view.result(claimId,response);}});
+    await checkClaims(claims,{sourceUrl:reelUrl,signal,onResult:(claimId,response)=>{if(id===serial&&view===reportView){view.result(claimId,response);if(response.data)saveAnalysis(reportWorkspaceResult(response.data),response.data.claim.text);}}});
     if(id===serial)status.textContent='Gemini market report complete. Compare the exact targets, deadlines and limits on each claim.';
   } catch(error) {
     if(id===serial){view.stop();status.textContent=error.name==='AbortError'?'Some checks timed out. Completed results are kept; you can try again.':error.message;}
@@ -153,7 +157,7 @@ async function checkGeminiClaims(claims) {
 form.addEventListener('submit',e=>{e.preventDefault();findClaims();});
 cryptoButton.addEventListener('click',checkCrypto);
 input.addEventListener('input',()=>{
-  count();
+  count();analysisHistory.hideMarket();
   if(workKind||reportView) {
     const transcribing=workKind==='reel'||workKind==='recording';cancelWork();
     if(transcribing&&reelUrl){reelMessage.textContent='Stopped waiting for transcription because you’re editing. Your words will be kept.';retryReel.hidden=false;}
@@ -181,7 +185,7 @@ document.querySelector('#recording').addEventListener('change',async e=>{
     clearTimeout(timeout);if(id===serial){controller=null;workKind=null;transcriptWork.hidden=true;retryReel.disabled=false;}e.target.value='';
   }
 });
-function receiveIncomingShare(){const incoming=sharedInput(location);if(incoming===null)return;history.replaceState(null,'',location.pathname);receiveReel(incoming);}
+function receiveIncomingShare(){const incoming=sharedInput(location);if(incoming===null)return false;history.replaceState(null,'',location.pathname);receiveReel(incoming);return true;}
 async function loadCapabilities() {
   try {
     const response=await fetch('/api/capabilities',{signal:AbortSignal.timeout(8000)});if(!response.ok)return {};
@@ -192,4 +196,45 @@ async function loadCapabilities() {
   } catch{return {};}
 }
 const capabilities=loadCapabilities();
-addEventListener('hashchange',receiveIncomingShare);receiveIncomingShare();
+addEventListener('hashchange',receiveIncomingShare);
+analysisHistory.render();
+if(!receiveIncomingShare())restoreAnalysis();
+addEventListener('pagehide',cancelWork);
+
+
+function saveAnalysis(data,text) {
+  return analysisHistory.save(data,{text,reelUrl:reelUrl||''});
+}
+function restoreAnalysis(requestedId) {
+  const id=typeof requestedId==='string'?requestedId:new URLSearchParams(location.search).get('analysis');
+  if(!id)return false;
+  cancelWork();clearReel();analysisHistory.hideMarket();reviewNotice.hidden=true;
+  const entry=analysisHistory.find(id);
+  if(!entry){showClaimState('Saved analysis unavailable.','This snapshot is missing or no longer readable. Paste a claim to check again.');status.textContent='This analysis is no longer saved in this browser session.';return false;}
+  input.value=entry.text;count();
+  if(entry.reelUrl) {
+    reelUrl=entry.reelUrl;reelPanel.hidden=false;document.querySelector('#reel-source').href=reelUrl;
+    document.querySelector('#reel-url').value=reelUrl;reelMessage.textContent='Saved Reel source. No transcription has been requested.';
+    retryReel.hidden=false;retryReel.textContent='Get transcript again';
+  }
+  try {
+    const report=entry.result.report;
+    if(report) {
+      reportView=createReportView(result,{claims:[report.claim],extraction:'saved',checkedAt:report.checkedAt||entry.result.checkedAt}, {
+        onCheck:checkGeminiClaims,
+        onEdit:()=>{cancelWork();analysisHistory.hideMarket();reviewNotice.hidden=true;status.textContent='Claim edited. Check with Gemini again to update its evidence.';},
+        onCancel:()=>{cancelWork();status.textContent='Checking stopped. Your saved snapshot is kept.';}
+      });
+      reportView.result(report.claim.id,{data:report});reportView.finish();
+    } else {
+      reportView=null;result.classList.remove('evidence-report');
+      renderResult(result,entry.result,{download:r=>downloadCard(r).catch(e=>status.textContent=e.message),share:typeof navigator.share==='function'?r=>shareCard(r).catch(e=>{if(e.name!=='AbortError')status.textContent=e.message;}):undefined});
+    }
+  } catch {
+    showClaimState('Saved analysis unavailable.','This snapshot uses an unsupported format. Your words are kept; check again for fresh results.');
+    status.textContent='The saved result could not be restored. No new check was sent.';return false;
+  }
+  reviewNotice.textContent=`${snapshotLabel(entry)}. Choose Check with Gemini to fetch fresh evidence.`;reviewNotice.hidden=false;
+  status.textContent=snapshotLabel(entry);analysisHistory.showMarket(entry);analysisHistory.render(entry.id);
+  history.replaceState(null,'',analysisUrl(entry.id));return true;
+}

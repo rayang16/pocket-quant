@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="Gemini market overview."><title>Market overview — Pocket Quant</title><script>try{if(localStorage.getItem('pq-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="preload" href="/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/workspace.css"><link rel="stylesheet" href="/app-shell.css"></head>
+<body class="workspace-page"><a class="skip-link" href="#main">Skip to market workspace</a>
+<div class="workspace-app">
+<aside class="workspace-rail" aria-label="Workspace sidebar">
+<a class="brand" href="/" aria-label="Pocket Quant home"><svg class="gem-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="m5 4 18 0 4 8-13 14L1 12Z M1 12h26M5 4l5 8 4 14 4-14 5-8M10 12l4-8 4 8"/></svg><span>Pocket Quant</span></a>
+<nav class="rail-navigation" aria-label="Main navigation"><a href="/"><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+  <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+  <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+  <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+  <path d="M7 12h10" />
+</svg>
+<span>Reel analysis</span></a><a href="/markets.html" class="rail-active" aria-current="page"><!-- @license lucide-static v1.55.0 - ISC -->
+<svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect width="7" height="9" x="3" y="3" rx="1" />
+  <rect width="7" height="5" x="14" y="3" rx="1" />
+  <rect width="7" height="9" x="14" y="12" rx="1" />
+  <rect width="7" height="5" x="3" y="16" rx="1" />
+</svg>
+<span>Market overview</span></a><a href="/live.html"><img class="ui-icon" src="/vendor/lucide/shield-check.svg" alt=""><span>Trade on Gemini</span></a><a href="/share.html"><img class="ui-icon" src="/vendor/lucide/upload.svg" alt=""><span>Share from iPhone</span></a><a href="/trade.html"><img class="ui-icon" src="/vendor/lucide/file-check-2.svg" alt=""><span>Sandbox</span></a></nav>
+<aside class="workspace-library" aria-label="Checked claims"><div class="library-heading"><h2>Recent analyses</h2><span id="checks-count" class="count-badge">0</span></div><p class="library-caption">This tab</p><div id="check-list" class="check-list"></div><div class="library-footer"><p>30 analyses max.</p><button id="clear-workspace" type="button" class="quiet-button">Clear workspace</button></div></aside>
+
+<div class="rail-bottom"><span>Gemini market data</span><button type="button" class="icon-button theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch to dark theme" title="Switch to dark theme"><svg aria-hidden="true" class="ui-icon icon-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><svg aria-hidden="true" class="ui-icon icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2m-15.66 5.66-1.41 1.41m14.14-14.14-1.41 1.41"/></svg></button></div></aside>
+<div class="workspace-body">
+<header class="workspace-topbar"><div class="workspace-breadcrumb">Workspace <span>/</span> <strong>Markets</strong></div><label class="market-search"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" />
+</svg>
+<span class="sr-only">Filter related markets</span><input id="workspace-search" type="search" placeholder="Search markets, dates, outcomes…" maxlength="120"><kbd aria-hidden="true">/</kbd></label><div class="topbar-actions"><button id="workspace-refresh" class="icon-button" type="button" aria-label="Refresh market data" title="Refresh market data"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+  <path d="M8 16H3v5" />
+</svg>
+</button><a class="workspace-primary" href="/"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 12h14" />
+  <path d="M12 5v14" />
+</svg>
+New analysis</a></div></header>
+<main id="main" class="workspace-shell">
+<div class="workspace-heading"><div><p id="workspace-context">Prediction market research</p><h1>Market overview</h1></div><div class="workspace-overview" aria-label="Market data summary"><div><span>Events loaded</span><strong id="overview-events">—</strong></div><div><span>Contracts</span><strong id="overview-contracts">—</strong></div><div><span>With quotes</span><strong id="overview-coverage">—</strong></div></div></div>
+<div class="workspace-navigation"><div id="workspace-scope" class="scope-tabs" role="group" aria-label="Market source"><button type="button" data-scope="related" aria-pressed="true">Your Reels</button><button type="button" data-scope="browse" aria-pressed="false">All markets</button></div><nav id="market-sectors" class="market-sectors" aria-label="Market categories"><button type="button" data-sector="all" aria-pressed="true">All</button><button type="button" data-sector="live" aria-pressed="false">Live</button><button type="button" data-sector="sports" aria-pressed="false">Sports</button><button type="button" data-sector="pro-football" aria-pressed="false">Pro Football</button><button type="button" data-sector="pro-baseball" aria-pressed="false">Pro Baseball</button><button type="button" data-sector="midterms" aria-pressed="false">Midterms</button><button type="button" data-sector="crypto" aria-pressed="false">Crypto</button><button type="button" data-sector="commodities" aria-pressed="false">Commodities</button><button type="button" data-sector="economics" aria-pressed="false">Economics</button><button type="button" data-sector="politics" aria-pressed="false">Politics</button><button type="button" data-sector="tech" aria-pressed="false">Tech</button><button type="button" data-sector="business" aria-pressed="false">Business</button><button type="button" data-sector="weather" aria-pressed="false">Weather</button><button type="button" data-sector="culture" aria-pressed="false">Culture</button></nav></div>
+<section id="workspace-empty" class="workspace-empty" aria-labelledby="empty-heading"><h2 id="empty-heading">No analyses yet</h2><p>Analyze a Reel, recording, or transcript. Its related Gemini markets appear here.</p><div class="workspace-empty-actions"><a class="workspace-primary" href="/">Analyze a Reel</a><button id="browse-all-markets" type="button" class="workspace-secondary">Browse all markets</button></div></section>
+
+<div id="workspace-content" class="workspace-layout" hidden>
+<section class="workspace-discovery" aria-label="Market discovery">
+<div class="selected-claim-header"><div><p id="selected-claim-meta" class="workspace-eyebrow"></p><h2 id="selected-claim"></h2></div><button id="selected-check-remove" type="button" class="icon-button" aria-label="Remove selected check"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M18 6 6 18" />
+  <path d="m6 6 12 12" />
+</svg>
+</button></div>
+<div class="discovery-toolbar"><div id="workspace-views" class="view-tabs" role="tablist" aria-label="Market organizer"><button type="button" id="view-graph" role="tab" data-view="graph" aria-selected="true" aria-controls="workspace-graph"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect x="16" y="16" width="6" height="6" rx="1" />
+  <rect x="2" y="16" width="6" height="6" rx="1" />
+  <rect x="9" y="2" width="6" height="6" rx="1" />
+  <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" />
+  <path d="M12 12V8" />
+</svg>
+Map</button><button type="button" id="view-quotes" role="tab" data-view="quotes" aria-selected="false" aria-controls="workspace-quotes"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 16v5" />
+  <path d="M16 14.639V21" />
+  <path d="M20 10.656V21" />
+  <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
+  <path d="M4 18.463V21" />
+  <path d="M8 14.656V21" />
+</svg>
+Quotes</button><button type="button" id="view-cards" role="tab" data-view="cards" aria-selected="false" aria-controls="workspace-cards"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+  <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+  <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />
+</svg>
+Markets</button><button type="button" id="view-timeline" role="tab" data-view="timeline" aria-selected="false" aria-controls="workspace-timeline"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="10" />
+  <path d="M12 6v6h4" />
+</svg>
+Timeline</button></div><div class="discovery-filters"><label class="sr-only" for="workspace-category">Market category</label><select id="workspace-category" hidden><option value="">All categories</option></select><label class="sr-only" for="workspace-sort">Sort markets</label><select id="workspace-sort"><option value="expiry">Expiry date</option><option value="title">Title A–Z</option></select></div></div>
+<div class="discovery-state"><p id="workspace-status" role="status" aria-live="polite">Finding related markets…</p><div><button id="workspace-retry" type="button" class="quiet-button" hidden>Try again</button><button id="workspace-more" type="button" class="quiet-button" hidden>Load more</button></div></div>
+<div class="organizer-frame"><div id="workspace-graph" class="market-graph" role="tabpanel" aria-labelledby="view-graph"></div><div id="workspace-quotes" class="market-quotes" role="tabpanel" aria-labelledby="view-quotes" hidden><div class="quote-chart-heading"><div><span>Contract comparison</span><h3 id="quote-chart-title">Choose a market</h3></div><span class="quote-chart-unit">YES probability</span></div><div id="quote-chart" role="img" aria-label="Observed contract probabilities"></div><p id="quote-chart-caption"></p></div><div id="workspace-cards" class="market-cards" role="tabpanel" aria-labelledby="view-cards" hidden></div><div id="workspace-timeline" class="market-timeline" role="tabpanel" aria-labelledby="view-timeline" hidden></div></div>
+<div class="map-bottom"><div class="graph-legend"><span><i class="legend-claim"></i>Your claim</span><span><i class="legend-topic"></i>Topic</span><span><i class="legend-event"></i>Market</span></div><div class="graph-controls"><button id="graph-zoom-out" type="button" class="icon-button" aria-label="Zoom out">−</button><output id="graph-scale" aria-label="Graph zoom">100%</output><button id="graph-zoom-in" type="button" class="icon-button" aria-label="Zoom in">+</button><button id="graph-reset" type="button" class="quiet-button">Reset view</button></div></div>
+<div class="selected-event"><div><p class="workspace-eyebrow">Selected market</p><h3 id="selected-event-title">Choose a market to inspect</h3><p id="selected-event-meta"></p></div><a id="selected-market-link" class="workspace-secondary" target="_blank" rel="noopener noreferrer" hidden>Open in Gemini <svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M7 7h10v10" />
+  <path d="M7 17 17 7" />
+</svg>
+</a><a id="selected-live-link" class="workspace-primary" hidden>Review trade</a></div><div class="event-selector"><label for="workspace-event-select">Explore loaded events</label><select id="workspace-event-select" disabled><option>Select a market</option></select></div>
+</section>
+<aside id="source-panel" class="workspace-source" aria-labelledby="source-heading"><div class="instrument-heading"><h2 id="source-heading">Source preview</h2><span class="source-tag"><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" />
+  <rect x="2" y="6" width="14" height="12" rx="2" />
+</svg>
+</span></div><div class="source-screen"><div class="source-placeholder"><p>No video attached</p></div><div id="source-embed-container" hidden></div><video id="source-video" controls playsinline preload="metadata" hidden></video></div><div class="source-actions"><a id="source-reel-link" class="workspace-secondary" target="_blank" rel="noopener noreferrer" hidden>Open original Reel <span aria-hidden="true">↗</span></a><button id="source-embed-button" class="quiet-button" type="button" hidden>Load Reel preview</button><label class="local-video-label" for="source-video-upload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"/></svg>Preview a local recording</label><input id="source-video-upload" type="file" accept="video/*" class="source-file sr-only"><button id="source-clear-video" class="quiet-button" type="button" hidden>Remove recording</button><p id="source-status" role="status"></p></div></aside>
+
+<section class="workspace-analytics" aria-label="Evidence instruments"><article class="analytics-instrument"><div class="instrument-heading"><h2>Market probability</h2><svg aria-hidden="true" class="ui-icon"
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 16v5" />
+  <path d="M16 14.639V21" />
+  <path d="M20 10.656V21" />
+  <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
+  <path d="M4 18.463V21" />
+  <path d="M8 14.656V21" />
+</svg>
+</div><div id="analytics-market"></div></article><article class="analytics-instrument"><div class="instrument-heading"><h2>Independent model</h2><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18c5 0 4-12 9-12s4 12 9 12M3 21h18"/></svg></div><div id="analytics-model"></div></article><article class="analytics-instrument assessment-instrument"><div class="instrument-heading"><h2>Evidence review</h2><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/><path d="m8 12 3 3 5-6"/></svg></div><div id="analytics-assessment"></div></article></section>
+</div>
+
+</main></div></div>
+<script src="/vendor/echarts-6.1.0.min.js"></script><script type="module" src="/workspace.js"></script><script type="module" src="/theme.js"></script>
+</body></html>
