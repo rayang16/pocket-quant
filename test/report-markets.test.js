@@ -23,6 +23,40 @@ test('unknown stock tickers cannot match generic stocks or monetary amounts', as
   assert.deepEqual(result.matches, []);
 });
 
+test('stock performance since an incidental political mention does not match politician markets', async () => {
+  const result = await run('Dell is up over 250 % since Trump mentioned it earlier this year.', [
+    event('Will Trump replace a cabinet member this year?'),
+    event('Will Trump appoint a new Treasury Secretary?'),
+    event('Will a Trump cabinet member resign?'),
+  ], 'fact');
+  assert.equal(result.status, 'none');
+  assert.deepEqual(result.matches, []);
+});
+
+test('retains the main named company before causal and attribution context', async () => {
+  const related = event('Will Intel announce a new factory?');
+  const incidental = [event('Will Trump replace a cabinet member?'), event('Will the government appoint Smith?')];
+  for (const text of [
+    'Intel shares rose after Trump announced a government investment.',
+    'Intel shares rose because Smith announced government support.',
+    'Intel shares rose due to a government agreement with Smith.',
+    'Intel shares rose following a speech by Trump.',
+    'Intel shares rose 20%, according to Smith.',
+  ]) {
+    const result = await run(text, [...incidental, related], 'fact');
+    assert.equal(result.status, 'related', text);
+    assert.deepEqual(result.matches.map(match => match.title), [related.title], text);
+  }
+});
+
+test('main company and product stay matched when later context mentions another entity', async () => {
+  const result = await run('Tesla could produce one million Optimus robots a year by 2027 because Trump supports domestic manufacturing.', [event(), event('Will Trump replace a cabinet member?')]);
+  assert.equal(result.status, 'related');
+  assert.equal(result.matches.length, 1);
+  assert.match(result.matches[0].title, /Tesla Optimus/);
+  assert.match(result.reason, /release market does not measure annual production volume/);
+});
+
 test('generic dates, government, and production language do not trigger requests', async () => {
   let calls = 0;
   for (const text of ['It will happen in 2027, maybe next year.', 'Buy stocks with government contracts worth one billion dollars.', 'Magnets and rare earth materials will rise in price next year.', 'The Government awarded a Million Dollar Contract.']) {
