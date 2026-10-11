@@ -43,3 +43,18 @@
 .live-links a:hover{text-decoration:underline;text-underline-offset:3px}
 @media(max-width:760px){.live-intro{padding:36px 0 28px}.live-intro h1{font-size:48px}.live-intro>p:last-child{font-size:14px}.live-desk,.live-next{grid-template-columns:1fr;gap:18px}.live-panel{padding:22px}.live-next{margin-top:32px;gap:22px}.live-back{font-size:11px}.live-panel h2{font-size:22px}.live-budget h2{font-size:18px}.live-account-details>div{gap:12px}.live-badge{font-size:9px}}
 @media(max-width:370px){.live-panel{padding:18px}.live-intro h1{font-size:42px}.live-back{max-width:86px;text-align:right;line-height:1.6}.live-account-details>div{display:block}.live-account-details dd{max-width:none;text-align:left;margin-top:4px}.live-requirements li{gap:12px}}
+.live-owner{border-top:1px solid var(--line);padding-top:22px;margin:0 0 26px}
+.live-owner h3{font-size:16px;font-weight:500;margin:0 0 10px}
+.live-owner .live-message{margin:10px 0}
+.live-owner .live-message:empty{display:none}
+.live-owner [hidden]{display:none}
+.live-owner form{margin-top:18px}
+.live-owner label{display:block;font-size:12px;font-weight:500;line-height:1.6}
+.live-owner input{display:block;width:100%;min-height:48px;margin:12px 0;background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--paper);font-size:16px}
+.live-owner .secondary{min-height:44px;line-height:1.6}
+.live-owner form>.secondary{width:100%;text-align:left}
+.live-owner-session{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:14px 0}
+.live-owner-session .live-small{margin:0}
+.live-owner-session button{flex-shrink:0}
+.live-private-details{border-top:1px solid var(--line);padding-top:8px;margin:18px 0 0}
+@media(max-width:420px){.live-owner-session{align-items:stretch;flex-direction:column;gap:10px}.live-owner-session button{text-align:left}}

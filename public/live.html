@@ -33,6 +33,29 @@
           <div><dt>Gemini connection</dt><dd id="live-connection">Not checked yet</dd></div>
           <div><dt>Connection method</dt><dd id="live-method">Not checked yet</dd></div>
         </dl>
+        <section class="live-owner" aria-labelledby="owner-heading">
+          <h3 id="owner-heading">Private account check</h3>
+          <p id="owner-summary" class="live-message">Checking whether private owner access is available…</p>
+          <form id="owner-form" method="post" action="/api/live-trade?action=login" hidden>
+            <label for="owner-code">Owner access code</label>
+            <p id="owner-code-help" class="live-small">Use the private code set by the site owner. This is not your Gemini API key.</p>
+            <input id="owner-code" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="512" required aria-describedby="owner-code-help owner-error">
+            <button id="unlock-owner" class="secondary" type="submit">Unlock account check</button>
+          </form>
+          <div id="owner-session" class="live-owner-session" hidden>
+            <p id="owner-expiry" class="live-small"></p>
+            <button id="logout-owner" class="secondary" type="button">Lock private access</button>
+          </div>
+          <p id="owner-error" class="live-message is-error" role="alert"></p>
+          <p id="owner-status" class="live-message" role="status" aria-live="polite"></p>
+          <dl id="private-account" class="live-account-details live-private-details" hidden>
+            <div><dt>Account</dt><dd id="account-label"></dd></div>
+            <div><dt>Available USD</dt><dd id="account-balance"></dd></div>
+            <div><dt>Gemini terms</dt><dd id="account-terms"></dd></div>
+            <div><dt>Trader role</dt><dd id="account-trader"></dd></div>
+          </dl>
+          <p id="account-checked" class="live-small"></p>
+        </section>
         <button id="refresh-live" class="primary" type="button" disabled>Checking readiness…</button>
         <p id="live-checked" class="live-small"></p>
       </section>
@@ -48,7 +71,7 @@
     </div>
 
     <section class="live-next" aria-labelledby="next-heading">
-      <div><p class="eyebrow">ON GEMINI</p><h2 id="next-heading">Your account. Your access.</h2><p>Use these links to finish your Gemini account setup. Pocket Quant account linking is still being prepared. A personal API key requires private owner access. Don’t enter keys on this page.</p></div>
+      <div><p class="eyebrow">ON GEMINI</p><h2 id="next-heading">Your account. Your access.</h2><p>Use these links to finish your Gemini account setup. The private account check uses credentials configured securely by the site owner. Don’t enter Gemini API keys on this page. Orders remain unavailable.</p></div>
       <div class="live-links">
         <a href="https://exchange.gemini.com/signin" target="_blank" rel="noopener noreferrer"><span>Sign in to Gemini</span><span aria-hidden="true">↗</span></a>
         <a href="https://exchange.gemini.com/settings/api" target="_blank" rel="noopener noreferrer"><span>Gemini API settings</span><span aria-hidden="true">↗</span></a>
