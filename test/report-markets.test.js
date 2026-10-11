@@ -23,6 +23,37 @@ test('unknown stock tickers cannot match generic stocks or monetary amounts', as
   assert.deepEqual(result.matches, []);
 });
 
+test('an explicit MP ticker excludes background North America from market subjects', async () => {
+  const text = "That's why I'm watching these two stocks. First is Ticker MP. They're the only rare earth mine of scale in North America.";
+  const unrelated = [
+    event('Which party will win the North Carolina Senate election?', {category:'Politics'}),
+    event('Which party will win the North Carolina House election?', {category:'Politics'}),
+    event('Will America enter a recession?', {category:'Economics'}),
+  ];
+  const missing = await run(text, unrelated, 'fact');
+  assert.equal(missing.status, 'none');
+  assert.deepEqual(missing.matches, []);
+
+  const company = event('Will MP Materials open a new rare earth mine?', {category:'Companies'});
+  const matched = await run(text, [...unrelated, company], 'fact');
+  assert.equal(matched.status, 'related');
+  assert.deepEqual(matched.matches.map(match => match.title), [company.title]);
+});
+
+test('cardinal directions alone do not match an unrelated geographic market', async () => {
+  for (const [direction, place] of [['North','North Carolina'],['South','South Korea'],['East','East Timor'],['West','West Virginia']]) {
+    const result = await run(`This mine in ${direction} America could increase production.`, [event(`Will ${place} hold an election?`, {category:'Politics'})]);
+    assert.equal(result.status, 'not_applicable', direction);
+    assert.deepEqual(result.matches, []);
+  }
+});
+
+test('explicit tickers retain crypto aliases and only their related outcomes', async () => {
+  const result = await run('The stock symbol BTC could rise after Trump speaks in North America.', [event('Bitcoin above $100000?'),event('Will Trump visit North Carolina?')]);
+  assert.equal(result.status, 'related');
+  assert.deepEqual(result.matches.map(match => match.title), ['Bitcoin above $100000?']);
+});
+
 test('stock performance since an incidental political mention does not match politician markets', async () => {
   const result = await run('Dell is up over 250 % since Trump mentioned it earlier this year.', [
     event('Will Trump replace a cabinet member this year?'),
