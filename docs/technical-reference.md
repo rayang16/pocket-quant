@@ -1,4 +1,4 @@
-# Pocket Quant technical reference
+# Gem Finder technical reference
 
 Implementation details for teammates extending the current mobile web app. Start with the [README](../README.md) for the product, setup, and verification status. All shell commands and JavaScript import examples below assume the repository root.
 
@@ -117,7 +117,7 @@ The overview provides history removal/clearing and separately labeled public mar
 
 ## iPhone handoff and card output
 
-The downloadable shortcut is at `public/Check with Pocket Quant.shortcut`. It was created in Apple Shortcuts and exported for Anyone. It uses URL Encode → Text → Open URLs and opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. A domain change requires updating and re-exporting the shortcut. Actual iPhone import, Instagram Share Sheet placement, and native file sharing need device verification.
+The downloadable shortcut is at `public/Check with Gem Finder.shortcut`. It was renamed to **Check with Gem Finder** in Apple Shortcuts and re-exported for Anyone. It uses URL Encode → Text → Open URLs and opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. The original `public/Check with Pocket Quant.shortcut` remains available for existing links. A domain change requires updating and re-exporting the shortcut. Actual iPhone import, Instagram Share Sheet placement, and native file sharing need device verification.
 
 The app validates the incoming Instagram permalink with an exact hostname/path allowlist, removes tracking parameters, and clears the incoming fragment. The server calls only Supadata's fixed API host for Reel transcription; it does not fetch arbitrary supplied URLs. No Instagram password or login cookie is requested. There is no persisted Reel inbox.
 
@@ -129,7 +129,7 @@ Node 22+ is required; Node 24 is recommended and used in GitHub Actions. `npm ru
 
 Vercel serves `public/` and the `api/` functions; durations and response headers are configured in `vercel.json`. Keep secrets in ignored local `.env` files or Vercel environment settings. The app does not override Vercel account access protections. Public report and transcription limits are per instance, not durable per-user quotas. Retain the same persistent Upstash database across deployments so the lifetime trading budget is not reset.
 
-The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record establishes predictive accuracy for Pocket Quant.
+The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record establishes predictive accuracy for Gem Finder.
 
 ## Provider references
 

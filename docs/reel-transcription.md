@@ -1,6 +1,6 @@
 # Public Reel transcription
 
-The iPhone shortcut already passes a Reel link into Pocket Quant. Automatic transcription adds a server call to Supadata; a native iPhone wrapper alone would not supply the Reel's audio.
+The iPhone shortcut already passes a Reel link into Gem Finder. Automatic transcription adds a server call to Supadata; a native iPhone wrapper alone would not supply the Reel's audio.
 
 ## Setup
 
@@ -41,4 +41,4 @@ Earlier October 11, 2026 transcription stage: A real Supadata request through bo
 
 At that stage, all 122 offline tests passed after the search correction. The app displayed each transcript for editing and did not automatically run an analysis.
 
-Later October 11 update: completed transcripts now automatically start extraction and checks for up to three editable claims, with optional Claude selection and explanation. The latest offline suite passed 341 tests. Physical iPhone Share Sheet import/handoff is still unverified; desktop browser and provider checks do not prove iPhone behavior.
+Later October 11 update: completed transcripts now automatically start extraction and checks for up to three editable claims, with optional Claude selection and explanation. The latest offline suite passed 393 tests. Physical iPhone Share Sheet import/handoff is still unverified; desktop browser and provider checks do not prove iPhone behavior.

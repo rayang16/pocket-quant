@@ -10,8 +10,8 @@ export default async function handler(req,res) {
   // This paid endpoint is for our own UI. A CLI without Origin remains usable.
   const origin=req.headers.origin;
   if(origin) {
-    try {if(new URL(origin).host!==req.headers.host||!['http:','https:'].includes(new URL(origin).protocol)) return send(res,403,{error:'Send the Reel from Pocket Quant.'});}
-    catch {return send(res,403,{error:'Send the Reel from Pocket Quant.'});}
+    try {if(new URL(origin).host!==req.headers.host||!['http:','https:'].includes(new URL(origin).protocol)) return send(res,403,{error:'Send the Reel from Gem Finder.'});}
+    catch {return send(res,403,{error:'Send the Reel from Gem Finder.'});}
   }
   if((req.headers['content-type']||'').split(';')[0].trim()!=='application/json') return send(res,415,{error:'Send a Reel link as JSON.'});
   try {

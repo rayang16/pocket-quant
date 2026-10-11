@@ -1,12 +1,12 @@
-# Pocket Quant — current product direction
+# Gem Finder — current product direction
 
 Updated October 11, 2026. This supplements the original, verbatim `CONTEXT.md`. The current product is a mobile web app with iPhone sharing. Its report uses **Gemini Exchange Prediction Markets**, not Google Gemini or a browser extension.
 
 ## Experience
 
-Instagram Reel → Share → Pocket Quant → Supadata transcript → up to three editable claims → automatic Gemini comparisons and applicable crypto math → clear conclusion → inspect results → return to the feed.
+Instagram Reel → Share → Gem Finder → Supadata transcript → up to three editable claims → automatic Gemini comparisons and applicable crypto math → clear conclusion → inspect results → return to the feed.
 
-People encounter confident financial claims while scrolling. Pocket Quant makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Optional Claude interpretation selects source-anchored claims and explains the supplied Gemini results and crypto math. Text rules and deterministic conclusions keep Gemini checks working without a Claude key or if the provider fails. Recording transcripts use the same flow. Pasted transcripts need one **Check with Gemini** action, and sample buttons run extraction and checks together. Users can correct words and classification; edits stop active checks and allow an explicit recheck.
+People encounter confident financial claims while scrolling. Gem Finder makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Optional Claude interpretation selects source-anchored claims and explains the supplied Gemini results and crypto math. Text rules and deterministic conclusions keep Gemini checks working without a Claude key or if the provider fails. Recording transcripts use the same flow. Pasted transcripts need one **Check with Gemini** action, and sample buttons run extraction and checks together. Users can correct words and classification; edits stop active checks and allow an explicit recheck.
 
 The result answers the Reel first: what does the available evidence actually tell us about this claim? It then shows the claim type, related Gemini contracts, differences in conditions or deadlines, and any supported crypto calculation. A clear answer can be “Gemini cannot verify this past return” or “This market prices a release, not the claimed production volume.”
 
@@ -34,13 +34,13 @@ The intended experience is a quick check from the feed. It opens a separate app,
 | Trading | Automatic reports never place orders. Related contracts can link to the separate owner-only live review flow. Deployed production account checks and an order preview succeeded on October 11, 2026; no real order has been placed, so execution remains unverified. The separate sandbox OAuth connection awaits Gemini approval; end-to-end sandbox orders are also unverified. |
 | Sharing results | The single-crypto checker provides PNG cards. Native file sharing still needs an iPhone check; do not imply the full three-claim report is exported. |
 
-The latest October 11, 2026 verification passed 341 offline tests. Deployed account checks verified the owner's account access, roles, available balance, and prediction-market terms; previewing did not place an order. See [live demo scope and safeguards](live-demo.md).
+The latest October 11, 2026 verification passed 393 offline tests. Deployed account checks verified the owner's account access, roles, available balance, and prediction-market terms; previewing did not place an order. See [live demo scope and safeguards](live-demo.md).
 
 Supadata provides paid transcription; enabling Claude adds Anthropic API charges. With Claude enabled, Anthropic receives transcript text for claim selection and claims with Gemini results and applicable model output for explanation. Gemini remains the market-data source. This flow does not use Google Gemini or external web research. Claude credentials remain on the server. Reports use bounded process-local caching and request limits, not persistent user accounts or a database. The separate owner-only live flow uses durable Upstash storage for order reviews, submission records, and its lifetime reservation limit. An Instagram DM bot, market creation, and a dataset of unmet market demand remain future ideas.
 
 ## Pitch and demonstration
 
-“Share a financial Reel to Pocket Quant and get a clear answer about what Gemini’s prediction markets can tell you. It automatically finds the claims, checks real Gemini contracts, and compares supported crypto forecasts with transparent volatility math. When enabled, Claude explains those results in plain English.”
+“Share a financial Reel to Gem Finder and get a clear answer about what Gemini’s prediction markets can tell you. It automatically finds the claims, checks real Gemini contracts, and compares supported crypto forecasts with transparent volatility math. When enabled, Claude explains those results in plain English.”
 
 Describe the actual demo input: a public Reel transcribed through Supadata, a recording transcribed separately, or pasted text. Distinguish live provider and browser checks from an actual iPhone Share Sheet demonstration. Show a no-market or non-verifiable factual claim as honestly as a useful match.
 

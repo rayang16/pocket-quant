@@ -12,7 +12,7 @@ export function drawCard(result,handle='') {
   if(!result.hypeVerdict)throw new Error('Only confirmed crypto checks can become verdict cards.');
   const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1350;const c=canvas.getContext('2d');
   c.fillStyle='#10141b';c.fillRect(0,0,1080,1350);c.fillStyle='#8aaaff';c.fillRect(64,64,12,34);
-  c.font='bold 27px sans-serif';c.fillStyle='#eef2f8';c.fillText('POCKET QUANT',96,92);c.font='20px monospace';c.fillStyle='#9aa8bb';c.fillText('A LITTLE LESS HYPE.',64,139);
+  c.font='bold 27px sans-serif';c.fillStyle='#eef2f8';c.fillText('GEM FINDER',96,92);c.font='20px monospace';c.fillStyle='#9aa8bb';c.fillText('A LITTLE LESS HYPE.',64,139);
   c.font='italic 44px Georgia';c.fillStyle='#eef2f8';wrap(c,`“${result.claim.summary}”`,64,230,952,54,4);
   c.font='22px monospace';c.fillStyle='#9aa8bb';c.fillText(handle?handle.slice(0,50):`Checked ${date(result.checkedAt)}`,64,452);
   const verdictColor={HYPE:'#ff9c9c',STRETCH:'#f2c57c','FAIR CALL':'#8ee0bf',UNDERSOLD:'#8aaaff'}[result.verdict]||'#8aaaff';
@@ -29,12 +29,12 @@ export function drawCard(result,handle='') {
 }
 export async function downloadCard(result,handle='') {
   const canvas=drawCard(result,handle);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-  if(!blob)throw new Error('Could not create the card.');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`pocket-quant-${result.claim.asset.toLowerCase()}-${Date.now()}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+  if(!blob)throw new Error('Could not create the card.');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`gem-finder-${result.claim.asset.toLowerCase()}-${Date.now()}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
 export async function shareCard(result,handle='') {
   const blob=await new Promise(resolve=>drawCard(result,handle).toBlob(resolve,'image/png'));
   if(!blob)throw new Error('Could not create the card.');
-  const file=new File([blob],`pocket-quant-${result.claim.asset.toLowerCase()}.png`,{type:'image/png'});
+  const file=new File([blob],`gem-finder-${result.claim.asset.toLowerCase()}.png`,{type:'image/png'});
   if(!navigator.canShare?.({files:[file]}))throw new Error('File sharing is not available here. Download the card instead.');
-  await navigator.share({files:[file],title:'Pocket Quant — '+result.verdict});
+  await navigator.share({files:[file],title:'Gem Finder — '+result.verdict});
 }

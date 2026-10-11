@@ -1,6 +1,6 @@
 # Market workspace
 
-The [market overview](https://pocket-quant-ashen.vercel.app/markets.html) connects saved Pocket Quant analyses to Gemini's public prediction markets. It adds discovery and comparison views while keeping Reel analysis, iPhone sharing, and the existing trading routes intact.
+The [market overview](https://pocket-quant-ashen.vercel.app/markets.html) connects saved Gem Finder analyses to Gemini's public prediction markets. It adds discovery and comparison views while keeping Reel analysis, iPhone sharing, and the existing trading routes intact.
 
 ## Use it
 

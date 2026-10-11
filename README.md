@@ -1,4 +1,4 @@
-# Pocket Quant
+# Gem Finder
 
 **A little less hype.** Turn a financial Instagram Reel into checkable claims, live Gemini Exchange market context, and transparent crypto probability estimates.
 
@@ -10,7 +10,7 @@ Built for the **Blockchain at Berkeley hackathon — Gemini Exchange Prediction 
 
 A creator says, “Bitcoin will reach $150,000 by October 31, 2026.” Before accepting the certainty, a viewer needs to know what is being predicted, what a relevant market actually prices, and how sensitive a model is to its assumptions.
 
-Pocket Quant connects those steps:
+Gem Finder connects those steps:
 
 1. **Bring the claim.** Share an accessible public Reel through the iPhone shortcut, paste its link or text, or upload a recording when transcription is configured.
 2. **Keep the source visible.** Supadata transcribes public Reels. The app selects up to three editable claims, preserves their source quotes, and distinguishes facts, forecasts, and recommendations. Optional Claude selection has a text-rule fallback.
@@ -22,11 +22,11 @@ A useful answer can also be **“No matching market”** or **“Market prices c
 
 ## Why build this for Gemini?
 
-In our team's hackathon conversations with Gemini representatives, two themes stood out: people may not know Gemini offers prediction markets, and they may see the product only as betting. These are team-reported observations recorded in the original [CONTEXT.md](CONTEXT.md), not measured company-wide findings or an endorsement of Pocket Quant.
+In our team's hackathon conversations with Gemini representatives, two themes stood out: people may not know Gemini offers prediction markets, and they may see the product only as betting. These are team-reported observations recorded in the original [CONTEXT.md](CONTEXT.md), not measured company-wide findings or an endorsement of Gem Finder.
 
-Gemini itself describes prediction markets as a way to aggregate information and help people prepare for future events. Its product explains contract prices as market probability estimates and emphasizes reviewing settlement rules. Pocket Quant brings that information into a familiar moment: checking a claim from the feed. [Gemini's launch announcement](https://www.gemini.com/blog/gemini-predictions-tm-is-now-live) · [Gemini Predictions product guide](https://www.gemini.com/lp/predictions)
+Gemini itself describes prediction markets as a way to aggregate information and help people prepare for future events. Its product explains contract prices as market probability estimates and emphasizes reviewing settlement rules. Gem Finder brings that information into a familiar moment: checking a claim from the feed. [Gemini's launch announcement](https://www.gemini.com/blog/gemini-predictions-tm-is-now-live) · [Gemini Predictions product guide](https://www.gemini.com/lp/predictions)
 
-| Pocket Quant feature | Intended benefit for Gemini | What we would measure |
+| Gem Finder feature | Intended benefit for Gemini | What we would measure |
 | --- | --- | --- |
 | Relevant contracts appear beside claims people already care about | **Awareness and discovery:** introduce Gemini Predictions through a concrete use case | First-time product discovery and contract-page visits |
 | Reel sharing, pasted text, and single-crypto PNG cards | **Acquisition:** give new audiences a route from social content to Gemini markets | Consenting testers who complete a report and follow a market link |
@@ -84,7 +84,7 @@ Supadata, Anthropic, and ElevenLabs usage can incur provider charges. The public
 
 ## The stack and each piece's job
 
-| Technology | Role in Pocket Quant |
+| Technology | Role in Gem Finder |
 | --- | --- |
 | **Node ESM, native HTML/CSS/JavaScript** | Shared calculation engine, browser modules, and HTTP handlers; no application framework |
 | **Vercel** | Static `public/` files and `api/` server functions |
@@ -105,7 +105,7 @@ Supadata, Anthropic, and ElevenLabs usage can incur provider charges. The public
 
 Gemini event contracts settle at $1 for the winning outcome and $0 otherwise; their traded prices provide an indicative market probability. [Gemini event-contract guide](https://support.gemini.com/hc/en-us/articles/44234371543579-Gemini-Predictions)
 
-For **BTC, ETH, SOL, XRP, and ZEC** price targets, Pocket Quant calculates probabilities separately from the contract quote. **Both the model's price history and the market quotes come from Gemini**: this is an independent calculation, not an independent data source.
+For **BTC, ETH, SOL, XRP, and ZEC** price targets, Gem Finder calculates probabilities separately from the contract quote. **Both the model's price history and the market quotes come from Gemini**: this is an independent calculation, not an independent data source.
 
 - **Three volatility windows:** annualized realized volatility from 14, 30, and 90 days of daily log returns. The engine requires 91 contiguous completed daily closes and excludes the open candle. The resulting range shows sensitivity to the windows, not a confidence interval.
 - **Touch versus expiry:** a binary-option calculation estimates finishing beyond a target at the deadline; a reflection-principle calculation estimates touching it at any time beforehand. “Hits $150K” and “closes above $150K” are different questions.
@@ -123,7 +123,7 @@ Reports never trade automatically. The owner opens a private fifteen-minute sess
 
 Orders use whole-contract quantities and immediate-or-cancel execution; partial fills can be fractional. Before the sole exchange submission attempt, atomic Upstash operations consume the review and reserve **principal plus a conservative fee allowance against a $5 lifetime account budget**. The allowance depends on the verified fill step. This is a demo reservation limit, not a per-session allowance or a quote of actual fees.
 
-Reservations are never automatically refunded, including rejected or unfilled orders. Unknown outcomes block further submissions; the owner checks directly in Gemini. Placement is never retried automatically. Preserve the same Upstash database across redeployments. The app's limit does not govern trades placed outside Pocket Quant. [Full setup, fee allowance, journal behavior, and limitations](docs/live-demo.md)
+Reservations are never automatically refunded, including rejected or unfilled orders. Unknown outcomes block further submissions; the owner checks directly in Gemini. Placement is never retried automatically. Preserve the same Upstash database across redeployments. The app's limit does not govern trades placed outside Gem Finder. [Full setup, fee allowance, journal behavior, and limitations](docs/live-demo.md)
 
 ## Data handling and failure behavior
 
@@ -142,3 +142,5 @@ npx vercel --prod
 Vercel configuration lives in [`vercel.json`](vercel.json). Set optional secrets in Vercel environment settings. Live trading needs explicit opt-in and its full private configuration; preserve persistent budget storage across deployments. After publishing, check a useful market match, an unmatched claim, a historical statement, and the sharing guide from the actual deployment. Test iPhone behavior on an iPhone.
 
 Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [market workspace guide](docs/market-workspace.md), then use the [technical reference](docs/technical-reference.md) for module layout, HTTP APIs, math, and engine interfaces. The [current product direction](docs/product-direction.md) supersedes the original browser-extension plan; [CONTEXT.md](CONTEXT.md) remains the original brief verbatim.
+
+Existing repository and deployment URLs and internal storage keys retain the original project slug so links, browser sessions, and trading-budget records continue to work.

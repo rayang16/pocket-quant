@@ -8,7 +8,7 @@ These checks record the initial October 11 mobile release, before automatic Supa
 
 - 71 automated tests passed, including shared-link validation, URL spoofing rejection, multiple-link handling, transcription byte forwarding, missing-key/provider/rate-limit/empty-audio/size failures, and the existing math and engine suite.
 - Build verifies all required web and signed shortcut artifacts.
-- Apple Shortcuts created Check with Pocket Quant with Share Sheet input, URL Encode, Text containing the production URL plus encoded input, and Open URLs. Export for Anyone completed and generated the downloadable signed file.
+- Apple Shortcuts created the original shortcut, **Check with Pocket Quant**, with Share Sheet input, URL Encode, Text containing the production URL plus encoded input, and Open URLs. Export for Anyone completed and generated the downloadable signed file.
 - Browser tested the shared URL handoff locally and in production: displays the normalized Instagram link, clears tracking and the incoming fragment, and requests the actual spoken prediction rather than producing a verdict from a URL.
 - Live production BTC and ETH checks returned HTTP 200 and live market data; past-fact input returned NOT A PREDICTION.
 - Downloaded a real 1080×1350 BTC verdict PNG from the browser and visually inspected it.
@@ -17,7 +17,7 @@ These checks record the initial October 11 mobile release, before automatic Supa
 
 ## Later October 11 update
 
-Supadata is now configured on the deployed app and has transcribed real public Reels through the browser. Completed transcripts automatically start extraction and Gemini checks for up to three editable claims, with crypto math where supported. The latest offline suite passed 341 tests. See [Reel transcription verification](reel-transcription.md). These later browser/provider checks do not establish physical iPhone behavior.
+Supadata is now configured on the deployed app and has transcribed real public Reels through the browser. Completed transcripts automatically start extraction and Gemini checks for up to three editable claims, with crypto math where supported. The latest offline suite passed 393 tests. See [Reel transcription verification](reel-transcription.md). These later browser/provider checks do not establish physical iPhone behavior.
 
 ## Remaining device / configuration checks
 
@@ -35,3 +35,8 @@ The supplied UI was applied to the existing native web app, with the market dash
 - Browser-verified real Gemini directory loading, category/search filtering, map, quote and timeline views, and light/dark themes. A configured Claude explanation was unavailable during this check; the existing Gemini/math fallback conclusion remained visible.
 - Sharing instructions and private owner access render with the new theme. No real-money order was submitted during this work.
 - Responsive CSS is included; the browser viewport override did not take effect in this verification session. A physical iPhone share flow and narrow-screen interaction still require device testing.
+
+
+## Gem Finder branding — October 11, 2026
+
+The web UI, downloadable report-card text, README, and current product docs now use Gem Finder. Apple Shortcuts was renamed to **Check with Gem Finder** and exported for Anyone as `public/Check with Gem Finder.shortcut`; the sharing guide points to that export. The original signed asset stays available at its old URL. This verifies macOS export, not physical iPhone import. Repository and deployment URLs, authentication/session identifiers, and the durable trading budget namespace are unchanged.

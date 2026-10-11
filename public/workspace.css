@@ -1,4 +1,4 @@
-/* Pocket Quant — application shell (rail, top bar) and the market overview. */
+/* Gem Finder — application shell (rail, top bar) and the market overview. */
 .workspace-page{background:var(--bg);color:var(--text);font:400 14px/1.5 var(--font-sans)}
 .workspace-page h1,.workspace-page h2,.workspace-page h3{color:var(--ink)}
 .workspace-app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh;min-height:100dvh}

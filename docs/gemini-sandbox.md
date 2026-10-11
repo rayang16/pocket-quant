@@ -1,6 +1,6 @@
 # Gemini sandbox connection
 
-Pocket Quant has a sandbox-only account connection and an explicit review → confirm → receipt flow for buying YES or NO prediction contracts with test funds. Start at `/trade.html`, also linked from the home page. Nothing in this integration can be configured to send orders to Gemini production: both the OAuth and API hosts are fixed sandbox constants.
+Gem Finder has a sandbox-only account connection and an explicit review → confirm → receipt flow for buying YES or NO prediction contracts with test funds. Start at `/trade.html`, also linked from the home page. Nothing in this integration can be configured to send orders to Gemini production: both the OAuth and API hosts are fixed sandbox constants.
 
 ## Register the app
 
@@ -11,7 +11,7 @@ Pocket Quant has a sandbox-only account connection and an explicit review → co
    - Deployed: `https://pocket-quant-ashen.vercel.app/api/gemini-account?action=callback`
 4. Set the server's `GEMINI_SANDBOX_CLIENT_ID`, `GEMINI_SANDBOX_CLIENT_SECRET`, `GEMINI_REDIRECT_URI`, and a separate random `GEMINI_SESSION_SECRET` of at least 32 bytes. Generate that secret locally, for example with `openssl rand -hex 32`. Put values in an ignored `.env` locally or the deployment's secret settings. Never paste secrets into chat, client code, or Git.
 5. Restart the local server or redeploy after setting environment variables. Open `/trade.html`, connect a sandbox account with Prediction Markets access and test funds, and complete Gemini's authorization screen.
-6. If terms are required, review and accept them on Gemini's sandbox before returning. Pocket Quant does not accept terms on the user's behalf.
+6. If terms are required, review and accept them on Gemini's sandbox before returning. Gem Finder does not accept terms on the user's behalf.
 
 ## What the demo does
 
@@ -36,9 +36,9 @@ Production activation requires Gemini application review plus production-specifi
 
 ### Current setup status — October 11, 2026
 
-The **Pocket Quant Sandbox** confidential OAuth application is registered with `orders:read` and `orders:create`, the deployed callback above, and the Pocket Quant icon. All four required server settings have been saved as Vercel secrets and redeployed. The deployed status endpoint returns `configured: true` and `sandbox: true`; no credentials are stored in this repository.
+The confidential OAuth application retains its registered name, **Pocket Quant Sandbox**, and is registered with `orders:read` and `orders:create`, the deployed callback above, and the original project icon. All four required server settings have been saved as Vercel secrets and redeployed. The deployed status endpoint returns `configured: true` and `sandbox: true`; no credentials are stored in this repository.
 
-Gemini lists the registered app as **Pending**. A real browser attempt through Pocket Quant's Connect button reached Gemini but was rejected with “The provided OAuth client is not approved with Gemini.” This is the current blocker even in the sandbox. Ask the Gemini team to approve the sandbox OAuth app, then repeat the connection through Pocket Quant. No access token was obtained and no order was submitted. The local development server remains unconfigured; use the deployed page for this registration.
+Gemini lists the registered app as **Pending**. A real browser attempt through Gem Finder's Connect button reached Gemini but was rejected with “The provided OAuth client is not approved with Gemini.” This is the current blocker even in the sandbox. Ask the Gemini team to approve the sandbox OAuth app, then repeat the connection through Gem Finder. No access token was obtained and no order was submitted. The local development server remains unconfigured; use the deployed page for this registration.
 
 ## Question for the Gemini team
 

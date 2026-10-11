@@ -8,8 +8,8 @@ export function createReportHandler(report=createEvidenceReporter()) {
     if(req.method!=='POST')return send(res,405,{error:'Use POST for this endpoint.'});
     const origin=req.headers.origin;
     if(origin) {
-      try {const url=new URL(origin);if(url.host!==req.headers.host||!['http:','https:'].includes(url.protocol))return send(res,403,{error:'Run source checks from Pocket Quant.'});}
-      catch{return send(res,403,{error:'Run source checks from Pocket Quant.'});}
+      try {const url=new URL(origin);if(url.host!==req.headers.host||!['http:','https:'].includes(url.protocol))return send(res,403,{error:'Run source checks from Gem Finder.'});}
+      catch{return send(res,403,{error:'Run source checks from Gem Finder.'});}
     }
     if((req.headers['content-type']||'').split(';')[0].trim()!=='application/json')return send(res,415,{error:'Send claims as JSON.'});
     try {

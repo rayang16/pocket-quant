@@ -31,4 +31,4 @@ createServer(async(req,res)=>{
     if(!path.startsWith(root.endsWith(sep)?root:root+sep)) {res.writeHead(403);return res.end();}
     const body=await readFile(path);res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:body);
   } catch {res.writeHead(404);res.end('Not found');}
-}).listen(port,'127.0.0.1',()=>console.log(`Pocket Quant: http://localhost:${port}`));
+}).listen(port,'127.0.0.1',()=>console.log(`Gem Finder: http://localhost:${port}`));
