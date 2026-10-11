@@ -102,6 +102,11 @@ function renderAssessment(container,claim,data) {
     for(const contract of (match.contracts??[]).slice(0,4)) {
       const line=node('div','evidence-contract');line.append(node('span','',contract.label||'YES contract'),node('span','',percent(contract.prob)));market.append(line);
       if(contract.source)market.append(node('small','evidence-market-meta',`Gemini Exchange · ${contract.source} · YES price`));
+      if(typeof contract.symbol==='string'&&/^GEMI-[A-Za-z0-9_-]{1,195}$/.test(contract.symbol)) {
+        const review=node('a','evidence-market-link','Review this market in Pocket Quant ↗');
+        review.href='/live.html?symbol='+encodeURIComponent(contract.symbol);
+        market.append(review);
+      }
     }
     markets.append(market);
   }

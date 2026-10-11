@@ -58,3 +58,43 @@
 .live-owner-session button{flex-shrink:0}
 .live-private-details{border-top:1px solid var(--line);padding-top:8px;margin:18px 0 0}
 @media(max-width:420px){.live-owner-session{align-items:stretch;flex-direction:column;gap:10px}.live-owner-session button{text-align:left}}
+.live-shell [hidden]{display:none!important}
+.live-badge{display:inline-block;color:#ffe1a5;border:1px solid #8b6540;background:#32261c;border-radius:4px;padding:9px 11px;letter-spacing:1.4px}
+.live-money-label{font:600 10px ui-monospace,monospace;letter-spacing:1px;color:#ffe1a5}
+.live-trade{margin-top:22px}
+.live-trade>h2{margin-top:22px}
+.live-trade .live-message:empty{display:none}
+.live-market-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:8px 0 22px}
+.live-market-toolbar .live-message{margin:0;max-width:620px}
+.live-market-toolbar button{flex-shrink:0}
+.live-trade label{display:block;font-size:12px;font-weight:500;line-height:1.6}
+.live-trade input:not([type=checkbox]),.live-trade select{display:block;width:100%;min-height:48px;margin:9px 0 0;background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--paper);font-size:16px;font-family:inherit}
+.live-trade select{white-space:nowrap;text-overflow:ellipsis;padding-right:30px}
+.live-trade :is(input,select,button,a):focus-visible,.live-owner :is(input,button):focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.live-trade :is(input,select,button):disabled{opacity:.48;cursor:not-allowed}
+.live-trade fieldset{border:0;padding:0;margin:24px 0}
+.live-trade legend{font-size:15px;line-height:1.6;padding:0;margin:0 0 12px}
+.live-order-fields{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.4fr);gap:18px;align-items:end}
+.live-order-fields>div{min-width:0}
+.live-market-details{margin:24px 0;padding:22px;background:var(--ink);border:1px solid var(--line);border-radius:8px}
+.live-event{color:var(--accent);font-size:11px;line-height:1.7;margin:0 0 10px;overflow-wrap:anywhere}
+.live-market-details h3,.live-review h4{font-size:20px;font-weight:500;letter-spacing:-.3px;line-height:1.5;margin:0 0 14px;overflow-wrap:anywhere}
+.live-conditions{font-size:13px;color:var(--muted);line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;margin:14px 0}
+.live-market-details>a{display:inline-block;color:var(--accent);font-size:12px;line-height:1.8;margin-top:12px;text-decoration:underline;text-underline-offset:4px}
+.live-review{border:1px solid #8b6540;background:#201e1b;border-radius:9px;padding:28px;margin-top:28px;scroll-margin-top:24px}
+.live-review h3{font:400 30px Georgia,serif;margin:18px 0 24px}
+.live-review .live-money-label{color:#ffe1a5}
+.live-review .live-account-details{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0}
+.live-review .live-account-details>div{font-size:13px;margin:13px 0}
+.live-review .live-account-details>div:nth-last-child(2){border-top:1px solid var(--line);padding-top:16px;font-weight:600;font-size:16px;color:#ffe1a5}
+.live-review .live-account-details>div:nth-last-child(2) dt{color:#ffe1a5}
+.live-trade .live-confirm{display:flex;align-items:flex-start;gap:12px;font-size:14px;line-height:1.7;padding:20px 0;margin:12px 0 0;cursor:pointer}
+.live-confirm input{width:20px;height:20px;flex-shrink:0;margin:2px 0 0;accent-color:var(--accent)}
+.live-place{width:100%;min-height:52px;text-align:center;line-height:1.7;white-space:normal}
+.live-result{border-top:1px solid var(--line);padding-top:24px;margin-top:28px;scroll-margin-top:24px}
+.live-result h3{font-size:20px;font-weight:500;line-height:1.5;margin:0 0 12px}
+.live-result-actions{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.live-result-actions>a{font-size:12px;color:var(--accent);line-height:1.8;text-decoration:underline;text-underline-offset:4px}
+.live-trade .secondary,.live-trade .primary{min-height:44px;line-height:1.6}
+@media(max-width:760px){.live-market-toolbar{align-items:flex-start;flex-direction:column;gap:12px}.live-order-fields{grid-template-columns:1fr 1fr}.live-order-fields>div:last-child{grid-column:1/-1}.live-review{padding:22px}.live-market-details{padding:18px}.live-review h3{font-size:27px}.live-market-details h3,.live-review h4{font-size:18px}.live-trade{margin-top:18px}.live-budget-value{font-size:64px}.live-review .live-account-details>div{font-size:12px}}
+@media(max-width:420px){.live-review{padding:18px}.live-order-fields{gap:14px}.live-result-actions{align-items:stretch;flex-direction:column;gap:16px}.live-market-toolbar>button,#preview-order{width:100%;text-align:left}.live-review .live-account-details>div{display:block}.live-review .live-account-details dd{max-width:none;text-align:left;margin-top:4px}.live-review .live-account-details>div:nth-last-child(2){font-size:15px}.live-confirm span{min-width:0}}

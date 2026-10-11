@@ -2,7 +2,7 @@
 
 **A little less hype.** Share an Instagram Reel to automatically extract up to three claims, search related Gemini Exchange Prediction Markets, and get a clear conclusion grounded in the available market data and supported crypto math. Optional Claude interpretation helps explain what the evidence means. Market prices do not fact-check historical statements or make a trade suitable.
 
-Plain Node ESM, native browser modules, no application dependencies, no database. No canned odds or simulated market data in the app. Test fixtures live only in `fixtures/` and are imported only by tests.
+Plain Node ESM, native browser modules, and no application dependencies. Public claim checks use memory caches; the optional owner-only live trading demo requires durable Upstash Redis for order records and its lifetime spending limit. No canned odds or simulated market data appear in the app. Test fixtures live only in `fixtures/` and are imported only by tests.
 
 ## Run
 
@@ -17,11 +17,13 @@ Open http://localhost:3000. The Gemini market report and BTC/ETH/SOL/XRP/ZEC che
 
 Optional: copy `.env.example` to `.env`. `SUPADATA_API_KEY` enables automatic transcription of public Reel links. `ANTHROPIC_API_KEY` enables Claude to select source-anchored claims and explain the supplied Gemini market data and crypto calculations; `CLAUDE_MODEL` defaults to `claude-sonnet-5-5`. Missing or unavailable Claude falls back to text rules and plain-language conclusions, so Gemini checks continue. The separate recording-upload feature uses `ELEVENLABS_API_KEY`; without it the upload endpoint returns an actionable 501. All keys stay on the server. Gemini here means **Gemini Exchange**, not Google Gemini; Claude has no web-search tools in this flow.
 
-## Connect Gemini and try a test order
+## Gemini account and order demos
 
-Open `/trade.html` for the sandbox-only account connection, market selection, order review, and explicit test-order confirmation. This is separate from the public-data report. Server credentials are configured for the deployed app, but Gemini OAuth app approval is still pending; account connection and test orders have not completed end to end. Live-money trading is disabled in code. See [Gemini sandbox setup](docs/gemini-sandbox.md) for callback URLs, permissions, and limitations. No account state or receipts are fabricated.
+Open `/trade.html` for the sandbox-only account connection, market selection, order review, and explicit test-order confirmation using test funds. Gemini OAuth app approval is still pending; sandbox account connection and test orders have not completed end to end. See [Gemini sandbox setup](docs/gemini-sandbox.md) for callback URLs, permissions, and limitations. No account state or receipts are fabricated.
 
-Open `/live.html` for real-money demo preparation. A private owner code unlocks a read-only check of the configured Gemini account, available USD, trading permission, and prediction-market terms. Public visitors cannot read the account. The $5 review policy and durable order journal are separate, tested modules; order placement is not connected and all transaction actions remain disabled. See [live demo preparation](docs/live-demo.md) for setup and the remaining integration steps.
+Open `/live.html` for the separate owner-only real-money demo. A private code opens a fifteen-minute session. With all required server settings and explicit `GEMINI_LIVE_TRADING_ENABLED=true` opt-in, the owner can select an eligible financial contract, review a YES or NO limit buy, and manually confirm it. Orders use whole contracts and immediate-or-cancel execution. Each review expires after at most two minutes; submission rechecks the account, available USD, Trader role, accepted terms, current contract details, and trading increments. Eligible market categories are Crypto, Economics, Business, Commodities, and Tech.
+
+The durable Upstash journal allows one submission attempt per review and limits lifetime reservations for the configured Gemini account to **$5 total, including principal and a conservative fee allowance based on its verified minimum fill step**. Whole-contract orders may receive fractional fills. A 0.01-contract fill step reserves $1 for fees per whole contract; a one-contract fill step reserves 3¢. Actual fees may be much lower. Reservations are not refunded for rejected, partially filled, or unfilled orders. Unknown results block further submissions and must be checked directly in Gemini; placement is never retried automatically. Upstash has been configured and tested with synthetic records only. No real order has been placed, and this does not establish deployment or end-to-end live execution. See [live demo setup and behavior](docs/live-demo.md).
 
 ## Send a Reel from iPhone
 
@@ -44,7 +46,7 @@ npm test
 npx vercel --prod
 ```
 
-Vercel serves `public/` and `api/` functions. Function duration limits are set in `vercel.json`. Configure optional transcription, Claude, and sandbox secrets in Vercel, not public files. After deployment, test the three-claim flow, BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. Enabling Claude incurs Anthropic API charges in addition to any transcription charges. Provider work has bounded per-instance request limits, not a durable per-user quota system in this hackathon build.
+Vercel serves `public/` and `api/` functions. Function duration limits are set in `vercel.json`. Configure optional transcription, Claude, sandbox, and owner-only live secrets in Vercel, not public files. Live order review stays disabled unless the explicit opt-in and required private-session and durable-storage settings are present. Preserve the same persistent Upstash database across deployments; redeployment or reconnecting must not reset its account budget. After deployment, test the three-claim flow, BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. Enabling Claude incurs Anthropic API charges in addition to any transcription charges. Report and transcription requests have bounded per-instance request limits, not a durable per-user quota system in this hackathon build.
 
 ## The math, in plain English
 
@@ -88,6 +90,11 @@ api/evidence-report.js POST extract/check → editable claims or Gemini market r
 api/transcribe.js  POST raw audio/video ≤4,000,000 bytes → {text}
 api/reel-transcript.js  POST {url} or {jobToken} → transcript or pending job
 lib/reel-transcript.js  Supadata client, signed jobs, bounded instance-local deduplication
+lib/live-owner-auth.js  private fifteen-minute owner sessions and mutation checks
+lib/live-trade-engine.js  two-minute live reviews, fresh preflight checks and one-use submissions
+lib/gemini-live-exchange.js  fixed-host public markets and signed production IOC buy orders
+lib/live-order-store.js  durable Upstash order journal and lifetime $5 reservations
+api/live-trade.js  owner-only account, market, preview, submission and result endpoints
 public/           mobile web app, iPhone share intake and 1080×1350 canvas card
 scripts/          local server, asset packaging and live verification
 test/             node:test tests and deterministic Monte Carlo

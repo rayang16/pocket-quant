@@ -60,7 +60,7 @@ test('personal master requests use fixed production read routes, exact signature
   assert.deepEqual(calls[3].payload, {request: '/v1/prediction-markets/terms/status', nonce: 1780000003, account: 'primary'});
   assert.deepEqual(snapshot, {roles, accountSelectionRequired: false,
     accountIdentity: createHash('sha256').update('pocket-quant:gemini:production:counterparty:v1\0fake-counterparty-id').digest('hex'),
-    accountLabel: 'Personal exchange', availableUsd: '12.99', termsAccepted: true});
+    accountShortname: 'primary', accountLabel: 'Personal exchange', availableUsd: '12.99', termsAccepted: true});
   assert.ok(Object.isFrozen(snapshot));
   assert.ok(Object.isFrozen(snapshot.roles));
 });
@@ -142,7 +142,7 @@ test('multiple open exchange accounts require server selection without exposing 
   const second = {...account, account: 'second', name: 'Second private account', counterparty_id: 'second-provider-id'};
   const {client, calls} = setup({values: {'/v1/account/list': [account, second]}});
   assert.deepEqual(await client.snapshot(), {roles, accountSelectionRequired: true, accountIdentity: null,
-    accountLabel: null, availableUsd: null, termsAccepted: null});
+    accountShortname: null, accountLabel: null, availableUsd: null, termsAccepted: null});
   assert.equal(calls.length, 2);
   const configured = setup({config: {...env, GEMINI_LIVE_ACCOUNT: 'second'}, values: {'/v1/account/list': [account, second]}});
   const snapshot = await configured.client.snapshot();
@@ -191,7 +191,8 @@ test('server identity is provider-based and survives key rotation; private extra
   assert.notEqual(first.accountIdentity, differentAccount.accountIdentity);
   assert.equal(JSON.stringify(values), before);
   assert.deepEqual(config, env);
-  for (const value of [account.counterparty_id, account.account, 'PRIVATE_USER_EMAIL', 'PRIVATE_BANK', env.GEMINI_LIVE_API_KEY, env.GEMINI_LIVE_API_SECRET]) {
+  assert.equal(first.accountShortname,account.account);
+  for (const value of [account.counterparty_id, 'PRIVATE_USER_EMAIL', 'PRIVATE_BANK', env.GEMINI_LIVE_API_KEY, env.GEMINI_LIVE_API_SECRET]) {
     assert.equal(JSON.stringify(first).includes(value), false);
   }
 });

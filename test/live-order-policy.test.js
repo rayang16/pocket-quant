@@ -82,3 +82,115 @@ test('review is deterministic and does not mutate its inputs', () => {
   assert.deepEqual(reviewLiveOrder(input),reviewLiveOrder(input));
   assert.equal(input.price,'0.32');
 });
+
+test('live allowance covers separate whole-contract fills under both published fee schedules',()=>{
+  for(let priceCents=1;priceCents<100;priceCents++) {
+    const price=(priceCents/100).toFixed(2);
+    const result=review({price,feeSchedule:'conservative'});
+    assert.equal(result.estimatedFeeCents,3);
+    // One-contract fills are the worst case for per-fill cent rounding.
+    assert.ok(Math.ceil(7*(priceCents/100)*(1-priceCents/100))<=3);
+    assert.ok(Math.ceil(5*Math.min(priceCents/100,1-priceCents/100))<=3);
+  }
+  const split=review({quantity:'4',price:'0.99',feeSchedule:'conservative'});
+  assert.equal(split.estimatedFee,'0.12');assert.equal(split.estimatedTotal,'4.08');
+  assert.match(split.feeNote,/3 cents per whole contract/);
+  // Also reserves enough when a high-limit buy fills nearer the peak-fee price.
+  assert.ok(split.estimatedFeeCents>=4*3);
+});
+
+test('conservative live allowance is included in both remaining budget and available balance',()=>{
+  assert.equal(review({quantity:'10',price:'0.47',feeSchedule:'conservative'}).estimatedTotal,'5.00');
+  rejects({quantity:'10',price:'0.48',feeSchedule:'conservative'},'BUDGET_EXCEEDED');
+  rejects({price:'0.50',availableUsd:'0.52',feeSchedule:'conservative'},'INSUFFICIENT_FUNDS');
+  rejects({price:'0.50',remainingBudgetUsd:'0.52',feeSchedule:'conservative'},'REMAINING_BUDGET_EXCEEDED');
+});
+
+test('conservative fees cover cent rounding for each permitted fractional fill',()=>{
+  for (const [quantityIncrement,fee,total] of [
+    ['0.01','1.00','1.50'],
+    ['0.1','0.10','0.60'],
+    ['0.5','0.04','0.54'],
+    ['1','0.03','0.53'],
+  ]) {
+    const result=review({quantityIncrement,feeSchedule:'conservative'});
+    assert.equal(result.estimatedFee,fee,quantityIncrement);
+    assert.equal(result.estimatedTotal,total,quantityIncrement);
+  }
+  const multiple=review({quantity:'2',quantityIncrement:'0.01',feeSchedule:'conservative'});
+  assert.equal(multiple.estimatedFee,'2.00');
+  assert.equal(multiple.estimatedTotal,'3.00');
+  const wholeStep=review({quantity:'2',quantityIncrement:'2',feeSchedule:'conservative'});
+  assert.equal(wholeStep.estimatedFee,'0.06');
+  assert.equal(wholeStep.estimatedTotal,'1.06');
+  assert.deepEqual(review({quantityIncrement:'1',feeSchedule:'conservative'}),review({feeSchedule:'conservative'}));
+});
+
+test('fractional allowance rounds both the possible fill count and each fill fee upward exactly',()=>{
+  // Three whole contracts on a 0.3 grid need the conservative four fills per
+  // whole-contract allowance, even though 1 / 0.3 is not an integer.
+  assert.equal(review({quantity:'3',price:'0.01',quantityIncrement:'0.3',feeSchedule:'conservative'}).estimatedFee,'0.12');
+  // At 0.4 contracts the peak legacy fee is exactly one cent; the smallest
+  // accepted decimal increase must make that per-fill reservation two cents.
+  assert.equal(review({quantityIncrement:'0.400000000000000000',feeSchedule:'conservative'}).estimatedFee,'0.03');
+  assert.equal(review({quantityIncrement:'0.400000000000000001',feeSchedule:'conservative'}).estimatedFee,'0.06');
+  assert.equal(review({quantityIncrement:'0.500000000000000000',feeSchedule:'conservative'}).estimatedFee,'0.04');
+  assert.equal(review({quantity:'2',quantityIncrement:'2.000000000000000000',feeSchedule:'conservative'}).estimatedFee,'0.06');
+});
+
+test('fractional fees enforce the exact $5 total and one-cent remaining budget and balance boundaries',()=>{
+  const fractional={quantityIncrement:'0.01',feeSchedule:'conservative'};
+  const exact=review({...fractional,availableUsd:'1.50',remainingBudgetUsd:'1.50'});
+  assert.equal(exact.principal,'0.50');
+  assert.equal(exact.estimatedFee,'1.00');
+  assert.equal(exact.estimatedTotal,'1.50');
+  rejects({...fractional,availableUsd:'1.49'},'INSUFFICIENT_FUNDS');
+  rejects({...fractional,remainingBudgetUsd:'1.49'},'REMAINING_BUDGET_EXCEEDED');
+  assert.equal(review({...fractional,quantity:'4',price:'0.25'}).estimatedTotal,'5.00');
+  // Five contracts on a 0.02 grid reserve $2.50 in fees; the same principal
+  // would fit easily if the old three-cent whole-contract allowance were used.
+  assert.equal(review({quantity:'5',price:'0.50',quantityIncrement:'0.02',feeSchedule:'conservative'}).estimatedTotal,'5.00');
+  rejects({...fractional,quantity:'4',price:'0.26'},'BUDGET_EXCEEDED');
+  rejects({quantity:'5',price:'0.51',quantityIncrement:'0.02',feeSchedule:'conservative'},'BUDGET_EXCEEDED');
+});
+
+test('tiny but valid increments fail the budget check without numeric overflow',()=>{
+  for (const quantityIncrement of ['0.0005','0.000000000000000001']) {
+    rejects({quantityIncrement,feeSchedule:'conservative'},'BUDGET_EXCEEDED');
+  }
+});
+
+test('conservative fee increments reject malformed, nonpositive, and unsupported fractional steps',()=>{
+  for (const quantityIncrement of [
+    '0','0.0','0.000000000000000000','-0.01','+0.01','1e-2',
+    ' 0.01','0.01 ','00.01','01','.01','1.','0.0000000000000000001',
+    '1.1','1.000000000000000001','2.5','NaN','Infinity','',
+    0.01,1,NaN,Infinity,null,true,{},[],
+  ]) rejects({quantityIncrement,feeSchedule:'conservative'},'INVALID_QUANTITY_INCREMENT');
+});
+
+test('fractional allowance bounds every split-fill partition under both published schedules',()=>{
+  for (const stepHundredths of [1,10,20,25,50,100]) {
+    const quantityIncrement=(stepHundredths/100).toFixed(2);
+    const allowance=review({price:'0.99',quantityIncrement,feeSchedule:'conservative'}).estimatedFeeCents;
+    const units=100/stepHundredths;
+    for (const feeSchedule of ['current','legacy']) {
+      for (let priceCents=1;priceCents<100;priceCents++) {
+        // Integer numerators keep exact-cent rounding independent of binary
+        // floating-point price arithmetic. Enumerate all partitions by finding
+        // the maximum cumulative fee for each count of quantity-grid units.
+        const maximumFees=Array(units+1).fill(0);
+        for (let totalUnits=1;totalUnits<=units;totalUnits++) {
+          for (let fillUnits=1;fillUnits<=totalUnits;fillUnits++) {
+            const fillHundredths=fillUnits*stepHundredths;
+            const fee=feeSchedule==='current'
+              ? Math.ceil(7*fillHundredths*priceCents*(100-priceCents)/1000000)
+              : Math.ceil(5*fillHundredths*Math.min(priceCents,100-priceCents)/10000);
+            maximumFees[totalUnits]=Math.max(maximumFees[totalUnits],maximumFees[totalUnits-fillUnits]+fee);
+          }
+        }
+        assert.ok(maximumFees[units]<=allowance,`${feeSchedule}: increment ${quantityIncrement}, price ${priceCents} cents`);
+      }
+    }
+  }
+});

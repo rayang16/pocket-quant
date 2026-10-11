@@ -1,54 +1,60 @@
-# Live demo preparation
+# Owner-only live demo
 
-The live demo uses a personal Gemini master API key with private owner access. The current release supports authenticated, read-only account checks and prepares independent order components. **Real-money order placement is not enabled.**
+`/live.html` provides a private real-money order flow for the owner's configured Gemini account. Live trading requires explicit `GEMINI_LIVE_TRADING_ENABLED=true` opt-in, personal master-key credentials, private owner-session configuration, and durable Upstash storage. Credentials alone do not activate trading. The owner reviews and manually submits each order; report generation, funding, login, refresh, and account checks never submit orders.
 
-## Prepared
+The source includes the integrated account checks, market discovery, order reviews, submission transport, and durable journal. Upstash has been configured and exercised using synthetic records, including duplicate submissions, unknown-outcome blocking, persistent budgets, and over-budget rejection. **No real Gemini order has been placed.** This status does not claim deployment or completed end-to-end live execution.
 
-- `/live.html` shows setup status and links to the real Gemini account, payment methods, and API settings. A separate owner access code unlocks the account check. The page never requests Gemini keys and has no transaction buttons.
-- `GET /api/live-trade?action=status` returns non-secret configuration flags. It never claims a connection or live trading is enabled. Credentials alone do not activate anything. Transaction actions return `LIVE_TRADING_NOT_READY`.
-- `POST ...?action=login` checks the owner code against a SHA-256 hash and creates a fifteen-minute authenticated, encrypted HttpOnly/SameSite=Strict cookie. Origin, expiry, CSRF, and environment isolation are enforced. `POST ...?action=logout` clears the cookie after checking CSRF and origin.
-- `GET ...?action=account` requires the owner cookie and performs only four allowlisted production reads: roles, accounts, available balances, and prediction terms. It returns only the account label, available USD floored to cents, trading permission, terms status, and check time. It never exposes API credentials, raw provider errors, or the private stable account identity.
-- `lib/live-order-policy.js` validates whole-contract limit buys, available USD, remaining demo budget, and a known current or legacy fee schedule with integer cents. It rejects orders whose principal plus **estimated** taker fee exceeds $5 or the remaining budget/balance. It is not yet called by an order endpoint.
-- `lib/live-order-store.js` provides a durable Redis journal and atomic, one-use submission reservations across server instances. A persistent Upstash database with eviction disabled has been configured and exercised using synthetic records: concurrent duplicate submissions, unknown-outcome blocking, budget persistence across clients, and over-budget rejection passed. No Gemini orders were involved. The journal is not yet attached to order endpoints.
-- Sandbox account and order endpoints remain separate and continue to use test funds.
+The sandbox flow remains separate at `/trade.html`, uses test funds and separate credentials, and is documented in [Gemini sandbox setup](gemini-sandbox.md).
 
-## Connection choice
+## Private configuration
 
-For a product where users connect their own accounts, use production OAuth with `balances:read,orders:read,orders:create` and Gemini's application approval. A personal API key instead represents the owner's account and must not be exposed through a public trading endpoint. That demo needs authenticated owner-only access first. Neither connection should request withdrawal permission.
+Enter secrets only through ignored local configuration or the hosting provider's secret settings. Never put them in client code, source control, chat, screenshots, or API responses.
 
-Enter secrets only through ignored local configuration or the hosting provider's secret settings. Do not put them in client code, source control, chat, screenshots, or API responses. Live credentials use separate variable names from sandbox credentials.
+1. Set `GEMINI_LIVE_API_KEY` and `GEMINI_LIVE_API_SECRET` to the intended Gemini master key and secret. Confirm that the key uses time-based nonces before setting `GEMINI_LIVE_NONCE_MODE=time`. The key needs access to the account reads and the Trader role for orders; no withdrawal permission is needed for this flow.
+2. If the key exposes multiple open exchange accounts, set `GEMINI_LIVE_ACCOUNT` to the exact intended account shortname returned by Gemini. The server verifies the selection. Browser requests cannot supply an account name, API host, or arbitrary API path.
+3. Generate a random 32-byte base64url owner code and retain it privately. Set `GEMINI_LIVE_OWNER_CODE_HASH` to its SHA-256 hex digest, `GEMINI_LIVE_SESSION_SECRET` to a separate random secret of at least 32 bytes, and `GEMINI_LIVE_APP_ORIGIN` to the exact HTTPS origin without a trailing slash. Never deploy the raw code or reuse a Gemini credential as the code or session secret. Local HTTP requires `NODE_ENV=development` and an explicit loopback origin.
+4. Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for the persistent database with eviction disabled. Preserve that database and its budget records across deployments. Do not use temporary storage, clear the account namespace, or replace the database to restore spending capacity.
+5. Set `GEMINI_LIVE_TRADING_ENABLED=true` when enabling the owner's order-review flow. Leave it false or unset for account checks without trading. Configuration readiness does not prove that the Gemini account is eligible, funded, or permitted to trade.
 
-## Remaining before live trading
+The current live flow uses the personal master-key path. Leave `GEMINI_LIVE_CLIENT_ID` and `GEMINI_LIVE_CLIENT_SECRET` unset; a future multi-user OAuth product needs its own integration and Gemini application approval. Configuring both credential modes disables readiness. Pending sandbox OAuth approval is separate from this owner-only personal-key connection.
 
-1. Complete real-account eligibility/verification and confirm trading permission and prediction terms using the private account check. The personal-key path does not use the pending OAuth application. A future multi-user OAuth flow still requires Gemini application approval.
-2. Bind the authenticated owner session and verified account identity to the order flow. The read-only adapter currently supports master keys with explicitly confirmed time-based nonces only. Prediction-market WebSockets do not accept master keys; do not treat successful REST account reads as verification of an order connection.
-3. Preserve the configured durable Upstash Redis database and its credentials across deployments. Do not use temporary trial storage, enable eviction, or clear/reset the account budget namespace. Tokens, provider credentials, and raw errors must never be stored in order records.
-4. Attach the journal to the complete order flow. Confirm current available USD from `POST /v1/balances`, resolve the contract's fee schedule and price/quantity increments from authoritative data, and recheck these and terms before submission. Recheck the review expiry after asynchronous preflight. Accept terms only in Gemini through the user's action.
-5. Bind the preview to the exact account, market, outcome, quantity, price, expiry, and evidence of user confirmation. Atomically reserve the estimated total before the one permitted order attempt. Never treat adding credentials, funding, or clicking refresh as a trade authorization.
-6. Reconcile uncertain outcomes with Gemini before another order. REST placement does not document an idempotency guarantee; never retry an ambiguous placement automatically. Order IDs may exceed JavaScript's safe integer range, so retain them losslessly.
-7. Complete authenticated integration tests and review the user-visible real-money confirmation. The user submits the actual financial transaction themselves.
+## Review and submission behavior
 
-The initial journal is deliberately conservative: reservations survive session changes and server restarts, and are not automatically refunded after a failed or unfilled submission. Unknown/submitting results block additional submissions for the account. Budget reset/release requires a separately designed reconciliation workflow; reconnecting must never reset the $5 budget.
+- The owner code creates a fifteen-minute encrypted HttpOnly, SameSite=Strict cookie. Protected actions check authentication and expiry; mutations also require the configured origin and CSRF token. Rotating the code hash, session secret, or origin invalidates existing sessions.
+- The private account check reads Gemini roles, accounts, available USD, and prediction-market terms. Public visitors receive only setup flags. Account responses exclude API credentials, raw provider errors, and the private stable account identity.
+- Live market discovery reads active production events from Gemini, with bounded pagination and timeouts. Eligible categories are Crypto, Economics, Business, Commodities, and Tech. Only eligible open, unexpired contracts with authoritative identities, resolution details, and supported quantity/price increments are offered. Missing or unsupported metadata blocks that contract rather than supplying a default grid.
+- The owner chooses YES or NO, 1–100 whole contracts, and a limit price from $0.01 to $0.99 in whole cents. The amount must also fit the contract's verified minimum and increment and the available balance and remaining budget. Valid fractional quantity grids are supported; a whole-contract order may receive fractional execution fills. Only limit buys with `immediate-or-cancel` are supported: an order may fill fully, fill partly, or cancel unfilled quantity.
+- A review shows the exact event, contract, resolution description, expiry, outcome, quantity, price, principal, fee allowance, and total reservation. It expires after at most two minutes, or sooner if the owner session or market expires. Its token is tied to that private session and verified Gemini account.
+- Submission requires an explicit confirmation of that review. The server rereads the account, available USD, Trader role, and terms; obtains fresh market data; and verifies that the contract details and trading grid still match the review. It checks expiry again after asynchronous checks and after obtaining the reservation. Accept prediction-market terms directly in Gemini through the owner's action.
+- Before the sole exchange attempt, an atomic Upstash operation consumes the review and reserves its total against the account's lifetime budget. Repeated confirmations return the stored submission state. They do not create a second order.
+- The transport signs the fixed production REST order path using Gemini's HMAC headers and an empty request body. It never follows redirects or retries placement. Order IDs remain exact decimal strings even when larger than JavaScript's safe integer range.
 
-## Private account configuration
+## The lifetime $5 reservation limit
 
-Set `GEMINI_LIVE_API_KEY`, `GEMINI_LIVE_API_SECRET`, and `GEMINI_LIVE_NONCE_MODE=time` only after confirming time-based support. If multiple open exchange accounts exist, set `GEMINI_LIVE_ACCOUNT` to an exact shortname returned by Gemini. The adapter never lets a browser choose arbitrary account names or API paths.
+The live flow reserves **limit price × whole contracts + a conservative fee allowance based on the contract's verified minimum fill step**. This principal-plus-fee allowance must fit both the currently available USD balance and the unused portion of the account's **$5 lifetime demo reservation limit**. Monetary arithmetic uses integer cents and exact quantity-grid calculations.
 
-Generate a random 32-byte base64url owner code and retain it in a private password manager or ignored file. Set `GEMINI_LIVE_OWNER_CODE_HASH` to its SHA-256 hex digest, `GEMINI_LIVE_SESSION_SECRET` to a separate random secret, and `GEMINI_LIVE_APP_ORIGIN` to the exact public HTTPS origin without a trailing slash. Never deploy the raw access code. Local HTTP is allowed only with `NODE_ENV=development` and an explicit loopback origin. Rotating the code hash, session secret, or origin invalidates existing cookies.
+The allowance accounts for the possibility that Gemini rounds fees up separately for every execution fill. For a verified quantity increment `s` of at most one contract, the allowance per whole requested contract is `ceil(1 / s) × ceil(2.5 × s)` cents. This uses the larger published fee maximum of 2.5¢ per contract and rounds each possible fill's allowance up to a cent. Integer increments of one contract or larger use 3¢ per whole requested contract. Noninteger increments larger than one, missing grids, and unsupported precision are rejected. The increment comes from authoritative contract metadata, and the requested whole quantity must also satisfy the exact minimum and increment grid.
 
-The owner code protects one operator's demo account; it is not a multi-user Gemini account-linking system. Provider calls are read-only and shared while a check is in flight on one instance. This does not implement a durable cross-instance rate limit or an order authentication mechanism.
+For a 0.01-contract fill step, each whole contract can produce 100 fills. Reserving 1¢ for each gives a **$1 fee allowance per whole contract**. A one-contract fill step reserves **3¢ per whole contract**. Two contracts at a $0.45 limit therefore reserve $2.90 with a 0.01 fill step ($0.90 principal + $2.00 allowance), or $0.96 with a one-contract fill step ($0.90 + $0.06). The owner still enters whole-contract quantities in both cases.
 
-## Fees and the $5 budget
+Actual fees may be much lower. This conservative allowance is a budgeting reserve, not a Gemini fee quote or a guarantee about future fee changes. The pure review-policy module also supports schedule-specific estimates, but the integrated live flow uses the allowance calculated from the verified fill step.
 
-The current published taker fee is `0.07 × contracts × price × (1 − price)` for contracts listed from March 18, 2026, rounded up to a cent. The legacy schedule uses `0.05 × contracts × min(price, 1 − price)`. The review policy rounds both estimates upward for budgeting. Unknown schedules are rejected rather than guessed.
+Once a submission reservation is created, it remains counted even if an order is rejected, cancelled, partly filled, or unfilled, or if the review expires before the exchange call. There is no automatic refund of unused principal or fees. Previewing alone does not reserve money. A new session, key rotation for the same account, restart, or deployment must not reset the lifetime total. This limit applies to this app's submissions; it does not limit transactions made directly in Gemini or through another client.
 
-The $5 check includes an estimated trading fee; it is not a guaranteed maximum final charge. Per-fill rounding and fee changes can affect actual fees. Before enabling orders, verify the applicable fee behavior with Gemini, leave funding headroom, and keep the available-balance check. Depositing $5 does not itself establish production app approval or that all $5 is immediately available to trade.
+Unknown or still-submitting results block further submissions for the account. An IOC response that still reports an open order is also treated as unknown, with any validated order details preserved. The owner must inspect orders directly in Gemini; refreshing a result never retries placement. There is no automatic reconciliation, reservation-release, budget-reset, or gate-clearing action in the app. Any future reconciliation workflow must verify the provider outcome before changing journal state.
+
+## API and verification scope
+
+`GET /api/live-trade?action=status` reports configuration and private-session status; it does not establish a Gemini connection. `login` and `logout` manage owner access. Authenticated `account` reads current account readiness. When live review is enabled, authenticated `markets`, `preview`, `submit`, and `result` provide the review and journal flow. `preview` and `submit` require JSON POST requests with origin and CSRF checks. A valid session may read a prior result for the same Gemini account after logging in again, but cannot submit a review created in an earlier session.
+
+Offline tests use mocked exchange responses and cover authentication, immutable reviews, expiry, fresh preflight, fee-inclusive budgeting, duplicate consumption, uncertain outcomes, and transport signing. Synthetic Upstash checks establish storage behavior only. Actual account eligibility, accepted terms, current balance, deployed behavior, and a user-submitted real order require separate verification; an API key or a successful read is not proof of completed execution.
 
 ## Official references
 
-- [Gemini OAuth and production application approval](https://developer.gemini.com/authentication/oauth)
-- [Available balances](https://developer.gemini.com/trading/rest-api/fund-management/get-available-balances)
+- [Gemini API-key authentication and time-based nonces](https://developer.gemini.com/authentication/api-key)
+- [Master keys and prediction-market account targeting](https://developer.gemini.com/rest-api/common/admin/subaccounts)
 - [Prediction-market order placement](https://developer.gemini.com/rest-api/prediction-markets/order-management/place-order)
+- [Prediction-market contract metadata](https://developer.gemini.com/rest-api/prediction-markets/events/list-events)
 - [Current fee schedule](https://www.gemini.com/fees/predictions)
 - [Legacy fee schedule](https://www.gemini.com/fees/predictions-2026-03-18)
 - [Upstash Redis REST API](https://upstash.com/docs/redis/features/restapi)

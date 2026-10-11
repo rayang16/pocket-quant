@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#10141b">
-  <meta name="description" content="Prepare your Gemini account for a Pocket Quant live demo. Check setup readiness without placing an order.">
-  <title>Prepare a live demo — Pocket Quant</title>
+  <meta name="description" content="Review and manually confirm a real-money Gemini prediction-market order within a $5 demo budget.">
+  <title>$5 live demo — Pocket Quant</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/live.css">
@@ -18,9 +18,9 @@
   </header>
   <main>
     <section class="live-intro" aria-labelledby="live-heading">
-      <p class="eyebrow live-badge">REAL MONEY · PREPARATION ONLY</p>
+      <p class="eyebrow live-badge">REAL MONEY · $5 TOTAL LIMIT</p>
       <h1 id="live-heading">A small demo.<br><em>Your call.</em></h1>
-      <p>Get your Gemini account ready for a live demo. This page checks your setup; it cannot place an order or move money.</p>
+      <p>Choose a Gemini prediction market, review the exact order, and decide whether to place it. Every order needs your confirmation. You can lose the amount you spend.</p>
     </section>
 
     <div class="live-desk">
@@ -34,13 +34,13 @@
           <div><dt>Connection method</dt><dd id="live-method">Not checked yet</dd></div>
         </dl>
         <section class="live-owner" aria-labelledby="owner-heading">
-          <h3 id="owner-heading">Private account check</h3>
+          <h3 id="owner-heading">Private owner access</h3>
           <p id="owner-summary" class="live-message">Checking whether private owner access is available…</p>
           <form id="owner-form" method="post" action="/api/live-trade?action=login" hidden>
             <label for="owner-code">Owner access code</label>
             <p id="owner-code-help" class="live-small">Use the private code set by the site owner. This is not your Gemini API key.</p>
             <input id="owner-code" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="512" required aria-describedby="owner-code-help owner-error">
-            <button id="unlock-owner" class="secondary" type="submit">Unlock account check</button>
+            <button id="unlock-owner" class="secondary" type="submit">Unlock private access</button>
           </form>
           <div id="owner-session" class="live-owner-session" hidden>
             <p id="owner-expiry" class="live-small"></p>
@@ -62,25 +62,77 @@
 
       <aside class="live-panel live-budget" aria-labelledby="budget-heading">
         <p class="eyebrow">02 / KEEP THE DEMO SMALL</p>
-        <h2 id="budget-heading">Planned total budget</h2>
+        <h2 id="budget-heading">Total demo budget</h2>
         <p class="live-budget-value">$5<span>.00</span></p>
-        <p>Planned spend includes the order cost and estimated fees. Actual fees may differ. Your available balance will need to be checked before each order.</p>
-        <div class="live-budget-note"><h3>You review before you trade.</h3><p>A live order needs its own review and confirmation. Reel analysis never submits a trade automatically.</p></div>
+        <p>Order cost and a conservative fee allowance count toward this limit. Available balance and remaining demo budget are checked again before an order.</p>
+        <dl id="live-budget-details" class="live-account-details" hidden>
+          <div><dt>Remaining demo budget</dt><dd id="budget-remaining"></dd></div>
+          <div><dt>Reserved for orders</dt><dd id="budget-reserved"></dd></div>
+        </dl>
+        <div class="live-budget-note"><h3>You review before you trade.</h3><p>Reel analysis never submits an order. This flow buys YES or NO contracts with an immediate-or-cancel limit order. Any unfilled quantity is cancelled; a partial fill is possible.</p></div>
         <a class="secondary live-sandbox" href="/trade.html">Open the sandbox demo <span aria-hidden="true">↗</span></a>
       </aside>
     </div>
 
+    <section class="live-panel live-trade" aria-labelledby="trade-heading">
+      <div class="live-panel-heading"><p class="eyebrow">03 / CHOOSE & REVIEW</p><span class="live-money-label">REAL MONEY</span></div>
+      <h2 id="trade-heading">Your order, in full.</h2>
+      <p id="trade-locked" class="live-message">Unlock private access and verify the account to choose a market.</p>
+      <p id="trade-status" class="live-message" role="status" aria-live="polite"></p>
+      <p id="trade-error" class="live-message is-error" role="alert"></p>
+      <div id="trade-workspace" hidden>
+        <div class="live-market-toolbar"><p class="live-message">Choose the market yourself. Prices can move before an order is placed.</p><button id="refresh-markets" class="secondary" type="button">Refresh markets</button></div>
+        <form id="order-form">
+          <label for="market-select">Prediction market</label>
+          <select id="market-select" required aria-describedby="market-help"><option value="">Choose a market</option></select>
+          <p id="market-help" class="live-small">Market conditions and expiry are shown below and again in your review.</p>
+          <section id="market-details" class="live-market-details" hidden aria-label="Selected market">
+            <p id="market-event" class="live-event"></p><h3 id="market-title"></h3>
+            <p id="market-description" class="live-conditions"></p>
+            <p id="market-expiry" class="live-small"></p>
+            <a id="market-link" target="_blank" rel="noopener noreferrer" hidden>View market on Gemini ↗</a>
+          </section>
+          <fieldset id="order-inputs" disabled>
+            <legend>Buy a limit order</legend>
+            <div class="live-order-fields">
+              <div><label for="order-outcome">Outcome</label><select id="order-outcome"><option value="yes">YES</option><option value="no">NO</option></select></div>
+              <div><label for="order-quantity">Whole contracts</label><input id="order-quantity" type="number" inputmode="numeric" min="1" max="100" step="1" value="1" required></div>
+              <div><label for="order-price">Limit price per contract (USD)</label><input id="order-price" type="number" inputmode="decimal" min="0.01" max="0.99" step="0.01" placeholder="0.00" required aria-describedby="price-help"></div>
+            </div>
+            <p id="price-help" class="live-small">The current best ask is prefilled when available. You choose the maximum price you will pay per contract.</p>
+            <p class="live-message">Buy only · Immediate or cancel (IOC). Gemini may fill all, part, or none of the order. Unfilled contracts are cancelled.</p>
+          </fieldset>
+          <button id="preview-order" class="primary" type="submit" disabled>Review real-money order</button>
+        </form>
+        <section id="order-review" class="live-review" aria-labelledby="review-heading" hidden tabindex="-1">
+          <p class="eyebrow live-money-label">REAL MONEY · FINAL REVIEW</p><h3 id="review-heading">Check every detail.</h3>
+          <p id="review-event" class="live-event"></p><h4 id="review-title"></h4>
+          <p id="review-description" class="live-conditions"></p><p id="review-expiry" class="live-small"></p>
+          <dl id="review-details" class="live-account-details"></dl>
+          <p id="review-fee-note" class="live-small"></p>
+          <p class="live-message">This is a buy limit order, immediate or cancel. Partial fills are possible. Any unfilled quantity is cancelled. You can lose the money spent on filled contracts.</p>
+          <p id="review-validity" class="live-small"></p>
+          <label class="live-confirm" for="real-money-confirm"><input id="real-money-confirm" type="checkbox"><span>I understand this uses real money.</span></label>
+          <button id="place-order" class="primary live-place" type="button" disabled>Place real-money order</button>
+        </section>
+        <section id="order-result" class="live-result" aria-labelledby="result-heading" hidden tabindex="-1">
+          <h3 id="result-heading">Order status</h3><p id="result-message" class="live-message" role="status" aria-live="polite"></p>
+          <dl id="result-details" class="live-account-details"></dl>
+          <div class="live-result-actions"><button id="check-order" class="secondary" type="button" hidden>Check order status</button><a href="https://exchange.gemini.com/" target="_blank" rel="noopener noreferrer">Open Gemini account ↗</a></div>
+        </section>
+      </div>
+    </section>
     <section class="live-next" aria-labelledby="next-heading">
-      <div><p class="eyebrow">ON GEMINI</p><h2 id="next-heading">Your account. Your access.</h2><p>Use these links to finish your Gemini account setup. The private account check uses credentials configured securely by the site owner. Don’t enter Gemini API keys on this page. Orders remain unavailable.</p></div>
+      <div><p class="eyebrow">ON GEMINI</p><h2 id="next-heading">Your account. Your access.</h2><p>Use these links to finish your Gemini account setup or check orders directly. Private access uses credentials configured securely by the site owner. Don’t enter Gemini API keys on this page.</p></div>
       <div class="live-links">
         <a href="https://exchange.gemini.com/signin" target="_blank" rel="noopener noreferrer"><span>Sign in to Gemini</span><span aria-hidden="true">↗</span></a>
         <a href="https://exchange.gemini.com/settings/api" target="_blank" rel="noopener noreferrer"><span>Gemini API settings</span><span aria-hidden="true">↗</span></a>
         <a href="https://exchange.gemini.com/settings/bank" target="_blank" rel="noopener noreferrer"><span>Gemini payment methods</span><span aria-hidden="true">↗</span></a>
       </div>
     </section>
-    <noscript><p class="live-message is-error">Enable JavaScript to check live-demo readiness. You can still use the Gemini links above. This page cannot place orders.</p></noscript>
+    <noscript><p class="live-message is-error">Enable JavaScript to use the private live demo. You can still use the Gemini links above.</p></noscript>
   </main>
-  <footer class="footer"><span>POCKET QUANT <span class="muted"> / A little less hype.</span></span><span>Live account preparation · No orders from this page</span></footer>
+  <footer class="footer"><span>POCKET QUANT <span class="muted"> / A little less hype.</span></span><span>Real money · $5 total demo limit · Manual confirmation</span></footer>
 </div>
 <script type="module" src="/live.js"></script>
 </body>
