@@ -1,0 +1,19 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {normCdf,probCloseAbove,probTouch,realizedVol,impliedVolFromBinary,impliedVolSolutions,speakerConfidence,hypeVerdict,marketVsModel} from '../lib/math.js';
+test('normal CDF and symmetry',()=>{assert.equal(normCdf(0),.5);assert.ok(Math.abs(normCdf(1.96)-.975)<.0001);assert.ok(Math.abs(normCdf(-1.96)-.025)<.0001);});
+test('binary pricing decreases with strike and approximately 50% at low-variance ATM',()=>{const ps=[90,100,110].map(k=>probCloseAbove(100,k,.01,.1));assert.ok(ps[0]>ps[1]&&ps[1]>ps[2]);assert.ok(Math.abs(ps[1]-.5)<.005);});
+test('touch dominates close and handles already hit barriers',()=>{for(const k of [90,100,110,150])assert.ok(probTouch(100,k,.1,.8,'above')>=probCloseAbove(100,k,.1,.8));assert.equal(probTouch(100,90,.1,.8,'above'),1);assert.equal(probTouch(100,110,.1,.8,'below'),1);});
+test('touch approaches driftless reflection approximation',()=>{const s=.001,T=1,b=.001,K=100*Math.exp(b);assert.ok(Math.abs(probTouch(100,K,T,s)-2*(1-normCdf(b/(s*Math.sqrt(T)))))<.001);});
+test('continuous-barrier Monte Carlo agrees within 1.5 percentage points',()=>{
+let seed=28771;const u=()=>{seed=(Math.imul(1664525,seed)+1013904223)>>>0;return (seed+.5)/4294967296;};const normal=()=>Math.sqrt(-2*Math.log(u()))*Math.cos(2*Math.PI*u());
+const S=100,K=120,sigma=.65,T=.3,b=Math.log(K/S),steps=60,dt=T/steps,N=35000;let hits=0;
+for(let n=0;n<N;n++){let x=0;for(let j=0;j<steps;j++){const next=x-.5*sigma*sigma*dt+sigma*Math.sqrt(dt)*normal();const bridge=next>=b?1:Math.exp(-2*(b-x)*(b-next)/(sigma*sigma*dt));if(u()<bridge){hits++;break;}x=next;}}
+assert.ok(Math.abs(hits/N-probTouch(S,K,T,sigma))<.015,`${hits/N}`);});
+test('implied volatility round trips unique roots and rejects unattainable prices',()=>{const p=probCloseAbove(100,120,.2,.7);const roots=impliedVolSolutions(100,120,.2,p);assert.ok(roots.some(v=>Math.abs(v-.7)<1e-6));assert.equal(impliedVolFromBinary(100,120,.2,.99),null);assert.equal(impliedVolFromBinary(100,120,.2,0),null);});
+test('ambiguous binary volatility exposes both roots',()=>{const p=probCloseAbove(100,120,1,.3);assert.equal(impliedVolSolutions(100,120,1,p).length,2);assert.equal(impliedVolFromBinary(100,120,1,p),null);});
+test('vol requires window+1 observations and uses sample daily variance',()=>{assert.equal(realizedVol([1,2],14),null);const a=Math.log(1.1),b=Math.log(.9),mean=(a+b)/2;assert.ok(Math.abs(realizedVol([100,110,99],2)-Math.sqrt((a-mean)**2+(b-mean)**2)*Math.sqrt(365))<1e-9);assert.equal(realizedVol([1,0,2],2),null);});
+test('speaker lexicon respects hedging and negation',()=>{assert.equal(speakerConfidence('guaranteed'),.97);assert.equal(speakerConfidence('not guaranteed'),.4);assert.equal(speakerConfidence('might definitely'),.4);assert.equal(speakerConfidence('will'),.85);assert.equal(speakerConfidence('probably'),.7);});
+test('verdict thresholds and noise-aware market comparison',()=>{assert.equal(hypeVerdict(.97,.1).label,'HYPE');assert.equal(hypeVerdict(.85,.6).label,'STRETCH');assert.equal(hypeVerdict(.7,.6).label,'FAIR CALL');assert.equal(hypeVerdict(.4,.9).label,'UNDERSOLD');assert.equal(marketVsModel(.7,.3,.6,.15).label,'FAIR');assert.equal(marketVsModel(.7,.3,.6,.02).label,'MARKET RICH');assert.equal(marketVsModel(.1,.3,.6,.02).label,'MARKET CHEAP');assert.equal(marketVsModel(.8,.3,.6,null).label,'INSUFFICIENT QUOTES');});
+test('single-root implied volatility helper round-trips an identifiable known sigma',()=>{const p=probCloseAbove(100,100,.2,.7);assert.ok(Math.abs(impliedVolFromBinary(100,100,.2,p)-.7)<1e-6);});
+test('normal lower tail stays positive for remote crypto targets',()=>{assert.ok(normCdf(-10)>0);});
+test('tiny binary prices do not create spurious volatility roots',()=>{const p=probCloseAbove(100,200,.1,.5);const roots=impliedVolSolutions(100,200,.1,p);assert.ok(roots.length<=2);assert.ok(roots.some(v=>Math.abs(v-.5)<1e-6));});

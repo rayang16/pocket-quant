@@ -1,0 +1,12 @@
+{
+  "manifest_version":3,"name":"Pocket Quant — Reel Hype Checker","version":"1.0.0",
+  "description":"Check the predictions in your feed against Gemini markets and volatility math.",
+  "minimum_chrome_version":"116",
+  "permissions":["sidePanel","activeTab","scripting","storage","tabCapture"],
+  "host_permissions":["https://*.vercel.app/*","http://localhost/*","http://127.0.0.1/*"],
+  "optional_host_permissions":["https://*/*"],
+  "action":{"default_title":"Open Pocket Quant"},
+  "background":{"service_worker":"background.js","type":"module"},
+  "side_panel":{"default_path":"sidepanel.html"},
+  "content_scripts":[{"matches":["https://www.instagram.com/*"],"js":["content.js"],"run_at":"document_idle"}]
+}
