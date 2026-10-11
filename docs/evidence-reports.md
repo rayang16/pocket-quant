@@ -27,4 +27,6 @@ Related Gemini markets are separate from factual evidence. Keyword overlap never
 
 Offline tests cover claim anchoring, unsupported sources, URL safety, missing configuration, input/origin limits, concurrent requests, cancellation and partial failures. A live sourced report also requires a configured research API key and a successful provider call. Offline fixtures and manually researched examples do not establish live provider success.
 
+The October 11, 2026 verification run passed 197 tests and the asset build. The magnets/Optimus Reel produced three editable claims through the live deployed Supadata-to-report flow. The VSOF Reel exposed an extraction gap for a narrated price scenario; a regression fix now preserves that complete sentence as a reported forecast, including its scene context. Live source research remains unverified because the research API key has not been configured.
+
 Provider references: [Anthropic web search](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool), [tool definitions](https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools).

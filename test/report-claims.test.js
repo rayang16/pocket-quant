@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {extractReportClaims} from '../lib/report-claims.js';
+import {extractReportClaims, classifyReportClaim} from '../lib/report-claims.js';
 
 const now = new Date('2026-10-11T19:30:00Z');
 const extract = (text, options = {}) => extractReportClaims(text, {now, ...options});
@@ -174,4 +174,25 @@ test('overlong single statements are not cropped in ways that can lose important
   const result = await extract(text);
   assert.deepEqual(result.claims, []);
   assert.ok(result.warnings.some(warning => /No clear financial claims/.test(warning)));
+});
+
+test('recovers the user Reel narrated price scenario with its complete source context', async () => {
+  const sentence = 'And I thought nothing of it until the next scene cuts to his phone where it shows the VSOF Vanguard Strategic Oil Fund hitting $1 on October 7th.';
+  const transcript = `I was watching this episode and ${'the camera moved around the room '.repeat(45)}. ${sentence} ${'Then everyone kept talking about what they had seen '.repeat(35)}.`;
+  const result = await extract(transcript);
+  assert.equal(result.claims.length, 1);
+  assert.equal(result.claims[0].text, sentence);
+  assert.equal(result.claims[0].quote, sentence);
+  assert.equal(result.claims[0].type, 'forecast');
+  assert.equal(classifyReportClaim(sentence, now), 'forecast');
+  assertAnchored(result, transcript);
+});
+
+test('historical price charts and current price statements are not reclassified as forecasts', async () => {
+  for (const sentence of ['The chart shows Acme hitting $1 on October 7th.', 'My brokerage statement shows Acme at $1 per share.', 'Acme was trading at $1 on October 7th.']) {
+    const result = await extract(sentence);
+    assert.equal(result.claims.length, 1);
+    assert.equal(result.claims[0].type, 'fact');
+    assert.equal(result.claims[0].text, sentence);
+  }
 });
