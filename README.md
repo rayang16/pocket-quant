@@ -21,6 +21,8 @@ Optional: copy `.env.example` to `.env`. `SUPADATA_API_KEY` enables automatic tr
 
 Open `/trade.html` for the sandbox-only account connection, market selection, order review, and explicit test-order confirmation. This is separate from the public-data report. Server credentials are configured for the deployed app, but Gemini OAuth app approval is still pending; account connection and test orders have not completed end to end. Live-money trading is disabled in code. See [Gemini sandbox setup](docs/gemini-sandbox.md) for callback URLs, permissions, and limitations. No account state or receipts are fabricated.
 
+Open `/live.html` for the real-money demo preparation page. The $5 review policy and durable order journal are implemented as separate, tested modules; live account authentication and order placement are not connected yet. The live endpoint only reports setup status and rejects all transaction actions, even when credentials exist. See [live demo preparation](docs/live-demo.md) for the remaining integration and verification steps.
+
 ## Send a Reel from iPhone
 
 Pocket Quant is a mobile-friendly web app. There is no browser extension in the current product.

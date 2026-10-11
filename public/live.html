@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10141b">
+  <meta name="description" content="Prepare your Gemini account for a Pocket Quant live demo. Check setup readiness without placing an order.">
+  <title>Prepare a live demo — Pocket Quant</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/live.css">
+</head>
+<body>
+<div class="shell live-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Pocket Quant home"><span class="brand-mark" aria-hidden="true">p<span>q</span></span>POCKET QUANT</a>
+    <a class="live-back" href="/">← Back to checker</a>
+  </header>
+  <main>
+    <section class="live-intro" aria-labelledby="live-heading">
+      <p class="eyebrow live-badge">REAL MONEY · PREPARATION ONLY</p>
+      <h1 id="live-heading">A small demo.<br><em>Your call.</em></h1>
+      <p>Get your Gemini account ready for a live demo. This page checks your setup; it cannot place an order or move money.</p>
+    </section>
+
+    <div class="live-desk">
+      <section class="live-panel live-readiness" aria-labelledby="readiness-heading" aria-busy="true">
+        <div class="live-panel-heading"><p class="eyebrow">01 / ACCOUNT READINESS</p><span id="live-state" class="live-state">Checking</span></div>
+        <h2 id="readiness-heading">One step at a time.</h2>
+        <p id="live-message" class="live-message" role="status" aria-live="polite">Checking what’s ready for your live demo…</p>
+        <ul id="live-requirements" class="live-requirements" aria-label="Live demo setup checklist"></ul>
+        <dl class="live-account-details">
+          <div><dt>Gemini connection</dt><dd id="live-connection">Not checked yet</dd></div>
+          <div><dt>Connection method</dt><dd id="live-method">Not checked yet</dd></div>
+        </dl>
+        <button id="refresh-live" class="primary" type="button" disabled>Checking readiness…</button>
+        <p id="live-checked" class="live-small"></p>
+      </section>
+
+      <aside class="live-panel live-budget" aria-labelledby="budget-heading">
+        <p class="eyebrow">02 / KEEP THE DEMO SMALL</p>
+        <h2 id="budget-heading">Planned total budget</h2>
+        <p class="live-budget-value">$5<span>.00</span></p>
+        <p>Planned spend includes the order cost and estimated fees. Actual fees may differ. Your available balance will need to be checked before each order.</p>
+        <div class="live-budget-note"><h3>You review before you trade.</h3><p>A live order needs its own review and confirmation. Reel analysis never submits a trade automatically.</p></div>
+        <a class="secondary live-sandbox" href="/trade.html">Open the sandbox demo <span aria-hidden="true">↗</span></a>
+      </aside>
+    </div>
+
+    <section class="live-next" aria-labelledby="next-heading">
+      <div><p class="eyebrow">ON GEMINI</p><h2 id="next-heading">Your account. Your access.</h2><p>Use these links to finish your Gemini account setup. Pocket Quant account linking is still being prepared. A personal API key requires private owner access. Don’t enter keys on this page.</p></div>
+      <div class="live-links">
+        <a href="https://exchange.gemini.com/signin" target="_blank" rel="noopener noreferrer"><span>Sign in to Gemini</span><span aria-hidden="true">↗</span></a>
+        <a href="https://exchange.gemini.com/settings/api" target="_blank" rel="noopener noreferrer"><span>Gemini API settings</span><span aria-hidden="true">↗</span></a>
+        <a href="https://exchange.gemini.com/settings/bank" target="_blank" rel="noopener noreferrer"><span>Gemini payment methods</span><span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+    <noscript><p class="live-message is-error">Enable JavaScript to check live-demo readiness. You can still use the Gemini links above. This page cannot place orders.</p></noscript>
+  </main>
+  <footer class="footer"><span>POCKET QUANT <span class="muted"> / A little less hype.</span></span><span>Live account preparation · No orders from this page</span></footer>
+</div>
+<script type="module" src="/live.js"></script>
+</body>
+</html>

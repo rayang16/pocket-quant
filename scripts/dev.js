@@ -9,6 +9,7 @@ import reelTranscript from '../api/reel-transcript.js';
 import evidenceReport from '../api/evidence-report.js';
 import geminiAccount from '../api/gemini-account.js';
 import geminiTrade from '../api/gemini-trade.js';
+import liveTrade from '../api/live-trade.js';
 const root=fileURLToPath(new URL('../public/',import.meta.url));
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.zip':'application/zip','.json':'application/json','.shortcut':'application/octet-stream'};
 const port=Number(process.env.PORT||3000);
@@ -21,6 +22,7 @@ createServer(async(req,res)=>{
   if(url.pathname==='/api/evidence-report') return evidenceReport(req,res);
   if(url.pathname==='/api/gemini-account') return geminiAccount(req,res);
   if(url.pathname==='/api/gemini-trade') return geminiTrade(req,res);
+  if(url.pathname==='/api/live-trade') return liveTrade(req,res);
   if(!['GET','HEAD'].includes(req.method)) {res.writeHead(405);return res.end();}
   try {
     const path=resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
