@@ -1,6 +1,6 @@
 # Pocket Quant
 
-**A little less hype.** Turn an Instagram Reel into up to three reviewed claims, discover related Gemini Exchange Prediction Markets, and apply volatility math to supported crypto forecasts. Market prices provide context; they do not fact-check historical statements or make a trade suitable.
+**A little less hype.** Share an Instagram Reel to automatically extract up to three claims, discover related Gemini Exchange Prediction Markets, and apply volatility math to supported crypto forecasts. Market prices provide context; they do not fact-check historical statements or make a trade suitable.
 
 Plain Node ESM, native browser modules, no application dependencies, no database. No canned odds or simulated market data in the app. Test fixtures live only in `fixtures/` and are imported only by tests.
 
@@ -26,10 +26,10 @@ Open `/trade.html` for the sandbox-only account connection, market selection, or
 Pocket Quant is a mobile-friendly web app. There is no browser extension in the current product.
 
 1. Open `/share.html` in Safari on your iPhone and download **Check with Pocket Quant**.
-2. Open the downloaded `.shortcut` file in Apple Shortcuts and choose **Add Shortcut**.
+2. Open the downloaded `.shortcut` file in Apple Shortcuts and choose **Add Shortcut**. In its **Details**, enable **Show in Share Sheet**.
 3. In Instagram, choose **Share → More / Share to… → Check with Pocket Quant**.
 4. The shortcut opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. The app validates the Instagram permalink, removes tracking parameters, and clears the incoming fragment from the address bar.
-5. When Supadata is configured, the app sends the public link to Supadata for transcription and selects up to three draft claims using text rules. Review the transcript, wording, and claim types, then choose **Check with Gemini**. Market checks start only after this review. Private, restricted, missing, or silent videos may fail; paste the claim or upload a recording as a fallback.
+5. When Supadata is configured, the app sends the public link to Supadata for transcription, selects up to three claims using text rules, and immediately checks Gemini markets and any applicable crypto math. No second tap is required. Claims stay editable; editing the transcript or a claim stops active checks, and the user can recheck the corrected text. Private, restricted, missing, or silent videos may fail; paste the claim or upload a recording as a fallback.
 
 The exported shortcut was created in Apple Shortcuts and exported for Anyone (Apple validates a copy). It uses URL Encode → Text → Open URLs and points to the production domain above. If the production domain changes, update and re-export it. Actual Instagram Share Sheet placement and import must be checked on an iPhone; macOS/browser checks do not prove device behavior.
 
@@ -60,7 +60,7 @@ The zero-drift lognormal model ignores jump risk and understates fat tails. Real
 
 ### Claim parsing and honest uncertainty
 
-The Reel report selects up to three distinct claims with deterministic text rules and keeps their original transcript wording. Users can edit and classify each as a fact, forecast, or recommendation. Historical facts receive `not_market_verifiable`; recommendations remain opinions; forecasts remain uncertain. Related Gemini contracts never become a supported/contradicted verdict on a factual claim. The report applies crypto probability math only when the claim has a supported target and an explicit calendar deadline with a year. Relative dates in undated Reels need review.
+The Reel report selects up to three distinct claims with deterministic text rules and keeps their original transcript wording. Market checks and supported crypto calculations start automatically after transcription and extraction. Users can edit and classify each as a fact, forecast, or recommendation, then recheck any corrections. Historical facts receive `not_market_verifiable`; recommendations remain opinions; forecasts remain uncertain. Related Gemini contracts never become a supported/contradicted verdict on a factual claim. The report applies crypto probability math only when the claim has a supported target and an explicit calendar deadline with a year. Relative dates in undated Reels need review.
 
 The separate single-crypto checker handles BTC/ETH/SOL/XRP/ZEC aliases, k/m amounts, commas, percentage moves, caption noise, and relative/calendar deadlines. A target must be between 0.2× and 10× live spot. Multiple plausible targets require clarification. Calendar context is America/Los_Angeles; deadlines resolve to **21:00 UTC**, as requested for the demo. This equals 5 PM Eastern only during daylight saving time. No date means +30 days, visibly labeled. “This week” ends Sunday. Past deadlines are rejected.
 
@@ -82,7 +82,7 @@ lib/report-markets.js  conservative discovery of related Gemini contracts
 lib/evidence-report.js claim classification, market context, and optional crypto math
 lib/http.js        bounded body handling and CORS
 api/check.js       POST {text} → structured verdict
-api/evidence-report.js POST extract/check → reviewed claims or Gemini market report
+api/evidence-report.js POST extract/check → editable claims or Gemini market report
 api/transcribe.js  POST raw audio/video ≤4,000,000 bytes → {text}
 api/reel-transcript.js  POST {url} or {jobToken} → transcript or pending job
 lib/reel-transcript.js  Supadata client, signed jobs, bounded instance-local deduplication
@@ -96,7 +96,7 @@ fixtures/         real-shaped offline data, imported only by tests
 
 Reel reports select up to three editable claims and check each against public Gemini Exchange data. No AI research key or external fact-checking service is used. See [Gemini report behavior, safeguards, and limitations](docs/evidence-reports.md).
 
-`POST /api/evidence-report?action=extract`, JSON `{ "text": "Reel transcript..." }`, returns claim drafts. `POST /api/evidence-report?action=check`, JSON `{ "claim": { "id": "claim-1", "text": "Claim to check", "quote": "Original words", "type": "fact" } }`, returns `{claim, assessment, market, model, checkedAt}`. Claim types are `fact`, `forecast`, and `recommendation`. Public-market lookup starts when the user chooses **Check with Gemini**; there are no external source-verification cards.
+`POST /api/evidence-report?action=extract`, JSON `{ "text": "Reel transcript..." }`, returns claim drafts. `POST /api/evidence-report?action=check`, JSON `{ "claim": { "id": "claim-1", "text": "Claim to check", "quote": "Original words", "type": "fact" } }`, returns `{claim, assessment, market, model, checkedAt}`. Claim types are `fact`, `forecast`, and `recommendation`. The app automatically calls the check endpoint after extracting claims from a Reel or recording transcript. For pasted text, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow. Editing the input or a claim stops active checks and allows an explicit recheck. There are no external source-verification cards, and automatic checking never places orders.
 
 `POST /api/check`, JSON `{ "text": "Bitcoin to 150K by end of month, guaranteed" }`.
 
@@ -108,9 +108,9 @@ Claims, audio, and cards are not written to a database. Report requests use a bo
 
 ## Pitch and demo
 
-“Share a financial Reel to Pocket Quant, review its claims, and see what related Gemini Prediction Markets are pricing. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
+“Share a financial Reel to Pocket Quant and automatically see its claims alongside related Gemini Prediction Markets. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
 
-See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience and Gemini track positioning. Shared public Reels can be transcribed through Supadata when configured, followed by an editable review step. Actual provider and iPhone checks must be reported separately from offline tests. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
+See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience and Gemini track positioning. Shared public Reels can be transcribed through Supadata when configured, followed automatically by editable claim cards, Gemini market comparisons, and supported crypto math. Recording transcripts follow the same automatic flow; pasted text starts with a single **Check with Gemini** action. Actual provider and iPhone checks must be reported separately from offline tests. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
 
 The current product includes the engine, mobile web experience, verdict cards, optional transcription, and iPhone Share Sheet shortcut. `CONTEXT.md` preserves the original brief verbatim; the current product direction supersedes its browser-extension requirements. See `docs/step-1-verification.md` for the earlier engine checks. The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record is used to claim predictive accuracy for this app.
 

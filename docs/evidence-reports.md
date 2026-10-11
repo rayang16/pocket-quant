@@ -1,16 +1,18 @@
 # Reel reports with Gemini Exchange
 
-The report uses Gemini Exchange public market data and deterministic text rules. It does not use Claude, Google Gemini, or an external web fact-checking service. No API key is required for claim review, market discovery, or the supported crypto probability model. Sandbox trading uses a separate OAuth connection, which is still awaiting Gemini approval.
+The report uses Gemini Exchange public market data and deterministic text rules. It does not use Claude, Google Gemini, or an external web fact-checking service. No API key is required for claim extraction, market discovery, or the supported crypto probability model. Sandbox trading uses a separate OAuth connection, which is still awaiting Gemini approval.
 
 ## Flow
 
-Supadata transcribes an accessible public Reel when configured. Text rules select up to three distinct claims while preserving the original words, qualifications, quantities, and deadlines. Users review each draft as a fact, forecast, or recommendation, then choose **Check with Gemini**. Each card runs separately, so one failed request does not erase other results. Editing the transcript or a claim cancels stale UI updates.
+Supadata transcribes an accessible public Reel when configured. Text rules select up to three distinct claims while preserving the original words, qualifications, quantities, and deadlines. Gemini comparisons and supported crypto math start immediately after extraction, without a review click. Uploaded recordings follow the same automatic flow after ElevenLabs transcription. For pasted transcripts, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow.
+
+Claims remain editable as facts, forecasts, or recommendations. Each card runs separately, so one failed request does not erase other results. Editing the transcript or a claim stops active checks and prevents stale UI updates. Users can explicitly recheck corrected text. Automatic reports use public data and never place trades; sandbox orders remain a separate flow with explicit confirmation.
 
 Supadata is the only paid provider in this Reel-to-report flow. Pasted transcripts do not need a transcription key. The separate recording-upload feature can use ElevenLabs when configured; it is not required for reports.
 
 ## Endpoints
 
-- `POST /api/evidence-report?action=extract`, JSON `{text, sourceUrl?}`. Transcript: 3–6,000 characters. Returns `{claims, extraction, warnings, checkedAt}`. Each claim has `id`, `text`, `quote`, and `type` (`fact`, `forecast`, `recommendation`). Extraction uses text rules and requires user review.
+- `POST /api/evidence-report?action=extract`, JSON `{text, sourceUrl?}`. Transcript: 3–6,000 characters. Returns `{claims, extraction, warnings, checkedAt}`. Each claim has `id`, `text`, `quote`, and `type` (`fact`, `forecast`, `recommendation`). Extraction uses text rules and returns editable claims; the UI proceeds directly to the check endpoint.
 - `POST /api/evidence-report?action=check`, JSON `{claim, sourceUrl?}`. Claim text: 3–500 characters; original quote: at most 2,000. Returns `{claim, assessment, market, model, checkedAt}`. The UI submits at most three cards concurrently. There are no external source-verification cards.
 
 Both endpoints require JSON, limit bodies to 26 KB, reject cross-origin browser requests, and never fetch user-supplied URLs. An optional Reel URL is a validated reference. Identical requests share in-flight work and may be reused for five minutes, with a maximum of 100 cache entries. Limits are process-local: 12 fresh requests per client per minute and eight concurrent requests. Serverless instances do not share these limits or caches; they are not authenticated user quotas. Reports and transcripts are not stored in a database.

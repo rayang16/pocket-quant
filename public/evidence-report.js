@@ -91,8 +91,8 @@ function renderAssessment(container,claim,data) {
 export function createReportView(container,extraction,{onCheck=()=>{},onEdit=()=>{},onCancel=()=>{}}={}) {
   const data=normalizeDrafts(extraction),drafts=data.claims.map(c=>({...c})),cards=new Map();
   container.replaceChildren();container.classList.add('evidence-report');
-  const header=node('div','result-meta');header.append(node('span','eyebrow','GEMINI MARKET REPORT'),node('span','small-tag',`${drafts.length} CLAIM${drafts.length===1?'':'S'} TO REVIEW`));container.append(header);
-  container.append(node('h2','report-title','First, check the claims.'),node('p','result-explanation','Review each claim, then compare it with live Gemini Exchange prediction markets. A related market may use a different target or deadline.'));
+  const header=node('div','result-meta');header.append(node('span','eyebrow','GEMINI MARKET REPORT'),node('span','small-tag',`${drafts.length} CLAIM${drafts.length===1?'':'S'}`));container.append(header);
+  container.append(node('h2','report-title','Your Gemini report.'),node('p','result-explanation','Gemini market checks start automatically for each claim, with crypto math where supported. A related market may use a different target or deadline.'));
   container.append(node('p','evidence-extraction','These drafts were selected from the transcript. Check the wording and claim types against the original words.'));
   for(const warning of data.warnings??[])if(typeof warning==='string')container.append(node('p','notice',warning));
   const list=node('div','evidence-cards');container.append(list);
@@ -110,7 +110,7 @@ export function createReportView(container,extraction,{onCheck=()=>{},onEdit=()=
     if(claim.quote) {
       const original=node('details','evidence-quote');original.append(node('summary','','Original transcript excerpt'),node('blockquote','',claim.quote));card.append(original);
     }
-    const output=node('div','evidence-card-output');output.setAttribute('aria-live','polite');output.append(node('p','evidence-limitation','Ready for your review. Gemini markets have not been checked yet.'));card.append(output);list.append(card);cards.set(claim.id,{card,output,type,pending:false});
+    const output=node('div','evidence-card-output');output.setAttribute('aria-live','polite');output.append(node('p','evidence-limitation','Preparing the automatic Gemini check…'));card.append(output);list.append(card);cards.set(claim.id,{card,output,type,pending:false});
     const edit=()=>{claim.text=text.value;claim.type=type.value;onEdit();output.replaceChildren(node('p','evidence-limitation','Claim edited. Check again to update its evidence.'));updateCheckButton();};
     text.addEventListener('input',edit);type.addEventListener('change',edit);
   }

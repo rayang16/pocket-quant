@@ -12,7 +12,7 @@ const cryptoButton=document.querySelector('#crypto-check-button');
 
 function count(){document.querySelector('#char-count').textContent=`${input.value.length.toLocaleString()} / 6,000`;}
 function busy(on,message='') {
-  button.disabled=on;button.textContent=on?(workKind==='extract'?'Finding claims…':'Checking Gemini…'):'Find claims ↗';
+  button.disabled=on;button.textContent=on?(workKind==='extract'?'Finding claims…':'Checking Gemini…'):'Check with Gemini ↗';
   cryptoButton.disabled=on;
   status.textContent=message;result.setAttribute('aria-busy',String(on));
 }
@@ -25,7 +25,7 @@ function startWork(kind) {
   retryReel.disabled=kind==='recording';
   return {id:serial,signal:controller.signal};
 }
-function showClaimState(title='What does the Reel claim?',message='Paste or type the spoken claims, then choose Find claims to review them.') {
+function showClaimState(title='What does the Reel claim?',message='Paste or type the spoken claims, then choose Check with Gemini. We’ll find the claims and run the checks for you.') {
   reportView=null;result.classList.remove('evidence-report');result.replaceChildren(node('span','eyebrow','REVIEW THE CLAIM'),node('h2','state-title',title),node('p','result-explanation',message));
 }
 function clearReel() {
@@ -39,7 +39,7 @@ function manualReel(message) {
 function reviewTranscript(data,provider) {
   const trimmed=data.text.slice(0,6000),truncated=data.truncated===true||data.text.length>6000;
   input.value=trimmed;count();
-  reviewNotice.textContent=`${truncated?'Only the first 6,000 characters are shown. ':''}Transcript from ${provider}. Check names, numbers and dates against the Reel. We’ll find up to three claims for you to review; Gemini market lookup only starts when you choose Check with Gemini.`;
+  reviewNotice.textContent=`${truncated?'Only the first 6,000 characters are shown. ':''}Transcript from ${provider}. We’ll automatically find up to three claims, check Gemini markets, and run crypto math where supported. You can correct names, numbers and dates at any time; editing stops the current check.`;
   reviewNotice.hidden=false;
   input.setSelectionRange(0,0);input.scrollTop=0;
   findClaims({automatic:true});
@@ -49,7 +49,7 @@ async function transcribeReel(url,{automatic=false}={}) {
   const {id,signal}=startWork('reel');reviewNotice.hidden=true;retryReel.hidden=true;
   transcriptWork.hidden=false;transcriptProgress.textContent=automatic?'Checking Reel transcription availability…':'Getting the Reel’s spoken words…';
   reelMessage.textContent='Public Reel links are sent to Supadata for transcription. You can stop waiting and type the prediction yourself.';
-  showClaimState('Getting the words.','We’ll load an editable transcript here. You’ll review it before running a check.');
+  showClaimState('Getting the words.','We’ll load the transcript, find up to three claims, and check Gemini automatically.');
   try {
     if(automatic) {
       const available=await capabilities;
@@ -66,7 +66,7 @@ async function transcribeReel(url,{automatic=false}={}) {
       if(id===serial)transcriptProgress.textContent=state==='queued'?'Transcript queued. You can keep waiting or type the prediction below.':'Transcribing the Reel… You can keep waiting or type the prediction below.';
     }});
     if(id!==serial)return;
-    reelMessage.textContent='Transcript received from Supadata. Review the transcript and extracted claims below.';
+    reelMessage.textContent='Transcript received from Supadata. Finding claims and checking Gemini automatically.';
     retryReel.hidden=false;retryReel.textContent='Get transcript again';reviewTranscript(data,'Supadata');
   } catch(error) {
     if(id!==serial)return;
@@ -115,8 +115,8 @@ async function findClaims({automatic=false}={}) {
   if(/^\s*https?:\/\/\S+\s*$/.test(input.value)){receiveReel(input.value);return;}
   if(input.value.trim().length<3){cancelWork();status.textContent='Paste the words or claims from a Reel first.';input.focus();return;}
   const {id,signal}=startWork('extract');reportView=null;
-  busy(true,automatic?'Transcript ready. Finding up to three claims to review…':'Finding up to three claims to review…');
-  showClaimState('Pulling out the claims.','We’ll separate factual statements, forecasts and recommendations. You can edit each before checking with Gemini.');
+  busy(true,automatic?'Transcript ready. Finding up to three claims to check…':'Finding up to three claims to check…');
+  showClaimState('Pulling out the claims.','Next, we’ll check Gemini markets and run any supported crypto math automatically. You can edit the claims at any time.');
   const currentController=controller,timeout=setTimeout(()=>currentController.abort(),60000);
   try {
     const data=await extractClaims(input.value,{sourceUrl:reelUrl,signal});if(id!==serial)return;
@@ -125,8 +125,10 @@ async function findClaims({automatic=false}={}) {
       onEdit:()=>{if(workKind==='evidence'){cancelWork();status.textContent='Checking stopped because a claim changed. Your edits are kept.';}},
       onCancel:()=>{cancelWork();status.textContent='Checking stopped. You can edit your claims and try again.';}
     });
-    status.textContent=`${data.claims.length} claim${data.claims.length===1?'':'s'} ready. Review the wording and types, then choose Check with Gemini.`;
     if(!automatic)result.scrollIntoView({behavior:'smooth',block:'start'});
+    // Hand off immediately. The new work ID keeps extraction cleanup from clearing a running report.
+    clearTimeout(timeout);
+    await checkGeminiClaims(data.claims);
   } catch(error) {
     if(id!==serial)return;
     const message=error.name==='AbortError'?'Finding claims took too long. Your transcript is kept; try again.':error.message;
@@ -155,8 +157,8 @@ input.addEventListener('input',()=>{
   if(workKind||reportView) {
     const transcribing=workKind==='reel'||workKind==='recording';cancelWork();
     if(transcribing&&reelUrl){reelMessage.textContent='Stopped waiting for transcription because you’re editing. Your words will be kept.';retryReel.hidden=false;}
-    showClaimState('Your words have changed.','Choose Find claims again to update the draft claims from this text.');
-    status.textContent='Your edits are kept. Choose Find claims when ready.';
+    showClaimState('Your words have changed.','Choose Check with Gemini to find and check the claims in your edited text.');
+    status.textContent='Your edits are kept. Choose Check with Gemini when ready.';
   }
 });
 input.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();findClaims();}});
@@ -167,7 +169,7 @@ document.querySelector('#recording').addEventListener('change',async e=>{
   if(file.size>4000000){status.textContent='Choose a recording smaller than 4 MB.';e.target.value='';return;}
   const {id,signal}=startWork('recording');reviewNotice.hidden=true;
   transcriptWork.hidden=false;transcriptProgress.textContent='Transcribing your recording with ElevenLabs…';
-  showClaimState('Getting the words.','You’ll review the recording’s transcript before checking a prediction.');
+  showClaimState('Getting the words.','We’ll transcribe the recording, find its claims, and check Gemini automatically.');
   const currentController=controller,timeout=setTimeout(()=>currentController.abort(),60000);
   try {
     const data=await request('','/api/transcribe',file,{signal});if(id!==serial)return;

@@ -4,9 +4,9 @@ Updated October 11, 2026. This supplements the original, verbatim `CONTEXT.md`. 
 
 ## Experience
 
-Instagram Reel → Share → Pocket Quant → Supadata transcript → up to three draft claims → user review → **Check with Gemini** → inspect related markets and any applicable crypto math → return to the feed.
+Instagram Reel → Share → Pocket Quant → Supadata transcript → up to three editable claims → automatic Gemini comparisons and applicable crypto math → inspect results → return to the feed.
 
-People encounter confident financial claims while scrolling. Pocket Quant makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Text rules extract drafts without an AI-provider key. Users correct the words and classification before market checks begin.
+People encounter confident financial claims while scrolling. Pocket Quant makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Text rules extract claims without an AI-provider key, then Gemini checks begin automatically. Recording transcripts use the same flow. Pasted transcripts need one **Check with Gemini** action, and sample buttons run extraction and checks together. Users can correct words and classification; edits stop active checks and allow an explicit recheck.
 
 The result answers: What is the claim? Is it a fact, forecast, or recommendation? Which Gemini contracts relate to it? Do their conditions match? Can the disclosed crypto model contribute a useful comparison?
 
@@ -19,7 +19,7 @@ The result answers: What is the claim? Is it a fact, forecast, or recommendation
 
 Historical factual claims receive `not_market_verifiable`; they are not verified by market prices. Forecasts remain uncertain, and recommendations remain opinions. This build does not search external sources or claim to fact-check every financial statement. Both market prices and the quantitative model’s input data come from Gemini, so describe the model as a separate calculation rather than an independent data source.
 
-The intended experience is a quick check from the feed. It opens a separate app, waits for transcription when needed, and asks for review. Do not claim it takes no time or operates entirely inside Instagram.
+The intended experience is a quick check from the feed. It opens a separate app, waits for transcription when needed, and automatically fills results. Users can inspect and correct the extracted claims. Do not claim it takes no time or operates entirely inside Instagram.
 
 ## Current build and remaining verification
 
@@ -27,18 +27,18 @@ The intended experience is a quick check from the feed. It opens a separate app,
 | --- | --- |
 | Receive a Reel | An iPhone Share Sheet shortcut opens a validated Instagram link. Actual iPhone import and Instagram handoff still need a device test. |
 | Public Reel transcription | Supadata provides an editable transcript when the Reel is accessible. Requires `SUPADATA_API_KEY`, configured on the deployed app; private, restricted, missing, or silent media keeps a manual fallback. |
-| Claim review | Deterministic rules select up to three distinct statements. Users edit the wording and classify facts, forecasts, and recommendations. |
-| Gemini report | Public-data market discovery needs no API key. Related contract prices do not verify historical facts or the precise Reel forecast. |
+| Claim extraction | Deterministic rules select up to three distinct statements and immediately start Gemini checks. Users can edit wording and classification, then recheck. |
+| Gemini report | Public-data market discovery runs automatically after extraction and needs no API key. Related contract prices do not verify historical facts or the precise Reel forecast. |
 | Crypto model | Supported price forecasts with explicit calendar deadlines can use Gemini data and 14/30/90-day volatility estimates. Unsupported or ambiguous claims do not receive a probability model. |
-| Recording upload | Separate optional ElevenLabs integration; requires its key and a real-audio check. |
-| Trading | Sandbox-only account connection and manual order review are implemented. Gemini OAuth approval is pending; end-to-end test orders are unverified. Production trading is disabled. |
+| Recording upload | Optional ElevenLabs integration; requires its key and a real-audio check. A completed transcript automatically starts claim extraction and Gemini checks. |
+| Trading | Automatic reports never place orders. Sandbox-only account connection and manual order review are implemented. Gemini OAuth approval is pending; end-to-end test orders are unverified. Production trading is disabled. |
 | Sharing results | The single-crypto checker provides PNG cards. Native file sharing still needs an iPhone check; do not imply the full three-claim report is exported. |
 
 Supadata is the only paid provider in the public-Reel-to-report flow. Report text is processed with local rules and public Gemini data; no Claude or external research API is involved. Reports use bounded process-local caching and request limits, not persistent user accounts or a database. An Instagram DM bot, market creation, and a dataset of unmet market demand remain future ideas.
 
 ## Pitch and demonstration
 
-“Share a financial Reel to Pocket Quant, review its claims, and see what related Gemini Prediction Markets are pricing. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
+“Share a financial Reel to Pocket Quant and automatically see its claims alongside related Gemini Prediction Markets. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
 
 Describe the actual demo input: a public Reel transcribed through Supadata, a recording transcribed separately, or pasted text. Distinguish live provider and browser checks from an actual iPhone Share Sheet demonstration. Show a no-market or non-verifiable factual claim as honestly as a useful match.
 
