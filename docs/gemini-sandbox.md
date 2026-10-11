@@ -34,6 +34,12 @@ Production activation requires Gemini application review plus production-specifi
 
 `npm test` includes offline OAuth/cookie/CSRF checks and order-flow checks with mocked Gemini responses. The public sandbox event endpoint was checked and returned HTTP 200 with actual active/open prediction contracts on October 11, 2026. These checks do **not** establish that an account has been connected or a sandbox order accepted. End-to-end authorization and order testing require the registered sandbox app and a test account.
 
+### Current setup status — October 11, 2026
+
+The **Pocket Quant Sandbox** confidential OAuth application is registered with `orders:read` and `orders:create`, the deployed callback above, and the Pocket Quant icon. All four required server settings have been saved as Vercel secrets and redeployed. The deployed status endpoint returns `configured: true` and `sandbox: true`; no credentials are stored in this repository.
+
+Gemini lists the registered app as **Pending**. A real browser attempt through Pocket Quant's Connect button reached Gemini but was rejected with “The provided OAuth client is not approved with Gemini.” This is the current blocker even in the sandbox. Ask the Gemini team to approve the sandbox OAuth app, then repeat the connection through Pocket Quant. No access token was obtained and no order was submitted. The local development server remains unconfigured; use the deployed page for this registration.
+
 ## Question for the Gemini team
 
 “Our app checks financial predictions from Instagram Reels and shows the related Gemini prediction market. We saw that Gemini offers an API for placing trades. Can users connect their own Gemini account and place a trade from inside our app? Who can help us get that working for our hackathon demo?”
