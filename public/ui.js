@@ -8,7 +8,7 @@ function row(label,value,note,prob) {
   const r=node('div','stat-row'); const meta=node('div','stat-meta');meta.append(node('span','stat-label',label),node('small','',note));r.append(meta,node('strong','stat-value',value));
   if(Number.isFinite(prob)) {const track=node('div','stat-track');const bar=node('span');bar.style.width=`${Math.max(0,Math.min(1,prob))*100}%`;track.append(bar);r.append(track);}return r;
 }
-export function renderResult(container,r,{download}={}) {
+export function renderResult(container,r,{download,share}={}) {
   container.replaceChildren();
   const header=node('div','result-meta');header.append(node('span','eyebrow','THE EVIDENCE'),node('span','timestamp',`Checked ${new Date(r.checkedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`));container.append(header);
   if(!r.hypeVerdict) {
@@ -47,6 +47,7 @@ export function renderResult(container,r,{download}={}) {
   for(const warning of r.warnings??[])content.append(node('p','notice',warning));
   const list=node('ul','assumptions');r.assumptions.forEach(a=>list.append(node('li','',a)));content.append(list);details.append(content);container.append(details);
   const actions=node('div','result-actions');if(r.market.url)actions.append(link('View this market on Gemini ↗',r.market.url));
+  if(share) {const button=node('button','secondary','↑ Share verdict card');button.type='button';button.addEventListener('click',()=>share(r));actions.append(button);}
   if(download) {const button=node('button','secondary','↓ Download card');button.type='button';button.addEventListener('click',()=>download(r));actions.append(button);}container.append(actions);
 }
 export async function request(base,path,body,{signal}={}) {

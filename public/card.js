@@ -15,7 +15,8 @@ export function drawCard(result,handle='') {
   c.font='bold 27px sans-serif';c.fillStyle='#eef2f8';c.fillText('POCKET QUANT',96,92);c.font='20px monospace';c.fillStyle='#9aa8bb';c.fillText('A LITTLE LESS HYPE.',64,139);
   c.font='italic 44px Georgia';c.fillStyle='#eef2f8';wrap(c,`“${result.claim.summary}”`,64,230,952,54,4);
   c.font='22px monospace';c.fillStyle='#9aa8bb';c.fillText(handle?handle.slice(0,50):`Checked ${date(result.checkedAt)}`,64,452);
-  c.strokeStyle='#8aaaff';c.lineWidth=3;c.strokeRect(64,496,952,158);c.fillStyle='#8aaaff';c.font=`bold ${result.verdict.length>8?85:115}px sans-serif`;c.fillText(result.verdict,90,618);
+  const verdictColor={HYPE:'#ff9c9c',STRETCH:'#f2c57c','FAIR CALL':'#8ee0bf',UNDERSOLD:'#8aaaff'}[result.verdict]||'#8aaaff';
+  c.strokeStyle=verdictColor;c.lineWidth=3;c.strokeRect(64,496,952,158);c.fillStyle=verdictColor;c.font=`bold ${result.verdict.length>8?85:115}px sans-serif`;c.fillText(result.verdict,90,618);
   const rows=[['SPEAKER SOUNDS',percent(result.claim.speakerConfidence)],
     [result.market.match==='exact'?'GEMINI MARKET':'NEAREST GEMINI CONTRACT',percent(result.market.prob)],['MATH · AT EXPIRY',percentRange(result.model.atExpiry)]];
   let y=725;
@@ -29,4 +30,11 @@ export function drawCard(result,handle='') {
 export async function downloadCard(result,handle='') {
   const canvas=drawCard(result,handle);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
   if(!blob)throw new Error('Could not create the card.');const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`pocket-quant-${result.claim.asset.toLowerCase()}-${Date.now()}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+export async function shareCard(result,handle='') {
+  const blob=await new Promise(resolve=>drawCard(result,handle).toBlob(resolve,'image/png'));
+  if(!blob)throw new Error('Could not create the card.');
+  const file=new File([blob],`pocket-quant-${result.claim.asset.toLowerCase()}.png`,{type:'image/png'});
+  if(!navigator.canShare?.({files:[file]}))throw new Error('File sharing is not available here. Download the card instead.');
+  await navigator.share({files:[file],title:'Pocket Quant — '+result.verdict});
 }

@@ -17,16 +17,19 @@ Open http://localhost:3000. The BTC/ETH/SOL/XRP/ZEC checker needs **no API keys*
 
 Optional: copy `.env.example` to `.env`. `ANTHROPIC_API_KEY` enables Claude extraction with field validation and regex fallback. `CLAUDE_MODEL` defaults to the brief's `claude-haiku-5-5`; set it to a model available on your Anthropic account. An unavailable model automatically falls back. `ELEVENLABS_API_KEY` enables `scribe_v1` audio/video transcription; without it the upload endpoint returns an actionable 501. Keys never enter client code.
 
-## Chrome side panel
+## Send a Reel from iPhone
 
-1. Run `npm run build` to sync the shared renderer, styles and card code into `extension/` and create `public/pocket-quant-extension.zip`.
-2. Open `chrome://extensions`, enable Developer mode and choose **Load unpacked → extension/**.
-3. Open an Instagram Reel in Chrome 116+, then click the extension icon. That user gesture grants access to the active tab.
-4. Choose **Check this Reel**, or turn on **Auto**. The paste box always works.
-5. In **Connection & privacy**, configure the API origin. Local builds default to `http://localhost:3000`; Vercel builds embed the deployment origin. Set `PUBLIC_API_BASE` to a stable production URL when packaging a release.
-6. **Listen 12s** captures tab audio, restores playback through an AudioContext, stops capture, sends the clip to ElevenLabs, and checks the transcript. This optional flow requires a key and real Chrome tab-capture permissions.
+Pocket Quant is a mobile-friendly web app. There is no browser extension in the current product.
 
-The content script reads only rendered text near the most visible video, with an 800 ms debounce and URL-change detection. Instagram markup changes can break caption extraction; paste is the reliable fallback. No server-side Instagram scraping. DM sharing is roadmap only, pending Meta app review. Extension permissions cover Vercel and localhost by default; a custom HTTPS origin prompts for that origin only.
+1. Open `/share.html` in Safari on your iPhone and download **Check with Pocket Quant**.
+2. Open the downloaded `.shortcut` file in Apple Shortcuts and choose **Add Shortcut**.
+3. In Instagram, choose **Share → More / Share to… → Check with Pocket Quant**.
+4. The shortcut opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. The app validates the Instagram permalink, removes tracking parameters, and clears the incoming fragment from the address bar.
+5. Add the spoken prediction or upload a screen recording. Instagram generally shares a link rather than the audio or caption; a link alone never produces a verdict.
+
+The exported shortcut was created in Apple Shortcuts and exported for Anyone (Apple validates a copy). It uses URL Encode → Text → Open URLs and points to the production domain above. If the production domain changes, update and re-export it. Actual Instagram Share Sheet placement and import must be checked on an iPhone; macOS/browser checks do not prove device behavior.
+
+Link intake uses an exact Instagram hostname/path allowlist and never fetches Instagram on the server. It does not persist a Reel inbox. The app supports PNG download and the native file-sharing sheet when the browser supports it. An Instagram DM bot remains a future integration.
 
 ## Deploy
 
@@ -35,7 +38,7 @@ npm test
 npx vercel --prod
 ```
 
-Vercel serves `public/` and `api/` functions. `vercel.json` sets the build/output directory and a 60-second function limit. Configure optional secrets in Vercel, not public files. After deployment, test BTC, ETH, a no-market claim, and the extension ZIP from the actual URL. This project does not override Vercel account access protections. The paid optional providers have no durable quota system in this hackathon build; apply provider budgets before broad public use.
+Vercel serves `public/` and `api/` functions. `vercel.json` sets the build/output directory and a 60-second function limit. Configure optional secrets in Vercel, not public files. After deployment, test BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. The paid optional providers have no durable quota system in this hackathon build; apply provider budgets before broad public use.
 
 ## The math, in plain English
 
@@ -71,8 +74,7 @@ lib/engine.js      shared claim-checking engine
 lib/http.js        bounded body handling and CORS
 api/check.js       POST {text} → structured verdict
 api/transcribe.js  POST raw audio/video ≤4,000,000 bytes → {text}
-public/           responsive web app, shared UI and 1080×1350 canvas card
-extension/        MV3 caption reader, Auto side panel and optional audio capture
+public/           mobile web app, iPhone share intake and 1080×1350 canvas card
 scripts/          local server, asset packaging and live verification
 test/             node:test tests and deterministic Monte Carlo
 fixtures/         real-shaped offline data, imported only by tests
@@ -84,18 +86,18 @@ fixtures/         real-shaped offline data, imported only by tests
 
 `POST /api/transcribe`, raw audio/video bytes with an appropriate audio/video `Content-Type`. Maximum 4 MB. It is intentionally **not** a multipart client upload; the server creates the ElevenLabs multipart request. Both endpoints support CORS and reject unsupported methods and oversized inputs.
 
-No claims, audio, or cards are stored by the app. Provider processing policies still apply. Optional Claude receives the claim; ElevenLabs receives uploaded/captured media. Auto mode is opt-in. Downloading a card does not publish it.
+No claims, audio, or cards are stored by the app. Provider processing policies still apply. Optional Claude receives the claim; ElevenLabs receives uploaded media. Downloading a card does not publish it. Sharing uses your device’s share sheet.
 
 ## Pitch and demo
 
 “Most people use prediction markets like a sportsbook. Pocket Quant treats them like a financial market: check a confident claim against live Gemini odds and volatility math, and only flag a market gap when it exceeds the spread and the model range.”
 
-The current focus is Step 1: the engine. See `CONTEXT.md` for the verbatim brief and `docs/step-1-verification.md` for what was tested. The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record is used to claim predictive accuracy for this app.
+The current product includes the engine, mobile web experience, verdict cards, optional transcription, and iPhone Share Sheet shortcut. `CONTEXT.md` preserves the original brief verbatim; the current product direction supersedes its browser-extension requirements. See `docs/step-1-verification.md` for the earlier engine checks. The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record is used to claim predictive accuracy for this app.
 
 ## Official references
 
 - [Gemini market data](https://developer.gemini.com/trading/rest-api/market-data)
-- [Chrome tab capture](https://developer.chrome.com/docs/extensions/reference/api/tabCapture)
+- [Apple Share Sheet shortcuts](https://support.apple.com/guide/shortcuts/receive-onscreen-items-apd350ce757a/ios)
 - [ElevenLabs transcription](https://elevenlabs.io/docs/api-reference/speech-to-text/convert)
 - [Vercel Node functions](https://vercel.com/docs/functions/runtimes/node-js)
 

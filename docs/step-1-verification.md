@@ -64,4 +64,4 @@ Observed results:
 
 The nearest contract's probability is not the exact target's odds. Bounds are indicative and only valid at the same expiry. The ETH quote is one-sided, so market mispricing is not assessed. “This week” resolves to Sunday at 21:00 UTC, making this ETH example a short-horizon prediction on October 11.
 
-The most recent requested scope is Step 1. Earlier UI/extension/deployment work is retained; the new engine changes were not redeployed after that scope clarification.
+Historical note: this report covered the original Step 1 scope. The current product is the mobile web app with iPhone sharing; see mobile-verification.md for the subsequent release checks.

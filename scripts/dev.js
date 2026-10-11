@@ -4,13 +4,15 @@ import {fileURLToPath} from 'node:url';
 import {resolve,extname,sep} from 'node:path';
 import check from '../api/check.js';
 import transcribe from '../api/transcribe.js';
+import capabilities from '../api/capabilities.js';
 const root=fileURLToPath(new URL('../public/',import.meta.url));
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.zip':'application/zip','.json':'application/json'};
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.zip':'application/zip','.json':'application/json','.shortcut':'application/octet-stream'};
 const port=Number(process.env.PORT||3000);
 createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(url.pathname==='/api/check') return check(req,res);
   if(url.pathname==='/api/transcribe') return transcribe(req,res);
+  if(url.pathname==='/api/capabilities') return capabilities(req,res);
   if(!['GET','HEAD'].includes(req.method)) {res.writeHead(405);return res.end();}
   try {
     const path=resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
