@@ -15,7 +15,7 @@ npm run dev
 
 Open http://localhost:3000. The BTC/ETH/SOL/XRP/ZEC checker needs **no API keys**. `npm test` runs offline; `npm run verify:live` calls actual Gemini endpoints and writes timestamped checks under the ignored `output/` folder.
 
-Optional: copy `.env.example` to `.env`. `ANTHROPIC_API_KEY` enables Claude extraction with field validation and regex fallback. `CLAUDE_MODEL` defaults to the brief's `claude-haiku-5-5`; set it to a model available on your Anthropic account. An unavailable model automatically falls back. `ELEVENLABS_API_KEY` enables `scribe_v1` audio/video transcription; without it the upload endpoint returns an actionable 501. Keys never enter client code.
+Optional: copy `.env.example` to `.env`. `ANTHROPIC_API_KEY` enables Claude extraction with field validation and regex fallback. `CLAUDE_MODEL` defaults to the brief's `claude-haiku-5-5`; set it to a model available on your Anthropic account. An unavailable model automatically falls back. `ELEVENLABS_API_KEY` enables `scribe_v1` audio/video transcription; without it the upload endpoint returns an actionable 501. `SUPADATA_API_KEY` enables automatic transcription of public Reel links. Keys never enter client code.
 
 ## Connect Gemini and try a test order
 
@@ -29,11 +29,11 @@ Pocket Quant is a mobile-friendly web app. There is no browser extension in the 
 2. Open the downloaded `.shortcut` file in Apple Shortcuts and choose **Add Shortcut**.
 3. In Instagram, choose **Share → More / Share to… → Check with Pocket Quant**.
 4. The shortcut opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. The app validates the Instagram permalink, removes tracking parameters, and clears the incoming fragment from the address bar.
-5. Add the spoken prediction or upload a screen recording. Instagram generally shares a link rather than the audio or caption; a link alone never produces a verdict.
+5. When Supadata is configured, the app sends the public link to Supadata for transcription. Review the resulting text, keep one prediction, and choose **Check the hype**. Transcription never automatically submits a claim for analysis. Private, restricted, missing, or silent videos may fail; paste the claim or upload a recording as a fallback.
 
 The exported shortcut was created in Apple Shortcuts and exported for Anyone (Apple validates a copy). It uses URL Encode → Text → Open URLs and points to the production domain above. If the production domain changes, update and re-export it. Actual Instagram Share Sheet placement and import must be checked on an iPhone; macOS/browser checks do not prove device behavior.
 
-Link intake uses an exact Instagram hostname/path allowlist and never fetches Instagram on the server. It does not persist a Reel inbox. The app supports PNG download and the native file-sharing sheet when the browser supports it. An Instagram DM bot remains a future integration.
+Link intake uses an exact Instagram hostname/path allowlist. Our server calls only Supadata's fixed API host; it does not fetch arbitrary user URLs. Supadata handles public media access. No Instagram password or login cookie is requested. There is no persisted Reel inbox. See [Reel transcription setup](docs/reel-transcription.md) for provider setup, async jobs, fallback behavior, and limits. The app supports PNG download and the native file-sharing sheet when the browser supports it. An Instagram DM bot remains a future integration.
 
 ## Deploy
 
@@ -42,7 +42,7 @@ npm test
 npx vercel --prod
 ```
 
-Vercel serves `public/` and `api/` functions. `vercel.json` sets the build/output directory and a 60-second function limit. Configure optional secrets in Vercel, not public files. After deployment, test BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. The paid optional providers have no durable quota system in this hackathon build; apply provider budgets before broad public use.
+Vercel serves `public/` and `api/` functions. `vercel.json` sets a 120-second limit for Reel transcription and 60 seconds for other functions. Configure optional secrets in Vercel, not public files. After deployment, test BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. The paid optional providers have no durable quota system in this hackathon build; apply provider budgets before broad public use.
 
 ## The math, in plain English
 
@@ -78,6 +78,8 @@ lib/engine.js      shared claim-checking engine
 lib/http.js        bounded body handling and CORS
 api/check.js       POST {text} → structured verdict
 api/transcribe.js  POST raw audio/video ≤4,000,000 bytes → {text}
+api/reel-transcript.js  POST {url} or {jobToken} → transcript or pending job
+lib/reel-transcript.js  Supadata client, signed jobs, bounded instance-local deduplication
 public/           mobile web app, iPhone share intake and 1080×1350 canvas card
 scripts/          local server, asset packaging and live verification
 test/             node:test tests and deterministic Monte Carlo
@@ -90,13 +92,15 @@ fixtures/         real-shaped offline data, imported only by tests
 
 `POST /api/transcribe`, raw audio/video bytes with an appropriate audio/video `Content-Type`. Maximum 4 MB. It is intentionally **not** a multipart client upload; the server creates the ElevenLabs multipart request. Both endpoints support CORS and reject unsupported methods and oversized inputs.
 
-No claims, audio, or cards are stored by the app. Provider processing policies still apply. Optional Claude receives the claim; ElevenLabs receives uploaded media. Downloading a card does not publish it. Sharing uses your device’s share sheet.
+`POST /api/reel-transcript`, JSON `{ "url": "https://www.instagram.com/reel/SHORTCODE/" }`. It returns a completed transcript (200) or a signed `jobToken` (202). Poll with `{ "jobToken": "..." }` after `retryAfterMs`. Only start requests create provider work; polling never starts a new transcription. Errors never become a verdict.
+
+Claims, audio, and cards are not written to a database. Reel requests/transcripts are reused from a bounded in-memory cache for ten minutes to avoid duplicate paid requests; expired entries are cleared on the next start request or when the process ends. Signed job tokens expire after fifteen minutes. Provider processing policies still apply. Optional Claude receives the claim; ElevenLabs receives uploaded media; Supadata receives public Reel links and processes their content. Downloading a card does not publish it. Sharing uses your device’s share sheet.
 
 ## Pitch and demo
 
 “Your feed is full of financial predictions. Pocket Quant brings a second opinion to the moment you encounter one: compare the claim with live Gemini Prediction Market odds and a transparent volatility model, see where the evidence agrees or falls short, and open the relevant market on Gemini. We turn attention from a Reel into an informed look at a prediction market.”
 
-See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience, Gemini track positioning, and the remaining ingestion gap. The current iPhone flow receives a link and asks for the prediction; automatic analysis of a shared Reel is not yet implemented. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
+See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience and Gemini track positioning. Shared public Reels can be transcribed through Supadata when configured, followed by an editable review step. Actual provider and iPhone checks must be reported separately from offline tests. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
 
 The current product includes the engine, mobile web experience, verdict cards, optional transcription, and iPhone Share Sheet shortcut. `CONTEXT.md` preserves the original brief verbatim; the current product direction supersedes its browser-extension requirements. See `docs/step-1-verification.md` for the earlier engine checks. The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record is used to claim predictive accuracy for this app.
 
@@ -105,6 +109,7 @@ The current product includes the engine, mobile web experience, verdict cards, o
 - [Gemini market data](https://developer.gemini.com/trading/rest-api/market-data)
 - [Apple Share Sheet shortcuts](https://support.apple.com/guide/shortcuts/receive-onscreen-items-apd350ce757a/ios)
 - [ElevenLabs transcription](https://elevenlabs.io/docs/api-reference/speech-to-text/convert)
+- [Supadata Reel transcription](https://docs.supadata.ai/get-transcript)
 - [Vercel Node functions](https://vercel.com/docs/functions/runtimes/node-js)
 
 ## Step 1 engine interfaces

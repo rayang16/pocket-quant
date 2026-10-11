@@ -20,6 +20,6 @@ test('transcription forwards actual bytes in multipart and reports provider fail
     globalThis.fetch=async()=>({ok:true,json:async()=>({text:' '})});const silent=response();await transcribe(req,silent);assert.equal(silent.statusCode,422);
     const invalid=response();await transcribe({...req,headers:{'content-type':'text/html'}},invalid);assert.equal(invalid.statusCode,415);
     const tooBig=response();await transcribe({...req,headers:{'content-type':'video/mp4','content-length':'4000001'}},tooBig);assert.equal(tooBig.statusCode,413);
-    const caps=response();capabilities({method:'GET'},caps);assert.deepEqual(caps.body,{transcription:true});
+    const caps=response();capabilities({method:'GET'},caps);assert.equal(caps.body.transcription,true);assert.equal(caps.body.reelTranscription,!!process.env.SUPADATA_API_KEY);
   }finally{globalThis.fetch=originalFetch;if(original===undefined)delete process.env.ELEVENLABS_API_KEY;else process.env.ELEVENLABS_API_KEY=original;}
 });

@@ -27,27 +27,27 @@ Call the quantitative model a second analytical lens. Realized-volatility estima
 
 Distinguish a plausible prediction from suitable trading advice. Market odds and a model estimate do not establish that a trade is profitable or appropriate for a particular person. Analysis results offer market discovery with explicit matching conditions. A separate sandbox page lets users test an account connection and manually review a test order; production trading remains disabled.
 
-Use “a quick check from your feed” as the intended experience. Do not claim that users lose no time or that the entire analysis happens inside Instagram: the current flow opens a separate app and still needs the claim text.
+Use “a quick check from your feed” as the intended experience. Do not claim that users lose no time or that the entire analysis happens inside Instagram: the current flow opens a separate app, transcribes accessible public Reels when configured, and asks the user to review the prediction.
 
 ## Current build versus the target flow
 
 | Piece | Current state |
 | --- | --- |
 | Receive a Reel | iPhone Share Sheet shortcut opens a validated Instagram link in the web app; actual iPhone import and Instagram handoff still need a device test. |
-| Extract the spoken prediction automatically from the shared link | Not implemented. Instagram link sharing does not supply the video/audio to this app. Users currently enter the prediction. |
+| Transcribe speech automatically from the shared link | Supadata integration is implemented for public Reels, with async jobs and editable review. Requires SUPADATA_API_KEY; provider availability, specific Reels, and iPhone handoff need live verification. Private/restricted media keeps a manual fallback. |
 | Transcribe an uploaded recording | Implemented with ElevenLabs; production requires ELEVENLABS_API_KEY and a real-audio check. |
 | Compare market and model | Live Gemini quotes plus probability estimates across 14/30/90-day volatility windows for supported crypto claims. |
 | Explain missing or imperfect evidence | No-market states, nearest-contract conditions, quote limits, and model assumptions are disclosed. |
 | Inspect a Gemini market | Existing market links are available on results. A sandbox-only connection and order-review flow is implemented; Gemini app credentials are still required for end-to-end verification. No live trading or market creation. |
 | Share evidence | PNG card download is verified; native sharing depends on browser support and still needs an iPhone test. |
 
-The largest gap in the promised experience is reliable, permitted extraction of the Reel's spoken prediction without asking users to type it. Improving ingestion matters more to the “seamless” claim than adding more verdict labels or trading features.
+The key ingestion milestone is demonstrating reliable extraction on real public Reels and the actual iPhone share flow. Provider support and offline tests alone do not establish that every Reel is accessible. Improving ingestion matters more to the “seamless” claim than adding more verdict labels or trading features.
 
 ## Pitch
 
 “Your feed is full of financial predictions. Pocket Quant brings a second opinion to the moment you encounter one: compare the claim with live Gemini Prediction Market odds and a transparent volatility model, see where the evidence agrees or falls short, and open the relevant market on Gemini. We turn attention from a Reel into an informed look at a prediction market.”
 
-In the live demo, describe the exact input used: shared link plus entered claim today, or uploaded recording once transcription is configured. Present automatic Reel-to-verdict analysis as the next ingestion milestone until it has been demonstrated on a real phone.
+In the live demo, describe the exact input used: a public link transcribed through Supadata, an uploaded recording through ElevenLabs, or a manually entered claim. Distinguish browser/provider checks from a real iPhone Share Sheet demonstration. Transcription is followed by user review, not an automatic verdict on unreviewed text.
 
 ## Hackathon evidence to collect
 

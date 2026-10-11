@@ -15,6 +15,6 @@ export default async function handler(req,res) {
     if(!r.ok) return send(res,502,{error:`Transcription service returned ${r.status}. Paste the claim or try again.`});
     const data=await r.json();
     if(typeof data.text!=='string'||!data.text.trim()) return send(res,422,{error:'No speech was detected. Try a clearer recording or paste the claim.'});
-    send(res,200,{text:data.text.slice(0,6000)});
+    send(res,200,{text:data.text.slice(0,6000),truncated:data.text.length>6000});
   } catch(e) {send(res,e.status??502,{error:e.status?e.message:'Transcription could not finish. Paste the claim or try again.'});}
 }
