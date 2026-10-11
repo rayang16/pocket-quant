@@ -29,7 +29,7 @@ test('related market actions explicitly carry the chosen outcome without treatin
   assert.equal(links.length,2);
   for(const [index,outcome] of ['yes','no'].entries()) {
     assert.equal(links[index].textContent,`Prepare ${outcome.toUpperCase()} trade ↗`);
-    assert.equal(links[index].href,`/live.html?symbol=GEMI-OPTIMUS&outcome=${outcome}&spendLimit=1.00`);
+    assert.equal(links[index].href,`/live.html?symbol=GEMI-OPTIMUS&outcome=${outcome}&spendLimit=2.00`);
   }
 }));
 

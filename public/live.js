@@ -154,7 +154,7 @@ function clearTradeData() {
   quantityInput.value = '';
   outcomeInput.value = 'yes';
   priceInput.value = '';
-  spendInput.value = requestedIntentPending ? requestedIntent.spendLimit : '1.00';
+  spendInput.value = requestedIntentPending ? requestedIntent.spendLimit : '2.00';
   byId('draft-summary').textContent = '';
   byId('market-details').hidden = true;
   for (const id of ['market-event', 'market-title', 'market-description', 'market-expiry', 'budget-remaining', 'budget-reserved', 'trade-status', 'trade-error', 'result-message']) byId(id).textContent = '';

@@ -23,7 +23,7 @@ function outcomeValue(value) {
   return outcome === 'yes' || outcome === 'no' ? outcome : null;
 }
 
-function normalizeIntent({symbol, outcome = 'yes', spendLimit = '1.00'} = {}) {
+function normalizeIntent({symbol, outcome = 'yes', spendLimit = '2.00'} = {}) {
   if (!symbolValue(symbol)) return null;
   const normalizedOutcome = outcomeValue(outcome);
   const normalizedSpend = spendValue(spendLimit);

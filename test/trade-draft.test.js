@@ -16,17 +16,17 @@ test('handoff keeps the selected NO outcome and normalizes its spending ceiling'
   assert.equal(tradeDraftUrl({symbol, outcome: 'NO', spendLimit: '1'}), `/live.html?symbol=${symbol}&outcome=no&spendLimit=1.00`);
   assert.deepEqual(readTradeIntent(tradeDraftUrl({symbol, outcome: 'NO', spendLimit: '1.0'}).split('?')[1]), intent);
   assert.deepEqual(readTradeIntent(`?symbol=${symbol}&outcome=NO&spendLimit=0.50`), {...intent, spendLimit: '0.50'});
-  assert.deepEqual(readTradeIntent(`?symbol=${symbol}`), {...intent, outcome: 'yes'});
+  assert.deepEqual(readTradeIntent(`?symbol=${symbol}`), {...intent, outcome: 'yes', spendLimit: '2.00'});
 });
 
 test('builder only emits the three supported handoff fields', () => {
   const url = tradeDraftUrl({...intent, price: '0.01', quantity: '100', modelOdds: '99', returnTo: 'https://example.com'});
   assert.equal(url, `/live.html?symbol=${symbol}&outcome=no&spendLimit=1.00`);
-  assert.deepEqual(readTradeIntent(`?symbol=${symbol}&outcome=no&price=0.01&quantity=100&modelOdds=99&price=0.99`), intent);
+  assert.deepEqual(readTradeIntent(`?symbol=${symbol}&outcome=no&price=0.01&quantity=100&modelOdds=99&price=0.99`), {...intent, spendLimit: '2.00'});
 });
 
 test('missing values default while explicitly invalid or duplicate values never default', () => {
-  assert.equal(tradeDraftUrl({symbol}), `/live.html?symbol=${symbol}&outcome=yes&spendLimit=1.00`);
+  assert.equal(tradeDraftUrl({symbol}), `/live.html?symbol=${symbol}&outcome=yes&spendLimit=2.00`);
   for (const key of ['symbol', 'outcome', 'spendLimit']) {
     const base = new URLSearchParams(intent);
     base.append(key, intent[key]);
