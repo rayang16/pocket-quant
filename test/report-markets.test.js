@@ -33,6 +33,16 @@ test('stock performance since an incidental political mention does not match pol
   assert.deepEqual(result.matches, []);
 });
 
+test('a company surname does not become a same-name sports or weather outcome', async () => {
+  const sports=event('Comeback Player of the Year Winner',{category:'Sports',contracts:[contract('Tank Dell')]});
+  const weather=event('Dell temperature record',{category:'Weather'});
+  const result=await run('Dell is up over 250 % since Trump mentioned it earlier this year.',[sports,weather],'fact');
+  assert.equal(result.status,'none');
+  assert.deepEqual(result.matches,[]);
+  const player=await run('NFL player Tank Dell could win comeback player of the year.',[sports]);
+  assert.equal(player.status,'related');
+});
+
 test('retains the main named company before causal and attribution context', async () => {
   const related = event('Will Intel announce a new factory?');
   const incidental = [event('Will Trump replace a cabinet member?'), event('Will the government appoint Smith?')];
