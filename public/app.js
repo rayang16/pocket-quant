@@ -37,12 +37,12 @@ function reviewTranscript(data,provider) {
   const trimmed=data.text.slice(0,6000),truncated=data.truncated===true||data.text.length>6000;
   input.value=trimmed;count();
   reviewNotice.textContent=truncated
-    ?`Only the first 6,000 characters of this ${provider} transcript are shown. Select one prediction, check names, prices and dates against the Reel, then choose Check the hype.`
-    :`Transcript from ${provider}. Select one prediction and correct any mistakes in names, prices or dates before choosing Check the hype. Nothing has been analyzed yet.`;
+    ?`Only the first 6,000 characters of this ${provider} transcript are shown. Edit this down to one prediction, check names, prices and dates against the Reel, then choose Check the hype.`
+    :`Transcript from ${provider}. Edit this down to one prediction and correct any mistakes in names, prices or dates before choosing Check the hype. Nothing has been analyzed yet.`;
   reviewNotice.hidden=false;button.textContent='Check the hype ↗';
   showClaimState('Check the words first.','The transcript is ready to edit. Keep one prediction, confirm the details, then choose Check the hype.');
   status.textContent=truncated?'Transcript ready, shortened to 6,000 characters. Review and select one prediction.':'Transcript ready. Review the words and select one prediction before checking.';
-  input.focus();
+  input.focus();input.setSelectionRange(0,0);input.scrollTop=0;
 }
 
 async function transcribeReel(url,{automatic=false}={}) {

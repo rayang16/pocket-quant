@@ -34,4 +34,9 @@ Successful text is limited to 6,000 characters, with an explicit truncation flag
 
 `npm test` covers offline success/async/error paths, signed tokens, input validation, and cancellation behavior. Offline fixtures prove application handling only; a real successful provider call and a real iPhone share are separate verification steps.
 
-October 11, 2026: 120 offline tests passed. A real Supadata request through the local browser flow successfully transcribed the public example Reel `DEDbGqpyfkT` linked in Supadata's documentation. The app displayed the returned text for editing and did not automatically run an analysis. This is a general science sample, not evidence of financial-claim parsing accuracy. Actual user-selected financial Reels and the physical iPhone Share Sheet remain separate tests.
+October 11, 2026: A real Supadata request through both the local and deployed browser flows successfully transcribed the public example Reel `DEDbGqpyfkT` linked in Supadata's documentation. Two user-selected Reels also transcribed successfully on the deployed app:
+
+- `DdsqGzuuEKV`: a VSOF promotion. The extracted October 7 price claim was not treated as a future prediction. Transcription does not verify endorsements, token legitimacy, or the other factual claims in the video.
+- `Db8kR0kud6W`: a rare-earth/magnet investment discussion. A reviewed Tesla Optimus annual-production forecast found a related Gemini release market. Those are different conditions; the app labels this only a possible match and assigns no hype verdict. This test also exposed irrelevant results matching the generic word “year,” addressed by excluding generic time/prediction words from candidate search.
+
+All 122 offline tests passed after the search correction. The app displayed each transcript for editing and did not automatically run an analysis. Physical iPhone Share Sheet import/handoff is still unverified; desktop browser and provider checks do not prove iPhone behavior.
