@@ -17,6 +17,10 @@ Open http://localhost:3000. The BTC/ETH/SOL/XRP/ZEC checker needs **no API keys*
 
 Optional: copy `.env.example` to `.env`. `ANTHROPIC_API_KEY` enables Claude extraction with field validation and regex fallback. `CLAUDE_MODEL` defaults to the brief's `claude-haiku-5-5`; set it to a model available on your Anthropic account. An unavailable model automatically falls back. `ELEVENLABS_API_KEY` enables `scribe_v1` audio/video transcription; without it the upload endpoint returns an actionable 501. Keys never enter client code.
 
+## Connect Gemini and try a test order
+
+Open `/trade.html` for the sandbox-only account connection, market selection, order review, and explicit test-order confirmation. Server credentials are required; the page explains when setup is incomplete. Live-money trading is disabled in code. See [Gemini sandbox setup](docs/gemini-sandbox.md) for exact callback URLs, permissions, limitations, and the question to ask the Gemini team. This flow uses real Gemini sandbox responses, not fabricated account state or receipts.
+
 ## Send a Reel from iPhone
 
 Pocket Quant is a mobile-friendly web app. There is no browser extension in the current product.

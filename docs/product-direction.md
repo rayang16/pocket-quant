@@ -25,7 +25,7 @@ Use “prediction checker” or “hype checker” for future price claims. “F
 
 Call the quantitative model a second analytical lens. Realized-volatility estimates are computed separately from prediction-market quotes, but both currently use Gemini data; the model is not an independent data source or proof that a prediction is true. A model calibrated to market prices is even more directly dependent on those prices.
 
-Distinguish a plausible prediction from suitable trading advice. Market odds and a model estimate do not establish that a trade is profitable or appropriate for a particular person. The current action is market discovery with explicit matching conditions, not a personalized trade recommendation or order execution.
+Distinguish a plausible prediction from suitable trading advice. Market odds and a model estimate do not establish that a trade is profitable or appropriate for a particular person. Analysis results offer market discovery with explicit matching conditions. A separate sandbox page lets users test an account connection and manually review a test order; production trading remains disabled.
 
 Use “a quick check from your feed” as the intended experience. Do not claim that users lose no time or that the entire analysis happens inside Instagram: the current flow opens a separate app and still needs the claim text.
 
@@ -38,7 +38,7 @@ Use “a quick check from your feed” as the intended experience. Do not claim 
 | Transcribe an uploaded recording | Implemented with ElevenLabs; production requires ELEVENLABS_API_KEY and a real-audio check. |
 | Compare market and model | Live Gemini quotes plus probability estimates across 14/30/90-day volatility windows for supported crypto claims. |
 | Explain missing or imperfect evidence | No-market states, nearest-contract conditions, quote limits, and model assumptions are disclosed. |
-| Inspect a Gemini market | Existing market links are available on results. No trading or market-creation integration. |
+| Inspect a Gemini market | Existing market links are available on results. A sandbox-only connection and order-review flow is implemented; Gemini app credentials are still required for end-to-end verification. No live trading or market creation. |
 | Share evidence | PNG card download is verified; native sharing depends on browser support and still needs an iPhone test. |
 
 The largest gap in the promised experience is reliable, permitted extraction of the Reel's spoken prediction without asking users to type it. Improving ingestion matters more to the “seamless” claim than adding more verdict labels or trading features.

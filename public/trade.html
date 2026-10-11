@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10141b">
+  <meta name="description" content="Connect a Gemini sandbox account and review a prediction-market order using test funds.">
+  <title>Test a trade — Pocket Quant</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/trade.css">
+</head>
+<body>
+<div class="shell trade-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Pocket Quant home"><span class="brand-mark" aria-hidden="true">p<span>q</span></span>POCKET QUANT</a>
+    <a class="back-link" href="/">← Back to checker</a>
+  </header>
+  <main>
+    <section class="trade-intro">
+      <p class="eyebrow sandbox-badge"><span class="dot" aria-hidden="true"></span>SANDBOX · TEST FUNDS ONLY</p>
+      <h1>A first trade.<br><em>A practice run.</em></h1>
+      <p>Connect your Gemini sandbox account, choose a prediction, and review a test order. This page uses test funds.</p>
+    </section>
+
+    <p id="connection-notice" class="trade-message" role="status" hidden></p>
+    <section class="account-panel" aria-labelledby="account-heading">
+      <div class="account-copy">
+        <p class="eyebrow">01 / CONNECT</p>
+        <h2 id="account-heading">Your Gemini sandbox account</h2>
+        <p id="account-status" role="status" aria-live="polite">Checking connection…</p>
+      </div>
+      <div class="account-actions">
+        <a id="connect-account" class="primary" href="/api/gemini-account?action=connect" hidden>Connect sandbox account <span aria-hidden="true">↗</span></a>
+        <button id="disconnect-account" class="secondary" type="button" hidden>Disconnect</button>
+        <button id="refresh-account" class="text-button" type="button" hidden>Refresh connection</button>
+      </div>
+    </section>
+
+    <div id="trade-workspace" class="trade-desk" hidden>
+      <section class="trade-panel" aria-labelledby="choose-heading">
+        <p class="eyebrow">02 / CHOOSE</p>
+        <h2 id="choose-heading">Build a test order.</h2>
+        <p class="panel-description">Sandbox markets can differ from the live markets in your analysis. Choose a market here to test the flow.</p>
+        <form id="trade-form">
+          <fieldset id="order-fields" disabled>
+            <legend class="sr-only">Buy prediction contracts with test funds</legend>
+            <label for="market">Sandbox prediction market</label>
+            <select id="market" name="market" required><option value="">Loading sandbox markets…</option></select>
+            <div id="market-details" class="market-details" hidden>
+              <p id="market-event"></p>
+              <p id="market-symbol" class="mono"></p>
+              <p id="market-expiry"></p>
+              <div class="quote-pair" aria-label="Current sandbox ask prices"><span>YES ask <strong id="yes-ask">Unavailable</strong></span><span>NO ask <strong id="no-ask">Unavailable</strong></span></div>
+              <p class="field-note">Quotes may change. Enter your own limit price below.</p>
+            </div>
+            <fieldset class="outcome-field">
+              <legend>Which outcome do you want to buy?</legend>
+              <div class="outcome-options">
+                <label><input type="radio" name="outcome" value="yes" required><span>YES</span></label>
+                <label><input type="radio" name="outcome" value="no" required><span>NO</span></label>
+              </div>
+            </fieldset>
+            <div class="amount-fields">
+              <div><label for="quantity">Number of contracts</label><input id="quantity" name="quantity" type="number" inputmode="numeric" min="1" max="100" step="1" required placeholder="1–100"><p class="field-note">Up to 100 per test order.</p></div>
+              <div><label for="limit-price">Limit price per contract ($)</label><input id="limit-price" name="price" type="number" inputmode="decimal" min="0.01" max="0.99" step="0.01" required placeholder="0.01–0.99"><p class="field-note">The most you will pay per contract.</p></div>
+            </div>
+            <button id="preview-order" class="primary" type="submit">Review test order <span aria-hidden="true">→</span></button>
+          </fieldset>
+        </form>
+        <button id="reload-markets" class="text-button" type="button" hidden>Reload sandbox markets</button>
+        <p id="trade-status" class="trade-message" role="status" aria-live="polite"></p>
+        <div id="terms-notice" class="terms-notice" hidden><p>Gemini requires you to accept its prediction-market terms before trading.</p><a href="https://exchange.sandbox.gemini.com/" target="_blank" rel="noopener noreferrer">Open Gemini sandbox to review the terms ↗</a><p>Then return here and review your test order again.</p></div>
+      </section>
+
+      <section class="trade-panel review-panel" aria-labelledby="review-heading">
+        <p class="eyebrow">03 / REVIEW &amp; CONFIRM</p>
+        <h2 id="review-heading" tabindex="-1">You make the call.</h2>
+        <div id="review-empty" class="review-empty"><span class="review-mark" aria-hidden="true">↗</span><p>Your order details will appear here before you submit. Reviewing an order does not place it.</p></div>
+        <div id="order-review" hidden>
+          <p id="review-event" class="field-note"></p>
+          <h3 id="review-title"></h3>
+          <p id="review-symbol" class="mono"></p>
+          <p id="review-description" class="review-description" hidden></p>
+          <dl class="order-summary">
+            <div><dt>Order</dt><dd id="review-outcome"></dd></div>
+            <div><dt>Contracts</dt><dd id="review-quantity"></dd></div>
+            <div><dt>Limit price each</dt><dd id="review-price"></dd></div>
+            <div class="principal-row"><dt>Maximum principal</dt><dd id="review-notional"></dd></div>
+            <div id="review-expiry-row"><dt>Market expiry</dt><dd id="review-expiry"></dd></div>
+          </dl>
+          <p class="field-note">Test funds only. Principal excludes fees. Fills immediately at your limit price or better; any unfilled contracts are canceled.</p>
+          <p id="preview-expiry" class="field-note"></p>
+          <label class="confirm-label"><input id="confirm-order" type="checkbox"><span>I reviewed this order and want to submit it using test funds.</span></label>
+          <button id="submit-order" class="primary" type="button" disabled>Submit test order <span aria-hidden="true">↗</span></button>
+          <button id="edit-order" class="text-button" type="button">Edit order</button>
+        </div>
+        <div id="order-receipt" class="order-receipt" hidden>
+          <p class="eyebrow">ORDER RESPONSE RECEIVED</p>
+          <h3>Check its status on Gemini.</h3>
+          <p class="field-note">A submitted order is not necessarily filled.</p>
+          <dl class="order-summary">
+            <div><dt>Order ID</dt><dd id="receipt-id" class="mono"></dd></div>
+            <div><dt>Reported status</dt><dd id="receipt-status"></dd></div>
+            <div><dt>Market</dt><dd id="receipt-symbol" class="mono"></dd></div>
+            <div><dt>Order</dt><dd id="receipt-outcome"></dd></div>
+            <div><dt>Contracts</dt><dd id="receipt-quantity"></dd></div>
+            <div><dt>Limit price each</dt><dd id="receipt-price"></dd></div>
+          </dl>
+          <a class="market-link" href="https://exchange.sandbox.gemini.com/" target="_blank" rel="noopener noreferrer">Open Gemini sandbox order history ↗</a>
+        </div>
+        <p class="sandbox-footnote">All orders from this page go to Gemini’s sandbox.</p>
+      </section>
+    </div>
+    <p class="sandbox-account-link">Need a test account? <a href="https://exchange.sandbox.gemini.com/" target="_blank" rel="noopener noreferrer">Open Gemini sandbox ↗</a></p>
+    <noscript><p class="trade-message">Enable JavaScript to connect your sandbox account and review a test order.</p></noscript>
+  </main>
+  <footer class="footer"><span>POCKET QUANT <span class="muted"> / A little less hype.</span></span><span>Practice with test funds · No real-money orders on this page</span></footer>
+</div>
+<script type="module" src="/trade.js"></script>
+</body>
+</html>
