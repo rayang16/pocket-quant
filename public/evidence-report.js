@@ -2,6 +2,7 @@ import {request,node,percent,renderResult} from './ui.js';
 
 const types=new Set(['fact','forecast','recommendation']);
 const statuses={not_market_verifiable:'Not market-verifiable',forecast:'Forecast',opinion:'Opinion / recommendation',unavailable:'Gemini unavailable'};
+const fallbackHeadlines={not_market_verifiable:'Gemini cannot verify this factual claim.',forecast:'This prediction is not confirmed.',opinion:'This recommendation is not established by market prices.',unavailable:'Gemini could not check this claim right now.'};
 export const claimTypeLabel=type=>({fact:'Factual statement',forecast:'Forecast',recommendation:'Recommendation'}[type]??'Factual statement');
 
 export function geminiMarketUrl(value) {
@@ -58,14 +59,38 @@ function externalLink(title,url,cls='evidence-market-link') {
   const safe=geminiMarketUrl(url);if(!safe)return node('span',cls,title);
   const link=node('a',cls,title);link.href=safe;link.target='_blank';link.rel='noopener noreferrer';return link;
 }
+function renderExplanation(container,data) {
+  const explanation=data.explanation;
+  if(explanation?.provider!=='claude'||explanation.status==='disabled')return;
+  if(explanation.status==='unavailable') {
+    container.append(node('p','evidence-limitation','AI explanation unavailable; Gemini results are shown.'));return;
+  }
+  if(explanation.status!=='complete'||typeof explanation.answer!=='string'||!explanation.answer.trim())return;
+  const section=node('section','evidence-ai-explanation');
+  section.append(node('h4','eyebrow','CLAUDE · EXPLANATION'),node('p','evidence-ai-answer',explanation.answer));
+  if(typeof explanation.reason==='string'&&explanation.reason.trim()&&explanation.reason!==explanation.answer)section.append(node('p','evidence-ai-reason',explanation.reason));
+  const ids=new Set(Array.isArray(explanation.evidenceIds)?explanation.evidenceIds.filter(id=>typeof id==='string'):[]);
+  const grounded=Array.isArray(data.evidence)?data.evidence.filter(item=>typeof item?.id==='string'&&ids.has(item.id)&&typeof item.text==='string'):[];
+  if(grounded.length) {
+    const details=node('details','evidence-ai-evidence');details.append(node('summary','','Evidence used in this explanation'));
+    const list=node('ul','');
+    for(const evidence of grounded)list.append(node('li','',evidence.text));
+    details.append(list);section.append(details);
+  }
+  section.append(node('p','evidence-ai-disclosure','Claude explains the Gemini results and available math. It does not add independent fact-checking.'));
+  container.append(section);
+}
 function renderAssessment(container,claim,data) {
   container.replaceChildren();
   const assessment=assessmentFor(claim,data.assessment,data.claim),stamp=node('div',`evidence-verdict evidence-${assessment.status}`);
+  const answer=node('section','evidence-answer');
+  const headline=typeof assessment.headline==='string'&&assessment.headline.trim()?assessment.headline:fallbackHeadlines[assessment.status];
+  answer.append(node('p','eyebrow','ANSWER TO THE REEL'),node('h4','evidence-answer-headline',headline),node('p','evidence-summary',assessment.summary||'Gemini market prices cannot establish whether this claim is true.'));
+  container.append(answer);
   stamp.append(node('strong','',assessment.label));
   const checked=timeLabel(data.checkedAt);if(checked)stamp.append(node('span','timestamp',`Checked ${checked}`));
-  container.append(stamp,node('p','evidence-summary',assessment.summary||'Gemini market prices cannot establish whether this claim is true.'));
-  if(assessment.claimType==='forecast')container.append(node('p','notice','A forecast or target is not evidence that the outcome happened or will happen. Check the exact outcome and settlement deadline on Gemini.'));
-  if(assessment.claimType==='recommendation')container.append(node('p','notice','This is an opinion or recommendation. Gemini market prices do not establish that a trade is suitable or profitable.'));
+  container.append(stamp);
+  renderExplanation(container,data);
   for(const limitation of assessment.limitations??[])if(typeof limitation==='string')container.append(node('p','evidence-limitation',limitation));
   const markets=node('section','evidence-markets');markets.append(node('h4','eyebrow','GEMINI EXCHANGE · PREDICTION MARKETS'));
   markets.append(node('p','evidence-limitation',data.market?.reason||'No matching market was returned.'));
@@ -93,7 +118,7 @@ export function createReportView(container,extraction,{onCheck=()=>{},onEdit=()=
   container.replaceChildren();container.classList.add('evidence-report');
   const header=node('div','result-meta');header.append(node('span','eyebrow','GEMINI MARKET REPORT'),node('span','small-tag',`${drafts.length} CLAIM${drafts.length===1?'':'S'}`));container.append(header);
   container.append(node('h2','report-title','Your Gemini report.'),node('p','result-explanation','Gemini market checks start automatically for each claim, with crypto math where supported. A related market may use a different target or deadline.'));
-  container.append(node('p','evidence-extraction','These drafts were selected from the transcript. Check the wording and claim types against the original words.'));
+  container.append(node('p','evidence-extraction',data.extraction==='ai'?'Claude selected these claims; original excerpt preserved. Check the wording and claim types against the original words.':'These drafts were selected from the transcript. Check the wording and claim types against the original words.'));
   for(const warning of data.warnings??[])if(typeof warning==='string')container.append(node('p','notice',warning));
   const list=node('div','evidence-cards');container.append(list);
   const checkButton=node('button','primary','Check with Gemini ↗');checkButton.type='button';

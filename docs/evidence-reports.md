@@ -1,21 +1,27 @@
 # Reel reports with Gemini Exchange
 
-The report uses Gemini Exchange public market data and deterministic text rules. It does not use Claude, Google Gemini, or an external web fact-checking service. No API key is required for claim extraction, market discovery, or the supported crypto probability model. Sandbox trading uses a separate OAuth connection, which is still awaiting Gemini approval.
+The report uses **Gemini Exchange** public market data and optional Claude interpretation. Gemini Exchange is the exchange being showcased; it is not Google Gemini. No API key is required for market discovery, text-rule claim extraction, or the supported crypto probability model. A server-only `ANTHROPIC_API_KEY` enables Claude to select source-anchored claims and explain the supplied evidence. `CLAUDE_MODEL` defaults to `claude-sonnet-5-5`. Claude does not search the web or verify historical facts. Sandbox trading uses a separate OAuth connection, which is still awaiting Gemini approval.
 
 ## Flow
 
-Supadata transcribes an accessible public Reel when configured. Text rules select up to three distinct claims while preserving the original words, qualifications, quantities, and deadlines. Gemini comparisons and supported crypto math start immediately after extraction, without a review click. Uploaded recordings follow the same automatic flow after ElevenLabs transcription. For pasted transcripts, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow.
+Supadata transcribes an accessible public Reel when configured. Up to three distinct claims are selected while preserving original quotes, qualifications, quantities, and deadlines. Claude can select the claims when configured; source validation and deterministic fallback keep the flow working if its output is unavailable or unusable. Gemini comparisons and supported crypto math start immediately after extraction, without a review click. Uploaded recordings follow the same automatic flow after ElevenLabs transcription. For pasted transcripts, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow.
 
 Claims remain editable as facts, forecasts, or recommendations. Each card runs separately, so one failed request does not erase other results. Editing the transcript or a claim stops active checks and prevents stale UI updates. Users can explicitly recheck corrected text. Automatic reports use public data and never place trades; sandbox orders remain a separate flow with explicit confirmation.
 
-Supadata is the only paid provider in this Reel-to-report flow. Pasted transcripts do not need a transcription key. The separate recording-upload feature can use ElevenLabs when configured; it is not required for reports.
+Supadata transcription and optional Claude interpretation incur their respective provider charges. Pasted transcripts do not need a transcription key. The separate recording-upload feature can use ElevenLabs when configured; it is not required for reports.
 
 ## Endpoints
 
-- `POST /api/evidence-report?action=extract`, JSON `{text, sourceUrl?}`. Transcript: 3–6,000 characters. Returns `{claims, extraction, warnings, checkedAt}`. Each claim has `id`, `text`, `quote`, and `type` (`fact`, `forecast`, `recommendation`). Extraction uses text rules and returns editable claims; the UI proceeds directly to the check endpoint.
-- `POST /api/evidence-report?action=check`, JSON `{claim, sourceUrl?}`. Claim text: 3–500 characters; original quote: at most 2,000. Returns `{claim, assessment, market, model, checkedAt}`. The UI submits at most three cards concurrently. There are no external source-verification cards.
+- `POST /api/evidence-report?action=extract`, JSON `{text, sourceUrl?}`. Transcript: 3–6,000 characters. Returns `{claims, extraction, warnings, checkedAt}`. Each claim has `id`, `text`, `quote`, and `type` (`fact`, `forecast`, `recommendation`). Extraction uses optional Claude selection with source validation and a deterministic fallback, and returns editable claims; the UI proceeds directly to the check endpoint.
+- `POST /api/evidence-report?action=check`, JSON `{claim, sourceUrl?}`. Claim text: 3–500 characters; original quote: at most 2,000. Returns `{claim, assessment, market, model, evidence, explanation, checkedAt}`. `assessment.headline` is a deterministic conclusion that Claude cannot replace. `evidence` contains `{id,text}` items; `explanation` records `status` (`complete`, `unavailable`, or `disabled`), `provider: "claude"`, and optional `answer`, `reason`, and `evidenceIds`. A successful Claude explanation is labeled separately. The UI submits at most three cards concurrently. There are no external source-verification cards.
 
 Both endpoints require JSON, limit bodies to 26 KB, reject cross-origin browser requests, and never fetch user-supplied URLs. An optional Reel URL is a validated reference. Identical requests share in-flight work and may be reused for five minutes, with a maximum of 100 cache entries. Limits are process-local: 12 fresh requests per client per minute and eight concurrent requests. Serverless instances do not share these limits or caches; they are not authenticated user quotas. Reports and transcripts are not stored in a database.
+
+## Interpretation and data handling
+
+Each card leads with a conclusion about the Reel’s actual claim, followed by the relevant Gemini contract and any supported model calculation. With Claude enabled, Anthropic receives the transcript for claim selection, then the claim, retrieved Gemini results, and applicable model output for explanation. The provider has no web-search tools and is instructed to use only supplied evidence, preserve quoted probabilities, and distinguish a related contract from an exact match. Server validation and fallback conclusions preserve the non-verifiable-fact, no-market, mismatch, and unavailable-data states. Missing credentials or a failed Claude call never prevent the automatic Gemini checks from completing. `/api/capabilities` exposes only a `claudeAnalysis` availability flag, never credentials.
+
+Keys remain on the server and are never sent to the browser. Transcripts and reports are not stored in a database; provider processing policies still apply. Automatic reporting does not connect an account or place an order.
 
 ## What the results mean
 

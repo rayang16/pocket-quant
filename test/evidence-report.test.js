@@ -6,7 +6,7 @@ import {createReportHandler} from '../api/evidence-report.js';
 const now = new Date('2026-10-11T00:00:00Z');
 const claim = {id: 'claim-1', text: 'Acme signed a $400 million contract in 2025.', quote: 'Acme signed a $400 million contract in 2025.', type: 'fact'};
 const market = {status: 'none', reason: 'No matching market.', matches: []};
-const createReporter = options => createEvidenceReporter({marketLookup: async () => market, checker: () => assert.fail('unexpected probability check'), clock: () => now, ...options});
+const createReporter = options => createEvidenceReporter({marketLookup: async () => market, checker: () => assert.fail('unexpected probability check'), clock: () => now, ai:null, ...options});
 const response = () => ({headers: {}, setHeader(name, value) {this.headers[name] = value;}, end(body) {this.body = body;}});
 async function request(handler, overrides = {}) {
   const req = {method: 'POST', url: '/api/evidence-report?action=check', headers: {host: 'localhost:3000', origin: 'http://localhost:3000', 'content-type': 'application/json'}, body: JSON.stringify({claim}), ...overrides};
@@ -41,7 +41,7 @@ test('manually mislabeled predictions and direct recommendations keep nonfactual
   }
 });
 
-test('Exchange-only reports distinguish facts, forecasts, and recommendations without source evidence', async () => {
+test('Gemini reports distinguish facts, forecasts, and recommendations without external factual sources', async () => {
   const report = createReporter();
   for (const [type, status] of [['fact', 'not_market_verifiable'], ['forecast', 'forecast'], ['recommendation', 'opinion']]) {
     const result = await report('check', {claim: {...claim, type}});
@@ -51,7 +51,9 @@ test('Exchange-only reports distinguish facts, forecasts, and recommendations wi
     assert.deepEqual(result.market, market);
     assert.equal(result.model, null);
     assert.equal(result.checkedAt, now.toISOString());
-    assert.deepEqual(Object.keys(result).sort(), ['assessment', 'checkedAt', 'claim', 'market', 'model']);
+    assert.deepEqual(Object.keys(result).sort(), ['assessment', 'checkedAt', 'claim', 'evidence', 'explanation', 'market', 'model']);
+    assert.ok(result.assessment.headline);
+    assert.equal(result.explanation.status,'disabled');
   }
 });
 
@@ -63,7 +65,7 @@ test('extraction uses rules without an AI key and preserves the source statement
   assert.equal(Object.hasOwn(result, 'sources'), false);
 });
 
-test('external AI keys cannot activate external providers or web research', async () => {
+test('explicitly disabled AI keeps deterministic reports even when unrelated provider keys exist', async () => {
   const names = ['ANTHROPIC_API_KEY', 'GEMINI_API_KEY', 'GOOGLE_API_KEY', 'OPENAI_API_KEY'];
   const previous = new Map(names.map(name => [name, process.env[name]]));
   const previousFetch = globalThis.fetch;

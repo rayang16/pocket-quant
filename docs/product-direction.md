@@ -4,11 +4,11 @@ Updated October 11, 2026. This supplements the original, verbatim `CONTEXT.md`. 
 
 ## Experience
 
-Instagram Reel → Share → Pocket Quant → Supadata transcript → up to three editable claims → automatic Gemini comparisons and applicable crypto math → inspect results → return to the feed.
+Instagram Reel → Share → Pocket Quant → Supadata transcript → up to three editable claims → automatic Gemini comparisons and applicable crypto math → clear conclusion → inspect results → return to the feed.
 
-People encounter confident financial claims while scrolling. Pocket Quant makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Text rules extract claims without an AI-provider key, then Gemini checks begin automatically. Recording transcripts use the same flow. Pasted transcripts need one **Check with Gemini** action, and sample buttons run extraction and checks together. Users can correct words and classification; edits stop active checks and allow an explicit recheck.
+People encounter confident financial claims while scrolling. Pocket Quant makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Optional Claude interpretation selects source-anchored claims and explains the supplied Gemini results and crypto math. Text rules and deterministic conclusions keep Gemini checks working without a Claude key or if the provider fails. Recording transcripts use the same flow. Pasted transcripts need one **Check with Gemini** action, and sample buttons run extraction and checks together. Users can correct words and classification; edits stop active checks and allow an explicit recheck.
 
-The result answers: What is the claim? Is it a fact, forecast, or recommendation? Which Gemini contracts relate to it? Do their conditions match? Can the disclosed crypto model contribute a useful comparison?
+The result answers the Reel first: what does the available evidence actually tell us about this claim? It then shows the claim type, related Gemini contracts, differences in conditions or deadlines, and any supported crypto calculation. A clear answer can be “Gemini cannot verify this past return” or “This market prices a release, not the claimed production volume.”
 
 ## Gemini track positioning
 
@@ -27,18 +27,18 @@ The intended experience is a quick check from the feed. It opens a separate app,
 | --- | --- |
 | Receive a Reel | An iPhone Share Sheet shortcut opens a validated Instagram link. Actual iPhone import and Instagram handoff still need a device test. |
 | Public Reel transcription | Supadata provides an editable transcript when the Reel is accessible. Requires `SUPADATA_API_KEY`, configured on the deployed app; private, restricted, missing, or silent media keeps a manual fallback. |
-| Claim extraction | Deterministic rules select up to three distinct statements and immediately start Gemini checks. Users can edit wording and classification, then recheck. |
-| Gemini report | Public-data market discovery runs automatically after extraction and needs no API key. Related contract prices do not verify historical facts or the precise Reel forecast. |
+| Claim extraction | Optional Claude selection returns up to three source-anchored statements, with text-rule fallback. Checks begin automatically; users can edit and recheck. |
+| Gemini report | Public-data market discovery runs automatically after extraction and needs no API key. Each card leads with a conclusion. Optional Claude explains supplied quotes and model results, with deterministic fallback; related prices do not verify historical facts or the precise Reel forecast. |
 | Crypto model | Supported price forecasts with explicit calendar deadlines can use Gemini data and 14/30/90-day volatility estimates. Unsupported or ambiguous claims do not receive a probability model. |
 | Recording upload | Optional ElevenLabs integration; requires its key and a real-audio check. A completed transcript automatically starts claim extraction and Gemini checks. |
 | Trading | Automatic reports never place orders. Sandbox-only account connection and manual order review are implemented. Gemini OAuth approval is pending; end-to-end test orders are unverified. Production trading is disabled. |
 | Sharing results | The single-crypto checker provides PNG cards. Native file sharing still needs an iPhone check; do not imply the full three-claim report is exported. |
 
-Supadata is the only paid provider in the public-Reel-to-report flow. Report text is processed with local rules and public Gemini data; no Claude or external research API is involved. Reports use bounded process-local caching and request limits, not persistent user accounts or a database. An Instagram DM bot, market creation, and a dataset of unmet market demand remain future ideas.
+Supadata provides paid transcription; enabling Claude adds Anthropic API charges. With Claude enabled, Anthropic receives transcript text for claim selection and claims with Gemini results and applicable model output for explanation. Gemini remains the market-data source. This flow does not use Google Gemini or external web research. Claude credentials remain on the server. Reports use bounded process-local caching and request limits, not persistent user accounts or a database. An Instagram DM bot, market creation, and a dataset of unmet market demand remain future ideas.
 
 ## Pitch and demonstration
 
-“Share a financial Reel to Pocket Quant and automatically see its claims alongside related Gemini Prediction Markets. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
+“Share a financial Reel to Pocket Quant and get a clear answer about what Gemini’s prediction markets can tell you. It automatically finds the claims, checks real Gemini contracts, and compares supported crypto forecasts with transparent volatility math. When enabled, Claude explains those results in plain English.”
 
 Describe the actual demo input: a public Reel transcribed through Supadata, a recording transcribed separately, or pasted text. Distinguish live provider and browser checks from an actual iPhone Share Sheet demonstration. Show a no-market or non-verifiable factual claim as honestly as a useful match.
 

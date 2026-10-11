@@ -1,6 +1,6 @@
 # Pocket Quant
 
-**A little less hype.** Share an Instagram Reel to automatically extract up to three claims, discover related Gemini Exchange Prediction Markets, and apply volatility math to supported crypto forecasts. Market prices provide context; they do not fact-check historical statements or make a trade suitable.
+**A little less hype.** Share an Instagram Reel to automatically extract up to three claims, search related Gemini Exchange Prediction Markets, and get a clear conclusion grounded in the available market data and supported crypto math. Optional Claude interpretation helps explain what the evidence means. Market prices do not fact-check historical statements or make a trade suitable.
 
 Plain Node ESM, native browser modules, no application dependencies, no database. No canned odds or simulated market data in the app. Test fixtures live only in `fixtures/` and are imported only by tests.
 
@@ -13,9 +13,9 @@ npm run build
 npm run dev
 ```
 
-Open http://localhost:3000. Claim extraction, the Gemini market report, and the BTC/ETH/SOL/XRP/ZEC checker need **no API keys**. `npm test` runs offline; `npm run verify:live` calls actual Gemini endpoints and writes timestamped checks under the ignored `output/` folder.
+Open http://localhost:3000. The Gemini market report and BTC/ETH/SOL/XRP/ZEC checker work **without API keys**, using deterministic claim extraction and conclusions. `npm test` runs offline; `npm run verify:live` calls actual Gemini endpoints and writes timestamped checks under the ignored `output/` folder.
 
-Optional: copy `.env.example` to `.env`. `SUPADATA_API_KEY` enables automatic transcription of public Reel links. The separate recording-upload feature uses `ELEVENLABS_API_KEY`; without it the upload endpoint returns an actionable 501. Keys never enter client code. Reports use deterministic claim extraction and public Gemini Exchange data, with no Claude, Google Gemini, or external web-research service.
+Optional: copy `.env.example` to `.env`. `SUPADATA_API_KEY` enables automatic transcription of public Reel links. `ANTHROPIC_API_KEY` enables Claude to select source-anchored claims and explain the supplied Gemini market data and crypto calculations; `CLAUDE_MODEL` defaults to `claude-sonnet-5-5`. Missing or unavailable Claude falls back to text rules and plain-language conclusions, so Gemini checks continue. The separate recording-upload feature uses `ELEVENLABS_API_KEY`; without it the upload endpoint returns an actionable 501. All keys stay on the server. Gemini here means **Gemini Exchange**, not Google Gemini; Claude has no web-search tools in this flow.
 
 ## Connect Gemini and try a test order
 
@@ -29,7 +29,7 @@ Pocket Quant is a mobile-friendly web app. There is no browser extension in the 
 2. Open the downloaded `.shortcut` file in Apple Shortcuts and choose **Add Shortcut**. In its **Details**, enable **Show in Share Sheet**.
 3. In Instagram, choose **Share → More / Share to… → Check with Pocket Quant**.
 4. The shortcut opens `https://pocket-quant-ashen.vercel.app/#shared=<encoded input>`. The app validates the Instagram permalink, removes tracking parameters, and clears the incoming fragment from the address bar.
-5. When Supadata is configured, the app sends the public link to Supadata for transcription, selects up to three claims using text rules, and immediately checks Gemini markets and any applicable crypto math. No second tap is required. Claims stay editable; editing the transcript or a claim stops active checks, and the user can recheck the corrected text. Private, restricted, missing, or silent videos may fail; paste the claim or upload a recording as a fallback.
+5. When Supadata is configured, the app sends the public link to Supadata for transcription, selects up to three source-anchored claims, and immediately checks Gemini markets and any applicable crypto math. When enabled, Claude helps select those claims and explains the retrieved results. No second tap is required. Claims stay editable; editing the transcript or a claim stops active checks, and the user can recheck the corrected text. Private, restricted, missing, or silent videos may fail; paste the claim or upload a recording as a fallback.
 
 The exported shortcut was created in Apple Shortcuts and exported for Anyone (Apple validates a copy). It uses URL Encode → Text → Open URLs and points to the production domain above. If the production domain changes, update and re-export it. Actual Instagram Share Sheet placement and import must be checked on an iPhone; macOS/browser checks do not prove device behavior.
 
@@ -42,7 +42,7 @@ npm test
 npx vercel --prod
 ```
 
-Vercel serves `public/` and `api/` functions. Function duration limits are set in `vercel.json`. Configure optional transcription and sandbox secrets in Vercel, not public files. After deployment, test the three-claim flow, BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. Report requests do not incur an AI-provider charge; paid transcription has no durable quota system in this hackathon build.
+Vercel serves `public/` and `api/` functions. Function duration limits are set in `vercel.json`. Configure optional transcription, Claude, and sandbox secrets in Vercel, not public files. After deployment, test the three-claim flow, BTC, ETH, a no-market claim, and the iPhone shortcut download from the actual URL. This project does not override Vercel account access protections. Enabling Claude incurs Anthropic API charges in addition to any transcription charges. Provider work has bounded per-instance request limits, not a durable per-user quota system in this hackathon build.
 
 ## The math, in plain English
 
@@ -60,7 +60,7 @@ The zero-drift lognormal model ignores jump risk and understates fat tails. Real
 
 ### Claim parsing and honest uncertainty
 
-The Reel report selects up to three distinct claims with deterministic text rules and keeps their original transcript wording. Market checks and supported crypto calculations start automatically after transcription and extraction. Users can edit and classify each as a fact, forecast, or recommendation, then recheck any corrections. Historical facts receive `not_market_verifiable`; recommendations remain opinions; forecasts remain uncertain. Related Gemini contracts never become a supported/contradicted verdict on a factual claim. The report applies crypto probability math only when the claim has a supported target and an explicit calendar deadline with a year. Relative dates in undated Reels need review.
+The Reel report selects up to three distinct claims, optionally with Claude, and validates that their quotes preserve original transcript wording. Without Claude or if it fails, deterministic text rules provide the fallback. Market checks and supported crypto calculations start automatically after transcription and extraction. Users can edit and classify each as a fact, forecast, or recommendation, then recheck any corrections. Each card leads with a plain-language conclusion tied to the actual claim. Historical facts receive `not_market_verifiable`; recommendations remain opinions; forecasts remain uncertain. Optional Claude explanations use only the supplied Gemini results and model output, with no external fact-checking or invented quotes. Related Gemini contracts never become a supported/contradicted verdict on a factual claim. The report applies crypto probability math only when the claim has a supported target and an explicit calendar deadline with a year. Relative dates in undated Reels need review.
 
 The separate single-crypto checker handles BTC/ETH/SOL/XRP/ZEC aliases, k/m amounts, commas, percentage moves, caption noise, and relative/calendar deadlines. A target must be between 0.2× and 10× live spot. Multiple plausible targets require clarification. Calendar context is America/Los_Angeles; deadlines resolve to **21:00 UTC**, as requested for the demo. This equals 5 PM Eastern only during daylight saving time. No date means +30 days, visibly labeled. “This week” ends Sunday. Past deadlines are rejected.
 
@@ -77,7 +77,7 @@ lib/math.js        pure probability, volatility, confidence and comparison funct
 lib/gemini.js      cached public Gemini client and quote normalization
 lib/claim.js       crypto claim parsing; public checks use deterministic rules
 lib/engine.js      shared claim-checking engine
-lib/report-claims.js   deterministic extraction of up to three transcript-anchored claims
+lib/report-claims.js   validation and fallback extraction of up to three source-anchored claims
 lib/report-markets.js  conservative discovery of related Gemini contracts
 lib/evidence-report.js claim classification, market context, and optional crypto math
 lib/http.js        bounded body handling and CORS
@@ -94,9 +94,9 @@ fixtures/         real-shaped offline data, imported only by tests
 
 ## API
 
-Reel reports select up to three editable claims and check each against public Gemini Exchange data. No AI research key or external fact-checking service is used. See [Gemini report behavior, safeguards, and limitations](docs/evidence-reports.md).
+Reel reports select up to three editable claims and check each against public Gemini Exchange data. Optional Claude interpretation uses the server-only Anthropic key to select claims and explain the supplied results; it does not search external sources. See [Gemini report behavior, safeguards, and limitations](docs/evidence-reports.md).
 
-`POST /api/evidence-report?action=extract`, JSON `{ "text": "Reel transcript..." }`, returns claim drafts. `POST /api/evidence-report?action=check`, JSON `{ "claim": { "id": "claim-1", "text": "Claim to check", "quote": "Original words", "type": "fact" } }`, returns `{claim, assessment, market, model, checkedAt}`. Claim types are `fact`, `forecast`, and `recommendation`. The app automatically calls the check endpoint after extracting claims from a Reel or recording transcript. For pasted text, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow. Editing the input or a claim stops active checks and allows an explicit recheck. There are no external source-verification cards, and automatic checking never places orders.
+`POST /api/evidence-report?action=extract`, JSON `{ "text": "Reel transcript..." }`, returns claim drafts. `POST /api/evidence-report?action=check`, JSON `{ "claim": { "id": "claim-1", "text": "Claim to check", "quote": "Original words", "type": "fact" } }`, returns `{claim, assessment, market, model, evidence, explanation, checkedAt}`. Claim types are `fact`, `forecast`, and `recommendation`. The app automatically calls the check endpoint after extracting claims from a Reel or recording transcript. For pasted text, **Check with Gemini** extracts and checks in one action; sample buttons also run the full flow. Editing the input or a claim stops active checks and allows an explicit recheck. There are no external source-verification cards, and automatic checking never places orders.
 
 `POST /api/check`, JSON `{ "text": "Bitcoin to 150K by end of month, guaranteed" }`.
 
@@ -104,11 +104,11 @@ Reel reports select up to three editable claims and check each against public Ge
 
 `POST /api/reel-transcript`, JSON `{ "url": "https://www.instagram.com/reel/SHORTCODE/" }`. It returns a completed transcript (200) or a signed `jobToken` (202). Poll with `{ "jobToken": "..." }` after `retryAfterMs`. Only start requests create provider work; polling never starts a new transcription. Errors never become a verdict.
 
-Claims, audio, and cards are not written to a database. Report requests use a bounded process-local cache for five minutes, with limits of 12 fresh requests per client per minute and eight concurrent requests; these limits are not shared across serverless instances. Reel requests/transcripts are reused in memory for ten minutes to avoid duplicate paid requests, and signed job tokens expire after fifteen minutes. Supadata receives public Reel links and processes their content; it is the only paid provider in the Reel-to-Gemini report flow. If used separately, ElevenLabs receives uploaded recordings. No report text is sent to Claude or an external web-research service. Provider processing policies still apply. Downloading a card does not publish it; sharing uses the device’s share sheet.
+Claims, audio, and cards are not written to a database. Report requests use a bounded process-local cache for five minutes, with limits of 12 fresh requests per client per minute and eight concurrent requests; these limits are not shared across serverless instances. Reel requests/transcripts are reused in memory for ten minutes to avoid duplicate paid requests, and signed job tokens expire after fifteen minutes. Supadata receives public Reel links and processes their content. If used separately, ElevenLabs receives uploaded recordings. When Claude is enabled, Anthropic receives transcript text for claim selection and claim text with retrieved Gemini market data and supported model output for interpretation. No external web-research service is used. Provider processing policies still apply. Downloading a card does not publish it; sharing uses the device’s share sheet.
 
 ## Pitch and demo
 
-“Share a financial Reel to Pocket Quant and automatically see its claims alongside related Gemini Prediction Markets. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
+“Share a financial Reel to Pocket Quant and get a clear answer about what Gemini’s prediction markets can tell you. It automatically finds the claims, checks real Gemini contracts, and compares supported crypto forecasts with transparent volatility math. When enabled, Claude explains those results in plain English.”
 
 See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience and Gemini track positioning. Shared public Reels can be transcribed through Supadata when configured, followed automatically by editable claim cards, Gemini market comparisons, and supported crypto math. Recording transcripts follow the same automatic flow; pasted text starts with a single **Check with Gemini** action. Actual provider and iPhone checks must be reported separately from offline tests. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
 
@@ -120,6 +120,7 @@ The current product includes the engine, mobile web experience, verdict cards, o
 - [Apple Share Sheet shortcuts](https://support.apple.com/guide/shortcuts/receive-onscreen-items-apd350ce757a/ios)
 - [ElevenLabs transcription](https://elevenlabs.io/docs/api-reference/speech-to-text/convert)
 - [Supadata Reel transcription](https://docs.supadata.ai/get-transcript)
+- [Anthropic structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
 - [Vercel Node functions](https://vercel.com/docs/functions/runtimes/node-js)
 
 ## Step 1 engine interfaces

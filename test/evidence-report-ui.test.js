@@ -4,6 +4,24 @@ import {assessmentFor,geminiMarketUrl,normalizeDrafts,extractClaims,checkClaims,
 
 const claim={id:'claim-1',text:'Tesla expects production to increase in 2027.',quote:'Tesla expects production to increase in 2027.',type:'forecast'};
 const extracted={claims:[claim],extraction:'rules',warnings:[]};
+class Element {
+  constructor(tag){this.tagName=tag;this.children=[];this.textContent='';this.classList={add:()=>{}};}
+  append(...children){this.children.push(...children);}
+  replaceChildren(...children){this.children=[...children];}
+  setAttribute(){}
+  addEventListener(){}
+  set innerHTML(_value){throw new Error('Report content must be rendered as plain text.');}
+}
+const textOf=element=>[element.textContent,...element.children.map(textOf)].join(' ');
+const elementsOf=element=>[element,...element.children.flatMap(elementsOf)];
+function withDocument(run) {
+  const previous=globalThis.document;globalThis.document={createElement:tag=>new Element(tag)};
+  try {return run();} finally {if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+}
+function renderReport(data,extraction=extracted) {
+  const container=new Element('section'),view=createReportView(container,extraction);
+  view.result('claim-1',{data});return container;
+}
 
 test('forecast and recommendation cards never become factual verdicts',()=>{
   for(const status of ['supported','contradicted','mixed','unverified']) {
@@ -111,17 +129,7 @@ test('Gemini outages remain visible for facts, forecasts and recommendations',()
 });
 
 test('market cards render Gemini data and do not render external source reports',()=>{
-  const previous=globalThis.document;
-  class Element {
-    constructor(tag){this.tagName=tag;this.children=[];this.textContent='';this.classList={add:()=>{}};}
-    append(...children){this.children.push(...children);}
-    replaceChildren(...children){this.children=[...children];}
-    setAttribute(){}
-    addEventListener(){}
-  }
-  const textOf=element=>[element.textContent,...element.children.map(textOf)].join(' ');
-  globalThis.document={createElement:tag=>new Element(tag)};
-  try {
+  withDocument(()=>{
     const container=new Element('section');
     const view=createReportView(container,{claims:[{...claim,type:'fact'}],extraction:'rules',warnings:[]});
     view.result('claim-1',{data:{claim:{...claim,type:'fact'},checkedAt:'2026-10-11T12:00:00Z',assessment:{status:'not_market_verifiable',summary:'A future market cannot verify past production.',limitations:[]},sources:[{title:'External source that must not be rendered',url:'https://example.com/'}],market:{status:'related',reason:'Related topic; different target.',matches:[{title:'Tesla releases Optimus',url:'https://www.gemini.com/predictions/optimus-release',expiryDate:'2027-01-01T00:00:00Z',contracts:[{label:'YES',prob:.42,source:'midpoint'}]}]}}});
@@ -130,5 +138,60 @@ test('market cards render Gemini data and do not render external source reports'
     assert.match(rendered,/Not market-verifiable/);assert.match(rendered,/42\.0%/);
     assert.match(rendered,/Gemini Exchange · midpoint · YES price/);
     assert.doesNotMatch(rendered,/External source that must not be rendered|Claude|SOURCES CHECKED|research isn’t available/);
-  } finally {if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+  });
 });
+
+test('the direct answer leads the assessment while related-market mismatch notices remain',()=>withDocument(()=>{
+  const container=renderReport({claim,assessment:{status:'forecast',headline:'Gemini does not price this exact prediction.',summary:'The related market is about a release, not production volume.',limitations:['A release is different from making one million robots.']},market:{status:'related',reason:'Different target and deadline.',matches:[{title:'Optimus released?',url:'https://www.gemini.com/predictions/optimus-release',contracts:[{prob:.105,label:'YES',source:'midpoint'}]}]}});
+  const rendered=textOf(container),answer=elementsOf(container).find(element=>element.className==='evidence-answer');
+  assert.match(textOf(answer),/^ ANSWER TO THE REEL Gemini does not price this exact prediction\./);
+  assert.ok(rendered.indexOf('ANSWER TO THE REEL')<rendered.indexOf('GEMINI EXCHANGE · PREDICTION MARKETS'));
+  assert.match(rendered,/10\.5%/);assert.match(rendered,/Different target and deadline/);
+  assert.match(rendered,/A release is different from making one million robots/);
+  assert.match(rendered,/Related topics are not verification/);
+}));
+
+test('older reports receive conservative headline fallbacks without changing status labels',()=>withDocument(()=>{
+  for(const [type,status,headline] of [
+    ['fact','not_market_verifiable','Gemini cannot verify this factual claim.'],
+    ['forecast','forecast','This prediction is not confirmed.'],
+    ['recommendation','opinion','This recommendation is not established by market prices.'],
+    ['forecast','unavailable','Gemini could not check this claim right now.']
+  ]) {
+    const draft={...claim,type},data={claim:draft,assessment:{status},market:{matches:[]}};
+    const rendered=textOf(renderReport(data,{claims:[draft]}));
+    assert.ok(rendered.includes(headline));assert.ok(rendered.includes(assessmentFor(draft,{status}).label));
+  }
+}));
+
+test('Claude is disclosed separately and references only evidence returned with the report',()=>withDocument(()=>{
+  const container=renderReport({claim,assessment:{status:'forecast',headline:'No matching Gemini prediction.'},explanation:{status:'complete',provider:'claude',answer:'Gemini cannot settle the Reel’s prediction.',reason:'The only related contract uses a different deadline.',evidenceIds:['market-1','invented-id']},evidence:[{id:'market-1',text:'The Gemini market settles on December 31, 2026.'},{id:'unused',text:'Unreferenced evidence must not appear here.'}],market:{matches:[]}}, {...extracted,extraction:'ai'});
+  const rendered=textOf(container);
+  assert.match(rendered,/Claude selected these claims; original excerpt preserved/);
+  assert.match(rendered,/CLAUDE · EXPLANATION/);assert.match(rendered,/Gemini cannot settle the Reel’s prediction/);
+  assert.match(rendered,/The only related contract uses a different deadline/);
+  assert.match(rendered,/Evidence used in this explanation/);assert.match(rendered,/The Gemini market settles on December 31, 2026/);
+  assert.match(rendered,/does not add independent fact-checking/);
+  assert.doesNotMatch(rendered,/invented-id|Unreferenced evidence/);
+  assert.match(rendered,/Forecast/);
+}));
+
+test('AI and transcript text cannot introduce HTML, links, or factual status overrides',()=>withDocument(()=>{
+  const unsafe='<img src=x onerror=alert(1)> <script>alert(1)</script> [click](javascript:alert(1))';
+  const container=renderReport({claim,assessment:{status:'forecast',headline:unsafe,summary:unsafe},explanation:{status:'complete',provider:'claude',statusLabel:'Verified true',answer:unsafe,reason:unsafe+' reason',evidenceIds:['e-1']},evidence:[{id:'e-1',text:unsafe}],market:{matches:[]}},{...extracted,claims:[{...claim,text:unsafe,quote:unsafe}]});
+  const rendered=textOf(container);
+  assert.ok(rendered.includes(unsafe));
+  assert.equal(elementsOf(container).some(element=>['img','script','a'].includes(element.tagName)),false);
+  assert.match(rendered,/Forecast/);assert.doesNotMatch(rendered,/Verified true/);
+}));
+
+test('disabled or failed AI preserves Gemini results and exposes no setup requirements',()=>withDocument(()=>{
+  for(const status of ['disabled','unavailable']) {
+    const container=renderReport({claim,assessment:{status:'forecast',headline:'No exact Gemini match.'},explanation:{status,provider:'claude',reason:'ANTHROPIC_API_KEY is missing'},market:{matches:[]}});
+    const rendered=textOf(container);
+    assert.match(rendered,/No exact Gemini match/);assert.match(rendered,/GEMINI EXCHANGE · PREDICTION MARKETS/);
+    assert.doesNotMatch(rendered,/ANTHROPIC|API_KEY|missing|CLAUDE · EXPLANATION/);
+    if(status==='unavailable')assert.match(rendered,/AI explanation unavailable; Gemini results are shown/);
+    else assert.doesNotMatch(rendered,/AI explanation unavailable/);
+  }
+}));
