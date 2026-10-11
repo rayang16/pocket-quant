@@ -88,6 +88,10 @@ fixtures/         real-shaped offline data, imported only by tests
 
 ## API
 
+Reel evidence reports now extract up to three editable claims and check them separately. With `ANTHROPIC_API_KEY`, Claude searches for sources; without it, claim review and related Gemini markets remain available and the UI explicitly marks research as unavailable. See [evidence report setup, safeguards, and limitations](docs/evidence-reports.md).
+
+`POST /api/evidence-report?action=extract`, JSON `{ "text": "Reel transcript..." }`, returns claim drafts. `POST /api/evidence-report?action=check`, JSON `{ "claim": { "id": "claim-1", "text": "Claim to check", "quote": "Original words", "type": "fact" } }`, returns evidence and related markets. Claim types are `fact`, `forecast`, and `recommendation`. No source lookup runs until the user chooses to check the drafts.
+
 `POST /api/check`, JSON `{ "text": "Bitcoin to 150K by end of month, guaranteed" }`.
 
 `POST /api/transcribe`, raw audio/video bytes with an appropriate audio/video `Content-Type`. Maximum 4 MB. It is intentionally **not** a multipart client upload; the server creates the ElevenLabs multipart request. Both endpoints support CORS and reject unsupported methods and oversized inputs.

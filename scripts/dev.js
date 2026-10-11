@@ -6,6 +6,7 @@ import check from '../api/check.js';
 import transcribe from '../api/transcribe.js';
 import capabilities from '../api/capabilities.js';
 import reelTranscript from '../api/reel-transcript.js';
+import evidenceReport from '../api/evidence-report.js';
 import geminiAccount from '../api/gemini-account.js';
 import geminiTrade from '../api/gemini-trade.js';
 const root=fileURLToPath(new URL('../public/',import.meta.url));
@@ -17,6 +18,7 @@ createServer(async(req,res)=>{
   if(url.pathname==='/api/transcribe') return transcribe(req,res);
   if(url.pathname==='/api/capabilities') return capabilities(req,res);
   if(url.pathname==='/api/reel-transcript') return reelTranscript(req,res);
+  if(url.pathname==='/api/evidence-report') return evidenceReport(req,res);
   if(url.pathname==='/api/gemini-account') return geminiAccount(req,res);
   if(url.pathname==='/api/gemini-trade') return geminiTrade(req,res);
   if(!['GET','HEAD'].includes(req.method)) {res.writeHead(405);return res.end();}
