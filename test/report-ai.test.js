@@ -61,6 +61,44 @@ test('explanations accept ordinary negative conclusions and ground cited values'
   }
 });
 
+test('negated evidence clauses do not become positive verdicts during validation', async () => {
+  for (const answer of [
+    'That is insufficient evidence, not proof the claim is false.',
+    'There is no evidence that the claim is false.',
+    'There is insufficient evidence to conclude that the claim is true.',
+    'There is not enough evidence to verify the claim is correct.',
+    'This is not proof that the Reel has been debunked.'
+  ]) assert.equal((await provider({...explained, answer}).explain(report)).answer, answer);
+
+  for (const answer of [
+    'That is not proof. The claim is false.',
+    'There is no evidence; the claim is false.',
+    'There is insufficient evidence, the claim is true.',
+    'That is not proof the claim is false. The claim is true.',
+    'That is not proof the claim is false and the claim is true.'
+  ]) await assert.rejects(provider({...explained, answer}).explain(report), error => error.code === 'ungrounded_output');
+});
+
+test('the captured Dell response keeps its insufficient-evidence conclusion', async () => {
+  const dell = {
+    claim: {text: 'Dell is up over 250 % since Trump mentioned it earlier this year.', type: 'fact'},
+    assessment: {status: 'not_market_verifiable', headline: 'This past return is not verified.', summary: 'Historical prices and exact start and end dates are needed.', limitations: ['The Reel publication date is unknown.']},
+    evidence: [
+      {id: 'conclusion', text: 'A past return needs historical prices and exact start and end dates.'},
+      {id: 'market-search', text: 'No active Gemini market with a sufficiently specific subject match was found.'},
+      {id: 'limits', text: 'The Reel publication date is unknown; relative dates cannot be pinned down.'},
+      {id: 'scope', text: 'This report only uses Gemini public market data.'}
+    ],
+    checkedAt: report.checkedAt
+  };
+  const response = {
+    answer: 'This report cannot confirm or refute that Dell is up over 250% since Trump mentioned it. It is not verified by Gemini data.',
+    reason: 'The claim is a past return, which needs historical prices and exact start and end dates. The report only uses Gemini public market data, and no active Gemini market with a sufficiently specific subject match was found. That is insufficient evidence, not proof the claim is false. The Reel\'s publication date is also unknown, so "earlier this year" cannot be pinned down.',
+    evidenceIds: ['conclusion', 'market-search', 'limits', 'scope']
+  };
+  assert.deepEqual(await provider(response).explain(dell), response);
+});
+
 test('explanation input only sends allowed report data and uses the fixed assessment', async () => {
   const original = structuredClone(report);
   const ai = provider(explained, {fetchImpl: async (_url, options) => {
