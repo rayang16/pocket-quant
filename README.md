@@ -90,7 +90,9 @@ No claims, audio, or cards are stored by the app. Provider processing policies s
 
 ## Pitch and demo
 
-“Most people use prediction markets like a sportsbook. Pocket Quant treats them like a financial market: check a confident claim against live Gemini odds and volatility math, and only flag a market gap when it exceeds the spread and the model range.”
+“Your feed is full of financial predictions. Pocket Quant brings a second opinion to the moment you encounter one: compare the claim with live Gemini Prediction Market odds and a transparent volatility model, see where the evidence agrees or falls short, and open the relevant market on Gemini. We turn attention from a Reel into an informed look at a prediction market.”
+
+See [the current product direction](docs/product-direction.md) for the intended Reel-to-result experience, Gemini track positioning, and the remaining ingestion gap. The current iPhone flow receives a link and asks for the prediction; automatic analysis of a shared Reel is not yet implemented. Market odds and model estimates assess predictions, not whether a trade is suitable for a particular user.
 
 The current product includes the engine, mobile web experience, verdict cards, optional transcription, and iPhone Share Sheet shortcut. `CONTEXT.md` preserves the original brief verbatim; the current product direction supersedes its browser-extension requirements. See `docs/step-1-verification.md` for the earlier engine checks. The R2 connection is methodological: sensitivity across regimes and refusing to claim an edge smaller than the noise. No R2 code or track record is used to claim predictive accuracy for this app.
 
