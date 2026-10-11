@@ -1,32 +1,30 @@
-# Reel evidence reports
+# Reel reports with Gemini Exchange
 
-The app separates a transcript into up to three source-anchored claims. Users review the words and claim type before explicitly starting source checks. Each claim is a separate request so one unavailable service does not erase other cards. Editing a transcript or card cancels stale UI updates.
+The report uses Gemini Exchange public market data and deterministic text rules. It does not use Claude, Google Gemini, or an external web fact-checking service. No API key is required for claim review, market discovery, or the supported crypto probability model. Sandbox trading uses a separate OAuth connection, which is still awaiting Gemini approval.
 
-## Configuration
+## Flow
 
-`ANTHROPIC_API_KEY` enables Claude extraction and server-side web search. `EVIDENCE_MODEL` defaults to `claude-sonnet-4-6`; the model and account must support the Anthropic web search tool. These are server secrets, separate from Gemini Exchange OAuth and Supadata. A Claude consumer subscription is not an API key. Configure the key in the server environment and redeploy; never put it in browser code or Git.
+Supadata transcribes an accessible public Reel when configured. Text rules select up to three distinct claims while preserving the original words, qualifications, quantities, and deadlines. Users review each draft as a fact, forecast, or recommendation, then choose **Check with Gemini**. Each card runs separately, so one failed request does not erase other results. Editing the transcript or a claim cancels stale UI updates.
 
-Without the key, deterministic text rules select claim drafts and public Gemini market discovery still runs. Each card explicitly states that live source research did not complete. No demo evidence is substituted.
+Supadata is the only paid provider in this Reel-to-report flow. Pasted transcripts do not need a transcription key. The separate recording-upload feature can use ElevenLabs when configured; it is not required for reports.
 
 ## Endpoints
 
-- `POST /api/evidence-report?action=extract`, JSON `{text, sourceUrl?}`. Transcript: 3–6,000 characters. Returns `{claims, extraction, warnings, checkedAt}`. Each claim has `id`, `text`, `quote`, and `type` (`fact`, `forecast`, `recommendation`). The displayed words are anchored to a verified substring of the supplied transcript, even when AI proposes a paraphrase.
-- `POST /api/evidence-report?action=check`, JSON `{claim, sourceUrl?}`. Claim text: 3–500 characters; original quote: at most 2,000. Returns `{claim, assessment, sources, market, model, checkedAt}`. At most three cards are submitted concurrently by the UI.
+- `POST /api/evidence-report?action=extract`, JSON `{text, sourceUrl?}`. Transcript: 3–6,000 characters. Returns `{claims, extraction, warnings, checkedAt}`. Each claim has `id`, `text`, `quote`, and `type` (`fact`, `forecast`, `recommendation`). Extraction uses text rules and requires user review.
+- `POST /api/evidence-report?action=check`, JSON `{claim, sourceUrl?}`. Claim text: 3–500 characters; original quote: at most 2,000. Returns `{claim, assessment, market, model, checkedAt}`. The UI submits at most three cards concurrently. There are no external source-verification cards.
 
-Both endpoints require JSON, limit bodies to 26 KB, reject cross-origin browser requests, and never fetch user-supplied URLs. The optional Reel URL is a validated reference only. There is a process-local limit of 12 fresh requests per client per minute and eight concurrent requests; these are not an authenticated quota or a global spending limit. Identical requests share an in-flight result and may be reused for five minutes, with a maximum of 100 entries. Provider failures are not retained as completed reports. Serverless instances do not share limits or caches. Set a spending limit on the research API account before sharing publicly.
+Both endpoints require JSON, limit bodies to 26 KB, reject cross-origin browser requests, and never fetch user-supplied URLs. An optional Reel URL is a validated reference. Identical requests share in-flight work and may be reused for five minutes, with a maximum of 100 cache entries. Limits are process-local: 12 fresh requests per client per minute and eight concurrent requests. Serverless instances do not share these limits or caches; they are not authenticated user quotas. Reports and transcripts are not stored in a database.
 
-## Evidence and uncertainty
+## What the results mean
 
-Claude searches first, then returns a structured assessment. Source URLs, titles and publication dates come only from actual provider web-search results. Plain model-written URLs cannot create source cards. Optional excerpts come from provider citation metadata and are capped at 20 words per source. Missing dates stay unknown. A source type is marked primary only for a small known set of government/issuer hosts; others remain unclassified. A company announcement is evidence of the announcement, not independent proof of completion.
+- **Facts — `not_market_verifiable`:** Gemini contract prices cannot verify a historical agreement, endorsement, financial result, or product claim. No supported/contradicted factual verdict is issued.
+- **Forecasts:** future outcomes remain uncertain. Related contracts provide market context, not proof that a forecast will happen.
+- **Recommendations:** buying or selling suggestions remain opinions. Neither a quoted price nor a model estimate establishes suitability or profitability.
 
-Factual assessments use supported, contradicted, mixed, or unverified. A conclusion without usable cited sources becomes unverified. A source-service failure is unavailable. Future predictions stay forecasts and investment recommendations stay opinions; neither is given a true/false outcome or suitable-trade verdict. Search results and AI interpretations can be incomplete or wrong, so source links remain inspectable. A failed search is not evidence of fraud or nonexistence.
+Related markets must match a sufficiently specific subject. Topic overlap still does not establish the same metric, quantity, settlement conditions, or deadline. Contract prices are labeled as quotes for those contracts, not as the probability of the Reel’s exact claim. A release market does not measure annual production volume. No matching market does not prove or disprove a claim.
 
-Related Gemini markets are separate from factual evidence. Keyword overlap never establishes exact metric, threshold, settlement rules, or deadline. Quotes are labeled as prices of their listed contracts, not odds of the Reel claim. The independent crypto model runs only for a supported asset, target, and explicit calendar deadline with a year. Undated Reel phrases such as “this year” are flagged rather than silently assigned the current year. The existing single-crypto checker remains available separately.
+The independent calculation is available only for a supported crypto price target with an explicit calendar deadline and year. It compares probability estimates across realized-volatility windows; both the price history and prediction-market quotes come from Gemini. The calculation is separate from the market quote, but it is not an independent data source. Relative deadlines from undated Reels need review. The single-crypto checker remains available separately with its disclosed date assumptions.
 
-## Validation status
+## Validation limits
 
-Offline tests cover claim anchoring, unsupported sources, URL safety, missing configuration, input/origin limits, concurrent requests, cancellation and partial failures. A live sourced report also requires a configured research API key and a successful provider call. Offline fixtures and manually researched examples do not establish live provider success.
-
-The October 11, 2026 verification run passed 201 tests and the asset build. The magnets/Optimus Reel produced three editable claims through the live deployed Supadata-to-report flow. The VSOF Reel exposed an extraction gap for a narrated price scenario; a regression fix now preserves that complete sentence as a reported forecast, including its scene context. Market matching also prioritizes the main subject, so a Dell performance claim mentioning Trump does not surface unrelated Trump cabinet markets. Sports and weather matches require explicit topic context to avoid same-name collisions such as Dell the issuer and Tank Dell the player. Live source research remains unverified because the research API key has not been configured.
-
-Provider references: [Anthropic web search](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool), [tool definitions](https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools).
+Offline tests use fixtures and mocked services to check claim preservation, classification, request boundaries, market matching, caching, concurrency, cancellation, and partial failures. They do not prove that a specific live market is available or that every Reel can be transcribed. Report live Gemini checks, Supadata transcription, and actual iPhone Share Sheet tests separately. No simulated quotes or fabricated factual evidence are substituted when a service is unavailable.

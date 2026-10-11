@@ -12,7 +12,7 @@ const cryptoButton=document.querySelector('#crypto-check-button');
 
 function count(){document.querySelector('#char-count').textContent=`${input.value.length.toLocaleString()} / 6,000`;}
 function busy(on,message='') {
-  button.disabled=on;button.textContent=on?(workKind==='extract'?'Finding claims…':'Checking evidence…'):'Find claims ↗';
+  button.disabled=on;button.textContent=on?(workKind==='extract'?'Finding claims…':'Checking Gemini…'):'Find claims ↗';
   cryptoButton.disabled=on;
   status.textContent=message;result.setAttribute('aria-busy',String(on));
 }
@@ -39,7 +39,7 @@ function manualReel(message) {
 function reviewTranscript(data,provider) {
   const trimmed=data.text.slice(0,6000),truncated=data.truncated===true||data.text.length>6000;
   input.value=trimmed;count();
-  reviewNotice.textContent=`${truncated?'Only the first 6,000 characters are shown. ':''}Transcript from ${provider}. Check names, numbers and dates against the Reel. We’ll find up to three claims for you to review; source research only starts when you choose Check claims & sources.`;
+  reviewNotice.textContent=`${truncated?'Only the first 6,000 characters are shown. ':''}Transcript from ${provider}. Check names, numbers and dates against the Reel. We’ll find up to three claims for you to review; Gemini market lookup only starts when you choose Check with Gemini.`;
   reviewNotice.hidden=false;
   input.setSelectionRange(0,0);input.scrollTop=0;
   findClaims({automatic:true});
@@ -116,18 +116,16 @@ async function findClaims({automatic=false}={}) {
   if(input.value.trim().length<3){cancelWork();status.textContent='Paste the words or claims from a Reel first.';input.focus();return;}
   const {id,signal}=startWork('extract');reportView=null;
   busy(true,automatic?'Transcript ready. Finding up to three claims to review…':'Finding up to three claims to review…');
-  showClaimState('Pulling out the claims.','We’ll separate factual statements, forecasts and recommendations. You can edit each before checking sources.');
+  showClaimState('Pulling out the claims.','We’ll separate factual statements, forecasts and recommendations. You can edit each before checking with Gemini.');
   const currentController=controller,timeout=setTimeout(()=>currentController.abort(),60000);
   try {
     const data=await extractClaims(input.value,{sourceUrl:reelUrl,signal});if(id!==serial)return;
-    const available=await capabilities;if(id!==serial)return;
     reportView=createReportView(result,data,{
-      canResearch:available.evidenceResearch,
-      onCheck:researchClaims,
+      onCheck:checkGeminiClaims,
       onEdit:()=>{if(workKind==='evidence'){cancelWork();status.textContent='Checking stopped because a claim changed. Your edits are kept.';}},
       onCancel:()=>{cancelWork();status.textContent='Checking stopped. You can edit your claims and try again.';}
     });
-    status.textContent=`${data.claims.length} claim${data.claims.length===1?'':'s'} ready. Review the wording and types, then choose Check claims & sources.`;
+    status.textContent=`${data.claims.length} claim${data.claims.length===1?'':'s'} ready. Review the wording and types, then choose Check with Gemini.`;
     if(!automatic)result.scrollIntoView({behavior:'smooth',block:'start'});
   } catch(error) {
     if(id!==serial)return;
@@ -137,13 +135,13 @@ async function findClaims({automatic=false}={}) {
     clearTimeout(timeout);if(id===serial){controller=null;workKind=null;busy(false,status.textContent);}
   }
 }
-async function researchClaims(claims) {
+async function checkGeminiClaims(claims) {
   if(!reportView)return;
-  const view=reportView,{id,signal}=startWork('evidence');view.start();busy(true,'Checking sources for each claim. Results will appear as they finish…');
+  const view=reportView,{id,signal}=startWork('evidence');view.start();busy(true,'Checking Gemini Exchange markets for each claim. Results will appear as they finish…');
   // Individual requests have a 110-second deadline; edits and Stop checking abort the batch.
   try {
     await checkClaims(claims,{sourceUrl:reelUrl,signal,onResult:(claimId,response)=>{if(id===serial&&view===reportView)view.result(claimId,response);}});
-    if(id===serial)status.textContent='Evidence report complete. Review the sources, dates and limits on each claim.';
+    if(id===serial)status.textContent='Gemini market report complete. Compare the exact targets, deadlines and limits on each claim.';
   } catch(error) {
     if(id===serial){view.stop();status.textContent=error.name==='AbortError'?'Some checks timed out. Completed results are kept; you can try again.':error.message;}
   } finally {
@@ -187,8 +185,6 @@ async function loadCapabilities() {
     const response=await fetch('/api/capabilities',{signal:AbortSignal.timeout(8000)});if(!response.ok)return {};
     const available=await response.json();
     if(available.transcription===false){document.querySelector('#recording').disabled=true;document.querySelector('.upload-disclosure').textContent='Recording transcription with ElevenLabs is not enabled on this server yet. Paste or type the spoken prediction above.';}
-    if(available.claimExtraction===true)document.querySelector('#evidence-disclosure').textContent='Transcript text is sent to Anthropic’s Claude to extract claims. Reviewed claims are sent to Claude for source research when you choose Check claims & sources.';
-    if(available.evidenceResearch===false)document.querySelector('#evidence-disclosure').textContent='You can find and review claim drafts. Live source research isn’t available here yet; factual claims will stay unverified.';
     if(available.reelTranscription===false)document.querySelector('#reel-disclosure').textContent='Automatic Reel transcription with Supadata is not enabled on this server yet. You can still add a link and paste the spoken prediction.';
     return available;
   } catch{return {};}

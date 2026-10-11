@@ -1,54 +1,45 @@
 # Pocket Quant — current product direction
 
-Updated October 11, 2026 from Rayan's latest hackathon context. This supplements the original, verbatim CONTEXT.md. The current product is an outside mobile web app with iPhone sharing, not a Chrome extension.
+Updated October 11, 2026. This supplements the original, verbatim `CONTEXT.md`. The current product is a mobile web app with iPhone sharing. Its report uses **Gemini Exchange Prediction Markets**, not Google Gemini or a browser extension.
 
-## The problem and intended experience
+## Experience
 
-People encounter confident financial and trading predictions while scrolling Instagram Reels. Investigating each prediction means leaving the feed, finding relevant evidence, and interpreting it. Pocket Quant is intended to make that investigation a short detour from the Reel itself.
+Instagram Reel → Share → Pocket Quant → Supadata transcript → up to three draft claims → user review → **Check with Gemini** → inspect related markets and any applicable crypto math → return to the feed.
 
-Target flow: Instagram Reel → Share → Pocket Quant → review the extracted prediction → compare Gemini market evidence and a quantitative model → inspect the relevant Gemini market or share an evidence card → return to the feed.
+People encounter confident financial claims while scrolling. Pocket Quant makes it easier to identify the actual claims, see whether Gemini has relevant contracts, and inspect what those contracts price. Text rules extract drafts without an AI-provider key. Users correct the words and classification before market checks begin.
 
-The core output answers: What exactly is being predicted? What do relevant Gemini contracts price in? What does a disclosed volatility model estimate? How much confidence does the evidence justify?
+The result answers: What is the claim? Is it a fact, forecast, or recommendation? Which Gemini contracts relate to it? Do their conditions match? Can the disclosed crypto model contribute a useful comparison?
 
-## Why this fits the Gemini track
+## Gemini track positioning
 
-- Distribution: introduce Gemini Prediction Markets when a user already cares about a specific prediction.
-- Trust: display real quotes, contract conditions, model assumptions, and uncertainty; explicitly say when evidence is missing.
-- Market discovery: link from a Reel's prediction to a relevant existing Gemini market so the user can inspect its terms and decide what to do.
-- Shareable evidence: a readable verdict card gives users something concrete to discuss or send back to friends.
+- **Distribution:** introduce Gemini Prediction Markets when a user already cares about a prediction.
+- **Trust:** display real contract quotes, matching limits, model assumptions, and missing-data states.
+- **Discovery:** open an existing Gemini market so users can inspect its exact terms.
+- **Quantitative comparison:** use a separate volatility calculation for supported crypto targets, without presenting it as proof or a trading recommendation.
 
-Potential future feedback to Gemini about frequently requested but unavailable markets is a separate idea. It would require an explicit data-collection design and permission; the current app neither creates markets nor collects a demand dataset.
+Historical factual claims receive `not_market_verifiable`; they are not verified by market prices. Forecasts remain uncertain, and recommendations remain opinions. This build does not search external sources or claim to fact-check every financial statement. Both market prices and the quantitative model’s input data come from Gemini, so describe the model as a separate calculation rather than an independent data source.
 
-## Language that matches the evidence
+The intended experience is a quick check from the feed. It opens a separate app, waits for transcription when needed, and asks for review. Do not claim it takes no time or operates entirely inside Instagram.
 
-Use “prediction checker” or “hype checker” for future price claims. “Fact-check every financial claim” would require evidence sources and methods beyond the current prediction-market engine.
-
-Call the quantitative model a second analytical lens. Realized-volatility estimates are computed separately from prediction-market quotes, but both currently use Gemini data; the model is not an independent data source or proof that a prediction is true. A model calibrated to market prices is even more directly dependent on those prices.
-
-Distinguish a plausible prediction from suitable trading advice. Market odds and a model estimate do not establish that a trade is profitable or appropriate for a particular person. Analysis results offer market discovery with explicit matching conditions. A separate sandbox page lets users test an account connection and manually review a test order; production trading remains disabled.
-
-Use “a quick check from your feed” as the intended experience. Do not claim that users lose no time or that the entire analysis happens inside Instagram: the current flow opens a separate app, transcribes accessible public Reels when configured, and asks the user to review the prediction.
-
-## Current build versus the target flow
+## Current build and remaining verification
 
 | Piece | Current state |
 | --- | --- |
-| Receive a Reel | iPhone Share Sheet shortcut opens a validated Instagram link in the web app; actual iPhone import and Instagram handoff still need a device test. |
-| Transcribe speech automatically from the shared link | Supadata integration is implemented for public Reels, with async jobs and editable review. Requires SUPADATA_API_KEY; provider availability, specific Reels, and iPhone handoff need live verification. Private/restricted media keeps a manual fallback. |
-| Transcribe an uploaded recording | Implemented with ElevenLabs; production requires ELEVENLABS_API_KEY and a real-audio check. |
-| Compare market and model | Live Gemini quotes plus probability estimates across 14/30/90-day volatility windows for supported crypto claims. |
-| Explain missing or imperfect evidence | No-market states, nearest-contract conditions, quote limits, and model assumptions are disclosed. |
-| Inspect a Gemini market | Existing market links are available on results. A sandbox-only connection and order-review flow is implemented; Gemini app credentials are still required for end-to-end verification. No live trading or market creation. |
-| Share evidence | PNG card download is verified; native sharing depends on browser support and still needs an iPhone test. |
+| Receive a Reel | An iPhone Share Sheet shortcut opens a validated Instagram link. Actual iPhone import and Instagram handoff still need a device test. |
+| Public Reel transcription | Supadata provides an editable transcript when the Reel is accessible. Requires `SUPADATA_API_KEY`, configured on the deployed app; private, restricted, missing, or silent media keeps a manual fallback. |
+| Claim review | Deterministic rules select up to three distinct statements. Users edit the wording and classify facts, forecasts, and recommendations. |
+| Gemini report | Public-data market discovery needs no API key. Related contract prices do not verify historical facts or the precise Reel forecast. |
+| Crypto model | Supported price forecasts with explicit calendar deadlines can use Gemini data and 14/30/90-day volatility estimates. Unsupported or ambiguous claims do not receive a probability model. |
+| Recording upload | Separate optional ElevenLabs integration; requires its key and a real-audio check. |
+| Trading | Sandbox-only account connection and manual order review are implemented. Gemini OAuth approval is pending; end-to-end test orders are unverified. Production trading is disabled. |
+| Sharing results | The single-crypto checker provides PNG cards. Native file sharing still needs an iPhone check; do not imply the full three-claim report is exported. |
 
-The key ingestion milestone is demonstrating reliable extraction on real public Reels and the actual iPhone share flow. Provider support and offline tests alone do not establish that every Reel is accessible. Improving ingestion matters more to the “seamless” claim than adding more verdict labels or trading features.
+Supadata is the only paid provider in the public-Reel-to-report flow. Report text is processed with local rules and public Gemini data; no Claude or external research API is involved. Reports use bounded process-local caching and request limits, not persistent user accounts or a database. An Instagram DM bot, market creation, and a dataset of unmet market demand remain future ideas.
 
-## Pitch
+## Pitch and demonstration
 
-“Your feed is full of financial predictions. Pocket Quant brings a second opinion to the moment you encounter one: compare the claim with live Gemini Prediction Market odds and a transparent volatility model, see where the evidence agrees or falls short, and open the relevant market on Gemini. We turn attention from a Reel into an informed look at a prediction market.”
+“Share a financial Reel to Pocket Quant, review its claims, and see what related Gemini Prediction Markets are pricing. For supported crypto forecasts, compare those prices with a transparent volatility model. Open the market’s exact terms before deciding what the prediction means.”
 
-In the live demo, describe the exact input used: a public link transcribed through Supadata, an uploaded recording through ElevenLabs, or a manually entered claim. Distinguish browser/provider checks from a real iPhone Share Sheet demonstration. Transcription is followed by user review, not an automatic verdict on unreviewed text.
+Describe the actual demo input: a public Reel transcribed through Supadata, a recording transcribed separately, or pasted text. Distinguish live provider and browser checks from an actual iPhone Share Sheet demonstration. Show a no-market or non-verifiable factual claim as honestly as a useful match.
 
-## Hackathon evidence to collect
-
-Track distinct people who actually complete a check, time and steps from Reel to result, failures in sharing or claim extraction, and how many testers choose to inspect the Gemini market. Ask what changed their understanding, including when nothing changed. Use consenting testers' quotes; separate survey interest from actual product usage. These are proposed measurements, not existing analytics or collected results.
+For user feedback, measure consenting testers who complete the flow, time from Reel to result, failures in sharing or extraction, and whether they inspect a Gemini market. Ask what changed their understanding, including when nothing changed. These are proposed measurements, not existing analytics or collected results.
