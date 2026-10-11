@@ -49,7 +49,7 @@ export function createHandler({env=process.env,auth=createLiveOwnerAuth({env}),c
       return send(res,200,{...liveReadiness(env),ownerAccessConfigured:auth.configured,authenticated:!!session,
         ...(session?{csrfToken:session.csrfToken,sessionExpiresAt:session.expiresAt}:{})});
     }
-    if(['login','logout','account','markets','preview','submit','result'].includes(action)) {
+    if(['login','logout','account','markets','draft','preview','submit','result'].includes(action)) {
       try {
         if(action==='login') {
           if(req.method!=='POST') {res.setHeader('Allow','POST');return send(res,405,{error:'Use POST to unlock your account.'});}
@@ -64,17 +64,19 @@ export function createHandler({env=process.env,auth=createLiveOwnerAuth({env}),c
           auth.logout(req,res);
           return send(res,200,{authenticated:false});
         }
-        if(['markets','preview','submit','result'].includes(action)) {
+        if(['markets','draft','preview','submit','result'].includes(action)) {
           const session=auth.getSession(req);
           if(!session) return send(res,401,{code:'OWNER_LOGIN_REQUIRED',error:'Unlock private owner access before reviewing an order.'});
           if(!liveReadiness(env).tradingEnabled) return send(res,503,{code:'LIVE_TRADING_NOT_READY',error:'Live order review is not enabled yet.'});
-          if(['preview','submit'].includes(action)) {
+          if(['draft','preview','submit'].includes(action)) {
             auth.requireMutation(req,session);
             if(!/^application\/json(?:\s*;|$)/i.test(req.headers?.['content-type']||'')) return send(res,415,{error:'Send the order review as JSON.'});
             let body;
             try {body=JSON.parse((await rawBody(req,4096)).toString('utf8'));}
             catch {return send(res,400,{error:'Send a valid order review.'});}
-            return send(res,200,await engine[action](session,body));
+            const value=await engine[action](session,body);
+            if(action==='draft'&&now()>=session.expiresAt) return send(res,401,{code:'OWNER_LOGIN_REQUIRED',error:'Your private session expired. Unlock it again.'});
+            return send(res,200,value);
           }
           if(req.method!=='GET') {res.setHeader('Allow','GET');return send(res,405,{error:'Use GET to check markets or an order result.'});}
           const value=action==='markets'?await engine.markets(session):await engine.result(session,new URL(req.url,'http://localhost').searchParams.get('previewToken'));

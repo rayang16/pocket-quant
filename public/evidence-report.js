@@ -1,4 +1,5 @@
 import {request,node,percent,renderResult} from './ui.js';
+import {tradeDraftUrl} from './trade-draft.js';
 
 const types=new Set(['fact','forecast','recommendation']);
 const statuses={not_market_verifiable:'Not market-verifiable',forecast:'Forecast',opinion:'Opinion / recommendation',unavailable:'Gemini unavailable'};
@@ -103,9 +104,11 @@ function renderAssessment(container,claim,data) {
       const line=node('div','evidence-contract');line.append(node('span','',contract.label||'YES contract'),node('span','',percent(contract.prob)));market.append(line);
       if(contract.source)market.append(node('small','evidence-market-meta',`Gemini Exchange · ${contract.source} · YES price`));
       if(typeof contract.symbol==='string'&&/^GEMI-[A-Za-z0-9_-]{1,195}$/.test(contract.symbol)) {
-        const review=node('a','evidence-market-link','Review this market in Gem Finder ↗');
-        review.href='/live.html?symbol='+encodeURIComponent(contract.symbol);
-        market.append(review);
+        for(const outcome of ['yes','no']) {
+          const review=node('a','evidence-market-link',`Prepare ${outcome.toUpperCase()} trade ↗`);
+          review.href=tradeDraftUrl({symbol:contract.symbol,outcome});
+          market.append(review);
+        }
       }
     }
     markets.append(market);

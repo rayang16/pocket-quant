@@ -15,7 +15,7 @@ Gem Finder connects those steps:
 1. **Bring the claim.** Share an accessible public Reel through the iPhone shortcut, paste its link or text, or upload a recording when transcription is configured.
 2. **Keep the source visible.** Supadata transcribes public Reels. The app selects up to three editable claims, preserves their source quotes, and distinguishes facts, forecasts, and recommendations. Optional Claude selection has a text-rule fallback.
 3. **See what Gemini can tell you.** Each claim gets a conclusion, related Gemini contracts, and any supported crypto calculation. Checks start automatically after transcription. Pasted text needs one **Check with Gemini** action.
-4. **Inspect, share, or review a trade.** Open the actual Gemini contract and its conditions. The separate single-crypto checker exports a PNG card. Eligible contract links can open the owner-only order review; submitting always requires manual confirmation.
+4. **Inspect, share, or prepare a trade.** Open the actual Gemini contract and its conditions. The separate single-crypto checker exports a PNG card. **Prepare YES/NO trade** carries the contract and chosen side to the owner-only order screen. After unlocking, it fills in Gemini's current asking price and whole-contract quantity within an editable $1 demo preset, balance, remaining demo budget, and fee allowance. Submitting always requires a separate review and manual confirmation.
 5. **Revisit the analysis.** The session history retains up to 30 completed checks. Open a saved snapshot without rerunning it, explicitly recheck for fresh evidence, or inspect its related contracts in the [market overview](https://pocket-quant-ashen.vercel.app/markets.html). The dashboard also supports browsing current Gemini markets.
 
 A useful answer can also be **“No matching market”** or **“Market prices cannot verify this historical claim.”** A related contract is not automatically the probability of the Reel's exact statement. Provider failures produce an explicit unavailable state, never invented odds.
@@ -37,7 +37,7 @@ These are **product hypotheses**. We have not measured acquisition lift, improve
 
 ## What is running, and what is verified?
 
-Verification snapshot: **October 11, 2026**. The automated baseline is **393 passing tests** plus the static-asset build. Offline tests use fixtures and mocked providers; they are separate from live checks.
+Verification snapshot: **October 11, 2026**. The automated baseline is **419 passing tests** plus the static-asset build. Offline tests use fixtures and mocked providers; they are separate from live checks.
 
 | Area | Current scope |
 | --- | --- |
@@ -120,6 +120,8 @@ The model assumes zero price drift and lognormal returns, omits jump risk, and c
 ## Owner-only trading: deliberate and bounded
 
 Reports never trade automatically. The owner opens a private fifteen-minute session, chooses an eligible financial contract, reviews a YES or NO limit buy, and explicitly confirms it. Reviews expire within two minutes. Submission rechecks the account, available USD, Trader role, accepted terms, contract details, and trading increments.
+
+The order form auto-fills from the selected contract's current ask, with an editable **$1 demo amount including fees**. This is mechanical sizing for a small demo, not a personalized investment recommendation. Model probabilities and HYPE labels never set a trade price or select the opposite outcome. Changing the outcome or auto-fill amount recalculates the ticket; quantity and price remain editable. Drafting creates no order, reservation, or confirmation token. Missing quotes, unsupported increments, or insufficient funds leave the ticket unfilled.
 
 Orders use whole-contract quantities and immediate-or-cancel execution; partial fills can be fractional. Before the sole exchange submission attempt, atomic Upstash operations consume the review and reserve **principal plus a conservative fee allowance against a $5 lifetime account budget**. The allowance depends on the verified fill step. This is a demo reservation limit, not a per-session allowance or a quote of actual fees.
 

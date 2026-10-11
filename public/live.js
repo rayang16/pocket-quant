@@ -1,3 +1,5 @@
+import { readTradeIntent, validTradeDraft } from './trade-draft.js';
+
 const byId = (id) => document.getElementById(id);
 const panel = document.querySelector('.live-readiness');
 const refreshButton = byId('refresh-live');
@@ -12,10 +14,11 @@ const marketSelect = byId('market-select');
 const outcomeInput = byId('order-outcome');
 const quantityInput = byId('order-quantity');
 const priceInput = byId('order-price');
+const spendInput = byId('draft-spend');
 const controllers = new Set();
 const tradeControllers = new Set();
-const requestedSymbol = new URLSearchParams(window.location.search).get('symbol');
-let requestedSymbolPending = Boolean(requestedSymbol);
+const requestedIntent = readTradeIntent(window.location.search);
+let requestedIntentPending = Boolean(requestedIntent);
 let checking = false;
 let ownerAccessConfigured = null;
 let authenticated = false;
@@ -148,9 +151,11 @@ function clearTradeData() {
   pendingSubmission = null;
   tradeBusy = '';
   marketSelect.replaceChildren(new Option('Choose a market', ''));
-  quantityInput.value = '1';
+  quantityInput.value = '';
   outcomeInput.value = 'yes';
   priceInput.value = '';
+  spendInput.value = requestedIntentPending ? requestedIntent.spendLimit : '1.00';
+  byId('draft-summary').textContent = '';
   byId('market-details').hidden = true;
   for (const id of ['market-event', 'market-title', 'market-description', 'market-expiry', 'budget-remaining', 'budget-reserved', 'trade-status', 'trade-error', 'result-message']) byId(id).textContent = '';
   byId('market-link').removeAttribute('href');
@@ -231,10 +236,12 @@ function renderTradeControls() {
       : 'Verify account access, accepted terms, and trader permission before choosing a market.';
   marketSelect.disabled = locked;
   byId('order-inputs').disabled = locked || !selectedMarket();
-  byId('preview-order').disabled = locked || !selectedMarket();
+  byId('preview-order').disabled = locked || !selectedMarket() || !quantityInput.value || !priceInput.value;
   byId('preview-order').textContent = tradeBusy === 'preview' ? 'Preparing review…' : 'Review real-money order';
   byId('refresh-markets').disabled = !available || checking || Boolean(tradeBusy) || Boolean(pendingSubmission);
   byId('refresh-markets').textContent = tradeBusy === 'markets' ? 'Loading markets…' : 'Refresh markets';
+  byId('fill-draft').disabled = locked || !selectedMarket();
+  byId('fill-draft').textContent = tradeBusy === 'draft' ? 'Filling your order…' : 'Refresh auto-fill';
   byId('real-money-confirm').disabled = locked || !preview;
   byId('place-order').disabled = locked || !preview || !byId('real-money-confirm').checked || Date.parse(preview.previewExpiresAt) <= Date.now();
   byId('check-order').disabled = !authenticated || checking || Boolean(tradeBusy);
@@ -257,6 +264,7 @@ function beginOperation(label) {
   abortTradeReads();
   tradeBusy = '';
   clearPreview();
+  byId('draft-summary').textContent = '';
   refreshButton.disabled = true;
   byId('unlock-owner').disabled = true;
   byId('logout-owner').disabled = true;
@@ -284,8 +292,8 @@ function finishOperation() {
 async function request(action, { method = 'GET', body, token = csrfToken, query = {} } = {}) {
   const controller = new AbortController();
   controllers.add(controller);
-  if (['markets', 'preview', 'result'].includes(action)) tradeControllers.add(controller);
-  const timeout = ['preview', 'submit', 'markets'].includes(action) ? 90000 : action === 'account' ? 55000 : 15000;
+  if (['markets', 'draft', 'preview', 'result'].includes(action)) tradeControllers.add(controller);
+  const timeout = ['draft', 'preview', 'submit', 'markets'].includes(action) ? 90000 : action === 'account' ? 55000 : 15000;
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
     const response = await fetch(`/api/live-trade?${new URLSearchParams({ action, ...query })}`, {
@@ -395,6 +403,7 @@ async function loadReadiness() {
 
 async function loadMarkets() {
   if (!authenticated || !tradingEnabled || !accountReady || tradeBusy === 'submit') return;
+  const previousSymbol = marketSelect.value;
   const version = ++tradeVersion;
   abortTradeReads();
   clearPreview();
@@ -404,6 +413,8 @@ async function loadMarkets() {
   marketSelect.replaceChildren(new Option('Choose a market', ''));
   byId('market-details').hidden = true;
   priceInput.value = '';
+  quantityInput.value = '';
+  byId('draft-summary').textContent = '';
   byId('trade-error').textContent = '';
   byId('trade-status').textContent = 'Loading available markets and checking the remaining demo budget…';
   renderTradeControls();
@@ -420,14 +431,20 @@ async function loadMarkets() {
         ? 'The $5 demo budget is fully reserved. No further orders are available.'
         : markets.length ? 'Markets loaded. Choose a market and the YES or NO outcome you want to buy.' : 'No eligible markets are available right now. Refresh to check again.';
     if (data.budget.unresolved && !pendingSubmission) showUnresolved();
-    if (requestedSymbolPending && !data.budget.unresolved && !pendingSubmission) {
-      const requestedMarket = markets.find((market) => market.symbol === requestedSymbol);
+    if (!data.budget.unresolved && !pendingSubmission && Number(data.budget.remainingUsd) > 0) {
+      const symbol = requestedIntentPending ? requestedIntent.symbol : previousSymbol;
+      const requestedMarket = markets.find((market) => market.symbol === symbol);
       if (requestedMarket) {
         marketSelect.value = requestedMarket.symbol;
-        requestedSymbolPending = false;
+        if (requestedIntentPending) {
+          outcomeInput.value = requestedIntent.outcome;
+          spendInput.value = requestedIntent.spendLimit;
+          requestedIntentPending = false;
+        }
         renderMarket();
-        byId('trade-status').textContent = 'The market from your report is selected. Read its full conditions, choose YES or NO, and review the order when ready.';
-      } else {
+        tradeBusy = '';
+        await prepareDraft();
+      } else if (requestedIntentPending) {
         byId('trade-status').textContent = 'The market from your report is not currently available for this live demo. Refresh markets or choose another eligible market.';
       }
     }
@@ -438,13 +455,6 @@ async function loadMarkets() {
   } finally {
     if (version === tradeVersion) { tradeBusy = ''; renderTradeControls(); }
   }
-}
-
-function prefillPrice() {
-  const market = selectedMarket();
-  const ask = outcomeInput.value === 'yes' ? market?.yesAsk : market?.noAsk;
-  const numeric = ask === null || ask === '' || ask === undefined ? NaN : Number(ask);
-  priceInput.value = Number.isFinite(numeric) && numeric > 0 && numeric < 1 && Math.abs(numeric * 100 - Math.round(numeric * 100)) < 1e-8 ? numeric.toFixed(2) : '';
 }
 
 function renderMarket() {
@@ -462,8 +472,43 @@ function renderMarket() {
     const url = new URL(market.marketUrl);
     if (url.protocol === 'https:' && (url.hostname === 'gemini.com' || url.hostname.endsWith('.gemini.com'))) { link.href = url.href; link.hidden = false; }
   } catch { /* An optional market link is displayed only when verified. */ }
-  prefillPrice();
   renderTradeControls();
+}
+
+async function prepareDraft() {
+  const market = selectedMarket();
+  if (!market || !authenticated || !tradingEnabled || !accountReady || pendingSubmission || !budget || budget.unresolved || tradeBusy === 'submit') return;
+  invalidateOrder();
+  quantityInput.value = '';
+  priceInput.value = '';
+  if (!spendInput.reportValidity()) { renderTradeControls(); return; }
+  const intent = readTradeIntent(new URLSearchParams({symbol: market.symbol, outcome: outcomeInput.value, spendLimit: spendInput.value}).toString());
+  if (!intent) { byId('trade-error').textContent = 'Choose an auto-fill amount from $0.01 to $5.00.'; renderTradeControls(); return; }
+  const version = ++tradeVersion;
+  tradeBusy = 'draft';
+  byId('trade-status').textContent = 'Filling the order with a fresh Gemini quote and an amount that fits your balance and remaining demo budget…';
+  renderTradeControls();
+  try {
+    const data = await request('draft', {method: 'POST', body: intent});
+    if (version !== tradeVersion || !authenticated) return;
+    if (!validTradeDraft(data, intent)) throw new Error('The auto-filled order could not be verified');
+    const draft = data.draft;
+    // Keep the exact current contract conditions beside the prepared fields.
+    markets = markets.map(item => item.symbol === draft.symbol ? {...item, ...draft} : item);
+    renderBudget(data.budget);
+    renderMarket();
+    quantityInput.value = draft.quantity;
+    priceInput.value = draft.price;
+    spendInput.value = draft.spendLimit;
+    byId('draft-summary').textContent = `Auto-filled: BUY ${draft.outcome.toUpperCase()} · ${draft.quantity} whole ${draft.quantity === '1' ? 'contract' : 'contracts'} at ${money(draft.price)} each. Up to ${money(draft.estimatedTotal)} including ${money(draft.estimatedFee)} reserved for fees. Based on Gemini’s current asking price, checked ${new Date(data.checkedAt).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})}.`;
+    byId('trade-status').textContent = 'Your order is filled in. Review it below, then confirm only if you want to place it. Nothing has been submitted.';
+  } catch (error) {
+    if (version !== tradeVersion) return;
+    byId('trade-status').textContent = 'Auto-fill is unavailable. No order was submitted. Try refreshing, or enter your own quantity and limit price.';
+    showTradeError(error, 'The order could not be filled in from a verified Gemini quote. Try again.');
+  } finally {
+    if (version === tradeVersion) { tradeBusy = ''; renderTradeControls(); }
+  }
 }
 
 function appendDetail(container, label, value) {
@@ -507,8 +552,9 @@ function invalidateOrder() {
   if (pendingSubmission) return;
   tradeVersion += 1;
   abortTradeReads();
-  if (tradeBusy === 'preview') tradeBusy = '';
+  if (['draft', 'preview'].includes(tradeBusy)) tradeBusy = '';
   clearPreview();
+  byId('draft-summary').textContent = '';
   byId('trade-error').textContent = '';
   renderTradeControls();
 }
@@ -642,8 +688,19 @@ byId('check-order').addEventListener('click', async () => {
   }
 });
 
-marketSelect.addEventListener('change', () => { requestedSymbolPending = false; invalidateOrder(); renderMarket(); });
-outcomeInput.addEventListener('change', () => { invalidateOrder(); prefillPrice(); });
+marketSelect.addEventListener('change', () => {
+  requestedIntentPending = false;
+  invalidateOrder(); quantityInput.value = ''; priceInput.value = '';
+  renderMarket(); prepareDraft();
+});
+outcomeInput.addEventListener('change', prepareDraft);
+spendInput.addEventListener('input', () => {
+  invalidateOrder(); quantityInput.value = ''; priceInput.value = '';
+  byId('trade-status').textContent = 'Update the auto-fill amount, then refresh auto-fill to recalculate your order.';
+  renderTradeControls();
+});
+spendInput.addEventListener('change', prepareDraft);
+byId('fill-draft').addEventListener('click', () => { if (!byId('fill-draft').disabled) prepareDraft(); });
 quantityInput.addEventListener('input', invalidateOrder);
 priceInput.addEventListener('input', invalidateOrder);
 byId('real-money-confirm').addEventListener('change', renderTradeControls);

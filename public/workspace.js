@@ -4,6 +4,7 @@ import { parseSharedReel } from './shared-reel.js';
 import { renderContractChart, renderQuoteGauge, disposeChart } from './workspace-charts.js';
 
 import {reportWorkspaceEvents,reportWorkspaceResult} from './report-workspace.js';
+import {tradeDraftUrl} from './trade-draft.js';
 
 const byId = id => document.getElementById(id);
 const empty = byId('workspace-empty');
@@ -512,7 +513,8 @@ function renderInspector() {
   // This only opens the existing owner review flow. That route obtains a fresh,
   // eligible contract and keeps authentication, preview, and confirmation intact.
   if (liveLink && !expired && /^(Crypto|Economics|Business|Commodities|Tech)$/i.test(selectedEvent.category || '') && /^GEMI-[A-Za-z0-9_-]{1,195}$/.test(selectedContract.symbol || '')) {
-    liveLink.href = `/live.html?symbol=${encodeURIComponent(selectedContract.symbol)}`;
+    liveLink.href = tradeDraftUrl({symbol: selectedContract.symbol, outcome: quote.side});
+    liveLink.textContent = `Prepare ${quote.side} trade ↗`;
     liveLink.hidden = false;
   }
   const label = node('label', 'contract-select-label', 'Selected contract'); label.htmlFor = 'market-contract-select';

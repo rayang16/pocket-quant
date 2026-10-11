@@ -98,6 +98,113 @@ test('lists verified whole and fractional-fill markets and omits account routing
   assert.equal((await f.engine.markets(session)).budget.unresolved, true);
 });
 
+test('draft fills the selected outcome at its current ask without reserving or submitting anything', async () => {
+  const f = fixture();
+  for (const [outcome, expectedPrice, expectedTotal] of [['yes', '0.51', '4.86'], ['no', '0.50', '4.77']]) {
+    const result = await f.engine.draft(session, {symbol: market.symbol, outcome, spendLimit: '5.00'});
+    assert.equal(result.draft.outcome, outcome);
+    assert.equal(result.draft.quantity, '9');
+    assert.equal(result.draft.price, expectedPrice);
+    assert.equal(result.draft.estimatedTotal, expectedTotal);
+    assert.equal(result.draft.estimatedFee, '0.27');
+    assert.equal(result.draft.spendLimit, '5.00');
+    assert.equal(result.draft.symbol, market.symbol);
+    assert.equal(result.draft.description, market.description);
+    assert.equal(result.checkedAt, new Date(START).toISOString());
+    assert.deepEqual(result.budget, {remainingUsd: '5.00', reservedUsd: '0.00', unresolved: false});
+    assert.doesNotMatch(JSON.stringify(result), /previewToken|accountIdentity|accountShortname|sessionId/);
+  }
+  assert.equal(f.state.previews.size, 0);
+  assert.equal(f.state.submissions.size, 0);
+  assert.equal(f.state.randomCounter, 0);
+  assert.deepEqual(f.state.exchangeCalls, []);
+  assert.deepEqual(f.state.events, []);
+  assert.deepEqual(f.budget(account.accountIdentity), {reservedCents: 0, unresolved: false});
+});
+
+test('draft quantity respects the chosen cap, balance, lifetime budget and conservative fractional-fill fees', async () => {
+  const f = fixture(), draft = spendLimit => f.engine.draft(session, {symbol: market.symbol, outcome: 'no', spendLimit});
+  assert.equal((await draft('2')).draft.quantity, '3');
+  f.state.account.availableUsd = '1.06';
+  assert.equal((await draft('5')).draft.quantity, '2');
+  f.budget(account.accountIdentity).reservedCents = 447;
+  assert.equal((await draft('5')).draft.quantity, '1');
+  f.budget(account.accountIdentity).reservedCents = 0;
+  f.state.account.availableUsd = '5.00';
+  Object.assign(f.state.markets[0], {quantityMinimum: '0.01', quantityIncrement: '0.01'});
+  const fractional = await draft('5.00');
+  assert.equal(fractional.draft.quantity, '3');
+  assert.equal(fractional.draft.estimatedTotal, '4.50');
+  assert.equal(fractional.draft.estimatedFee, '3.00');
+  assert.match(fractional.draft.feeNote, /100 cents per whole contract/);
+  await assert.rejects(draft('1.49'), hasCode('LIVE_TRADE_DRAFT_SPEND_UNAVAILABLE'));
+  f.budget(account.accountIdentity).reservedCents = 500;
+  await assert.rejects(draft('5'), hasCode('LIVE_TRADE_DRAFT_SPEND_UNAVAILABLE'));
+});
+
+test('draft obeys market price and whole-quantity grids rather than rounding a quote', async () => {
+  const f = fixture(), draft = () => f.engine.draft(session, {symbol: market.symbol, outcome: 'yes', spendLimit: '5'});
+  Object.assign(f.state.markets[0], {quantityMinimum: '2', quantityIncrement: '2', yesAsk: 0.10,
+    priceMinimum: '0.01', priceIncrement: '0.03'});
+  const result = await draft();
+  assert.equal(result.draft.quantity, '38');
+  assert.equal(result.draft.price, '0.10');
+  assert.equal(result.draft.estimatedTotal, '4.94');
+  f.state.markets[0].yesAsk = 0.11;
+  await assert.rejects(draft(), hasCode('LIVE_TRADE_INVALID_GRID'));
+  f.state.markets[0].yesAsk = 0.105;
+  await assert.rejects(draft(), hasCode('LIVE_TRADE_ASK_UNAVAILABLE'));
+  Object.assign(f.state.markets[0], {yesAsk: 0.10, quantityMinimum: '101', quantityIncrement: '1'});
+  await assert.rejects(draft(), hasCode('LIVE_TRADE_INVALID_GRID'));
+  Object.assign(f.state.markets[0], {quantityMinimum: '1', quantityIncrement: '1', yesAsk: 0.01,
+    priceMinimum: '0.01', priceIncrement: '0.01'});
+  assert.equal((await draft()).draft.quantity, '100');
+});
+
+test('draft rejects unknown asks, malformed input, invalid limits and unverified account data', async () => {
+  const f = fixture(), body = {symbol: market.symbol, outcome: 'yes', spendLimit: '5.00'};
+  for (const input of [null, [], {}, {...body, price: '0.01'}, {...body, quantity: '1'}, {...body, symbol: '../bad'}, {...body, outcome: 'YES'}]) {
+    await assert.rejects(f.engine.draft(session, input), hasCode('LIVE_TRADE_INVALID_INPUT'));
+  }
+  for (const spendLimit of [0, 5, '', '0', '0.00', '-1', '5.01', '6', '.50', '0.001', '5e0', '05.00', ' 1.00']) {
+    await assert.rejects(f.engine.draft(session, {...body, spendLimit}), hasCode('LIVE_TRADE_INVALID_SPEND_LIMIT'));
+  }
+  for (const yesAsk of [null, undefined, NaN, Infinity, 0, 1, -0.2, '0.5', 0.005, 0.995]) {
+    f.state.markets[0].yesAsk = yesAsk;
+    await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_ASK_UNAVAILABLE'));
+  }
+  f.state.markets[0] = clone(market);
+  f.state.account.availableUsd = 'invalid';
+  await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_INVALID_MONEY'));
+  f.state.account = clone(account);
+  f.state.account.roles.isTrader = false;
+  await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_TRADER_REQUIRED'));
+  f.state.account = clone(account);
+  f.budget(account.accountIdentity).unresolved = true;
+  await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_UNRESOLVED_SUBMISSION'));
+  assert.deepEqual(f.state.exchangeCalls, []);
+  assert.deepEqual(f.state.events, []);
+});
+
+test('draft rechecks sessions after every private read and refuses expired or invalid markets', async () => {
+  const body = {symbol: market.symbol, outcome: 'yes', spendLimit: '5'};
+  for (const hook of ['snapshot', 'getBudget', 'markets']) {
+    const f = fixture();
+    f.hooks[hook] = () => {f.state.now = session.expiresAt;};
+    await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_SESSION_EXPIRED'));
+    assert.deepEqual(f.state.events, []);
+    assert.deepEqual(f.state.exchangeCalls, []);
+  }
+  for (const change of [{expiresAt: new Date(START).toISOString()}, {quantityIncrement: null}, {priceIncrement: '0'}]) {
+    const f = fixture();
+    Object.assign(f.state.markets[0], change);
+    await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_MARKET_UNAVAILABLE'));
+  }
+  const f = fixture();
+  f.hooks.getBudget = () => {f.budget(account.accountIdentity).reservedCents = NaN;};
+  await assert.rejects(f.engine.draft(session, body), hasCode('LIVE_TRADE_STORE_UNAVAILABLE'));
+});
+
 test('preview saves an immutable account/session-bound ticket with conservative fees', async () => {
   const f = fixture(), ticket = await f.preview({quantity: '2', price: '.50'});
   assert.equal(Buffer.from(ticket.previewToken, 'base64url').length, 32);

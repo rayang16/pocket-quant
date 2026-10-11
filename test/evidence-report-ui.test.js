@@ -23,6 +23,16 @@ function renderReport(data,extraction=extracted) {
   view.result('claim-1',{data});return container;
 }
 
+test('related market actions explicitly carry the chosen outcome without treating odds as an order price',()=>withDocument(()=>{
+  const container=renderReport({claim,assessment:{status:'forecast'},market:{matches:[{title:'Optimus released?',url:'https://www.gemini.com/predictions/optimus-release',contracts:[{symbol:'GEMI-OPTIMUS',label:'YES',prob:.99}]}]}});
+  const links=elementsOf(container).filter(element=>element.href?.startsWith('/live.html'));
+  assert.equal(links.length,2);
+  for(const [index,outcome] of ['yes','no'].entries()) {
+    assert.equal(links[index].textContent,`Prepare ${outcome.toUpperCase()} trade ↗`);
+    assert.equal(links[index].href,`/live.html?symbol=GEMI-OPTIMUS&outcome=${outcome}&spendLimit=1.00`);
+  }
+}));
+
 test('forecast and recommendation cards never become factual verdicts',()=>{
   for(const status of ['supported','contradicted','mixed','unverified']) {
     assert.equal(assessmentFor(claim,{status}).status,'forecast');

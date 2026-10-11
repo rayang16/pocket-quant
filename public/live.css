@@ -79,6 +79,11 @@
 .live-trade legend{font-size:15px;line-height:1.6;padding:0;margin:0 0 12px}
 .live-order-fields{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.4fr);gap:18px;align-items:end}
 .live-order-fields>div{min-width:0}
+.live-draft-controls{display:flex;align-items:end;gap:18px;margin-top:20px}
+.live-draft-controls>div{flex:1;max-width:360px}
+.live-draft-summary{font-size:13px;line-height:1.8;color:var(--accent);padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.live-draft-summary:empty{display:none}
+@media(max-width:520px){.live-draft-controls{align-items:stretch;flex-direction:column;gap:12px}.live-draft-controls>div{max-width:none}}
 .live-market-details{margin:24px 0;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 .live-event{color:var(--accent);font-size:11px;line-height:1.7;margin:0 0 10px;overflow-wrap:anywhere}
 .live-market-details h3,.live-review h4{font-size:20px;font-weight:500;letter-spacing:-.3px;line-height:1.5;margin:0 0 14px;overflow-wrap:anywhere}

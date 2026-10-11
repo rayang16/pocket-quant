@@ -82,7 +82,7 @@
       <p id="trade-status" class="live-message" role="status" aria-live="polite"></p>
       <p id="trade-error" class="live-message is-error" role="alert"></p>
       <div id="trade-workspace" hidden>
-        <div class="live-market-toolbar"><p class="live-message">Choose the market yourself. Prices can move before an order is placed.</p><button id="refresh-markets" class="secondary" type="button">Refresh markets</button></div>
+        <div class="live-market-toolbar"><p class="live-message">A trade opened from your report carries over the market and selected outcome. We fill in a fresh quote and a small demo amount for you to review.</p><button id="refresh-markets" class="secondary" type="button">Refresh markets</button></div>
         <form id="order-form">
           <label for="market-select">Prediction market</label>
           <select id="market-select" required aria-describedby="market-help"><option value="">Choose a market</option></select>
@@ -97,10 +97,13 @@
             <legend>Buy a limit order</legend>
             <div class="live-order-fields">
               <div><label for="order-outcome">Outcome</label><select id="order-outcome"><option value="yes">YES</option><option value="no">NO</option></select></div>
-              <div><label for="order-quantity">Whole contracts</label><input id="order-quantity" type="number" inputmode="numeric" min="1" max="100" step="1" value="1" required></div>
+              <div><label for="order-quantity">Whole contracts</label><input id="order-quantity" type="number" inputmode="numeric" min="1" max="100" step="1" required></div>
               <div><label for="order-price">Limit price per contract (USD)</label><input id="order-price" type="number" inputmode="decimal" min="0.01" max="0.99" step="0.01" placeholder="0.00" required aria-describedby="price-help"></div>
             </div>
-            <p id="price-help" class="live-small">The current best ask is prefilled when available. You choose the maximum price you will pay per contract.</p>
+            <div class="live-draft-controls"><div><label for="draft-spend">Auto-fill amount, including fees (USD)</label><input id="draft-spend" type="number" inputmode="decimal" min="0.01" max="5" step="0.01" value="1.00" required aria-describedby="draft-help"></div><button id="fill-draft" class="secondary" type="button">Refresh auto-fill</button></div>
+            <p id="draft-help" class="live-small">$1 is a demo preset, not a recommended investment amount. Auto-fill uses the current asking price and fits whole contracts plus a fee allowance within this amount, your balance, and the remaining $5 demo budget. Editing the quantity or price overrides the preset; check the total in your final review.</p>
+            <p id="draft-summary" class="live-draft-summary" role="status" aria-live="polite"></p>
+            <p id="price-help" class="live-small">The price is what sellers currently ask for this contract, not the model’s estimated probability. You can edit the maximum price you will pay. Prices may move before you confirm.</p>
             <p class="live-message">Buy only · Immediate or cancel (IOC). Gemini may fill all, part, or none of the order. Unfilled contracts are cancelled.</p>
           </fieldset>
           <button id="preview-order" class="primary" type="submit" disabled>Review real-money order</button>

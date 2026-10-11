@@ -125,3 +125,45 @@ test('live order routes require owner login, exact origin, CSRF and explicit fea
   const disabled=response();await handler({method:'POST',url:'/api/live-trade?action=submit',headers:base,body:{confirmed:true}},disabled);
   assert.equal(disabled.statusCode,503);assert.equal(calls,1);
 });
+
+test('draft route requires owner login, POST JSON, exact origin, CSRF and enabled trading',async()=>{
+  const setup=privateSetup();Object.assign(setup.env,{
+    GEMINI_LIVE_TRADING_ENABLED:'true',GEMINI_LIVE_NONCE_MODE:'time',
+    UPSTASH_REDIS_REST_URL:'https://test-database.upstash.io',UPSTASH_REDIS_REST_TOKEN:'test-storage-token'
+  });
+  const body={symbol:'GEMI-EXAMPLE',outcome:'no',spendLimit:'1.00'},calls=[];
+  const engine={async draft(session,input){calls.push({session,input});return {draft:{...input,quantity:'1',price:'0.50'}};}};
+  const handler=createHandler({...setup,engine});
+  const anon=response();await handler({method:'POST',url:'/api/live-trade?action=draft',headers:setup.headers,body},anon);
+  assert.equal(anon.statusCode,401);assert.equal(anon.body.code,'OWNER_LOGIN_REQUIRED');
+  const login=response();await handler({method:'POST',url:'/api/live-trade?action=login',headers:setup.headers,body:{code:setup.code}},login);
+  const cookie=login.headers['Set-Cookie'][0].split(';')[0];
+  const headers={...setup.headers,cookie,'x-csrf-token':login.body.csrfToken};
+  for(const [method,changes,status] of [['GET',{},405],['POST',{origin:'https://other.example'},403],
+    ['POST',{'x-csrf-token':'wrong'},403],['POST',{'content-type':'text/plain'},415]]) {
+    const res=response();await handler({method,url:'/api/live-trade?action=draft',headers:{...headers,...changes},body},res);
+    assert.equal(res.statusCode,status);
+  }
+  assert.equal(calls.length,0);
+  const result=response();await handler({method:'POST',url:'/api/live-trade?action=draft',headers,body},result);
+  assert.equal(result.statusCode,200);assert.equal(calls.length,1);
+  assert.deepEqual(calls[0].input,body);
+  assert.equal(result.body.draft.outcome,'no');
+  assert.equal(result.body.previewToken,undefined);
+  setup.env.GEMINI_LIVE_TRADING_ENABLED='false';
+  const disabled=response();await handler({method:'POST',url:'/api/live-trade?action=draft',headers,body},disabled);
+  assert.equal(disabled.statusCode,503);assert.equal(disabled.body.code,'LIVE_TRADING_NOT_READY');assert.equal(calls.length,1);
+});
+
+test('draft route discards private data if the session expires in flight',async()=>{
+  let clock=1_800_000_000_000;const setup=privateSetup(()=>clock);Object.assign(setup.env,{
+    GEMINI_LIVE_TRADING_ENABLED:'true',GEMINI_LIVE_NONCE_MODE:'time',
+    UPSTASH_REDIS_REST_URL:'https://test-database.upstash.io',UPSTASH_REDIS_REST_TOKEN:'test-storage-token'
+  });
+  const handler=createHandler({...setup,now:()=>clock,engine:{async draft(){clock+=900_000;return {draft:{privateData:'must-not-escape'}};}}});
+  const login=response();await handler({method:'POST',url:'/api/live-trade?action=login',headers:setup.headers,body:{code:setup.code}},login);
+  const headers={...setup.headers,cookie:login.headers['Set-Cookie'][0].split(';')[0],'x-csrf-token':login.body.csrfToken};
+  const res=response();await handler({method:'POST',url:'/api/live-trade?action=draft',headers,body:{symbol:'GEMI-EXAMPLE',outcome:'yes',spendLimit:'1.00'}},res);
+  assert.equal(res.statusCode,401);assert.equal(res.body.draft,undefined);
+  assert.doesNotMatch(JSON.stringify(res.body),/must-not-escape/);
+});

@@ -1,3 +1,5 @@
+import {tradeDraftUrl} from './trade-draft.js';
+
 export const percent=p=>!Number.isFinite(p)?'—':p>0&&p<.001?'<0.1%':`${(p*100).toFixed(p===0||p===1?0:1)}%`;
 export const percentRange=r=>!r?'—':r.hi<.001?'<0.1%':percent(r.lo)===percent(r.hi)?percent(r.hi):`${percent(r.lo)}–${percent(r.hi)}`;
 export const money=n=>Number.isFinite(n)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:n<10?2:0}).format(n):'—';
@@ -47,6 +49,10 @@ export function renderResult(container,r,{download,share}={}) {
   for(const warning of r.warnings??[])content.append(node('p','notice',warning));
   const list=node('ul','assumptions');r.assumptions.forEach(a=>list.append(node('li','',a)));content.append(list);details.append(content);container.append(details);
   const actions=node('div','result-actions');if(r.market.url)actions.append(link('View this market on Gemini ↗',r.market.url));
+  const draftUrl=tradeDraftUrl({symbol:r.market.instrumentSymbol,outcome:r.market.side});
+  if(draftUrl&&Date.parse(r.market.expiryDate)>Date.now()) {
+    const trade=node('a','secondary',`Prepare ${r.market.side} trade ↗`);trade.href=draftUrl;actions.append(trade);
+  }
   if(share) {const button=node('button','secondary','↑ Share verdict card');button.type='button';button.addEventListener('click',()=>share(r));actions.append(button);}
   if(download) {const button=node('button','secondary','↓ Download card');button.type='button';button.addEventListener('click',()=>download(r));actions.append(button);}container.append(actions);
 }
